@@ -1,0 +1,4 @@
+id,start,end,required_groups,allowed_groups,excluded_groups
+s1,2025-12-01T09:00,2025-12-01T11:00,Delegates:1|Adults:1,Delegates|Adults,
+s2,2025-12-01T12:00,2025-12-01T14:00,Delegates:2,Delegates,Adults
+s3,2025-12-02T09:00,2025-12-02T17:00,Adults:1,Adults,Delegates
