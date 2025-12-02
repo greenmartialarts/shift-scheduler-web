@@ -60,6 +60,7 @@ export default function CheckinManager({
 
         const searchLower = search.toLowerCase()
         const matchesSearch =
+            (s.name && s.name.toLowerCase().includes(searchLower)) ||
             dateStr.toLowerCase().includes(searchLower) ||
             timeStr.toLowerCase().includes(searchLower) ||
             s.assignments?.some(a => a.volunteer?.name.toLowerCase().includes(searchLower))

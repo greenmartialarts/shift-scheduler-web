@@ -106,7 +106,12 @@ export default function AssignmentManager({
 
     const filteredShifts = shifts.filter((s) => {
         const start = new Date(s.start_time).toLocaleString()
-        return start.toLowerCase().includes(search.toLowerCase())
+        const searchLower = search.toLowerCase()
+        return (
+            (s.name && s.name.toLowerCase().includes(searchLower)) ||
+            start.toLowerCase().includes(searchLower) ||
+            s.assignments?.some(a => a.volunteer?.name.toLowerCase().includes(searchLower))
+        )
     }).sort((a, b) => {
         // Sort order:
         // 1. Has conflicts (High priority)
