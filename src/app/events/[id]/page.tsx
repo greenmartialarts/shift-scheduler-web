@@ -84,7 +84,19 @@ export default async function EventDashboard({
                             Check-in
                         </h2>
                         <p className="text-gray-500 dark:text-gray-400">
-                            Track volunteer attendance and manage late arrivals.
+                            Manage volunteer attendance and track late arrivals.
+                        </p>
+                    </Link>
+
+                    <Link
+                        href={`/events/${id}/reports`}
+                        className="group block rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition hover:shadow-md hover:ring-2 hover:ring-indigo-500 transition-colors duration-200"
+                    >
+                        <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                            Reports
+                        </h2>
+                        <p className="text-gray-500 dark:text-gray-400">
+                            Export schedules, track hours, and generate PDFs.
                         </p>
                     </Link>
                 </div>
