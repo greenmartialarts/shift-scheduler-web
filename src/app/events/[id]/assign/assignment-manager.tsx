@@ -36,7 +36,6 @@ export default function AssignmentManager({
     const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(false)
     const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null) // For swapping
-    const [unfilledShiftIds, setUnfilledShiftIds] = useState<Set<string>>(new Set())
     const router = useRouter()
 
     // --- Conflict Detection Logic ---
@@ -83,13 +82,34 @@ export default function AssignmentManager({
         }
     })
 
+    // --- Unfilled Detection Logic ---
+    // We check if assignments count matches required count
+    const unfilledShiftIds = new Set<string>()
+    shifts.forEach(shift => {
+        // @ts-ignore
+        const requiredGroups = shift.required_groups || {}
+        let totalRequired = 0
+        for (const count of Object.values(requiredGroups)) {
+            totalRequired += Number(count)
+        }
+
+        // If no requirements specified, assume 1 per shift if allowed_groups is set, or just skip?
+        // Let's assume if totalRequired > 0, we check.
+        if (totalRequired > 0) {
+            const currentAssignments = shift.assignments?.length || 0
+            if (currentAssignments < totalRequired) {
+                unfilledShiftIds.add(shift.id)
+            }
+        }
+    })
+
     const filteredShifts = shifts.filter((s) => {
         const start = new Date(s.start_time).toLocaleString()
         return start.toLowerCase().includes(search.toLowerCase())
     }).sort((a, b) => {
         // Sort order:
         // 1. Has conflicts (High priority)
-        // 2. Is unfilled from auto-assign (High priority)
+        // 2. Is unfilled (High priority)
         // 3. Chronological (Standard)
 
         const aHasConflict = conflicts.has(a.id)
@@ -107,7 +127,6 @@ export default function AssignmentManager({
 
     async function handleAutoAssign() {
         setLoading(true)
-        setUnfilledShiftIds(new Set()) // Reset
         const res = await autoAssign(eventId)
         setLoading(false)
 
@@ -115,11 +134,8 @@ export default function AssignmentManager({
             alert('Error: ' + res.error)
         } else if (res?.partial && res?.unfilled) {
             // Partial assignment - some shifts couldn't be filled
-            const unfilledIds = new Set<string>()
-
             const unfilledDetails = res.unfilled
                 .map(([shiftId, group, count]: [string, string, number]) => {
-                    unfilledIds.add(shiftId)
                     const shift = shifts.find(s => s.id === shiftId)
                     const timeStr = shift
                         ? new Date(shift.start_time).toLocaleString()
@@ -128,13 +144,11 @@ export default function AssignmentManager({
                 })
                 .join('\n')
 
-            setUnfilledShiftIds(unfilledIds)
-
             alert(
                 `⚠️ Partial Assignment Complete\n\n` +
                 `Some shifts were filled, but the following positions remain unfilled:\n\n` +
                 `${unfilledDetails}\n\n` +
-                `These shifts have been moved to the top of the list.`
+                `These shifts are highlighted in orange.`
             )
             router.refresh()
         } else {
@@ -209,8 +223,8 @@ export default function AssignmentManager({
 
                     return (
                         <div key={shift.id} className={`rounded-lg p-6 shadow transition-colors duration-200 ${shiftConflicts ? 'bg-yellow-50 border-2 border-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-600' :
-                                isUnfilled ? 'bg-orange-50 border-2 border-orange-300 dark:bg-orange-900/20 dark:border-orange-600' :
-                                    'bg-white dark:bg-gray-800'
+                            isUnfilled ? 'bg-orange-50 border-2 border-orange-300 dark:bg-orange-900/20 dark:border-orange-600' :
+                                'bg-white dark:bg-gray-800'
                             }`}>
                             {shiftConflicts && (
                                 <div className="mb-4 rounded-md bg-yellow-100 p-3 text-sm text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">

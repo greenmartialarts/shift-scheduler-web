@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
 import { addVolunteer, bulkAddVolunteers, deleteVolunteer, deleteAllVolunteers } from './actions'
 import { useRouter } from 'next/navigation'
@@ -24,6 +24,10 @@ export default function VolunteerManager({
     const [isAdding, setIsAdding] = useState(false)
     const [uploading, setUploading] = useState(false)
     const router = useRouter()
+
+    useEffect(() => {
+        setVolunteers(initialVolunteers)
+    }, [initialVolunteers])
 
     const filteredVolunteers = volunteers.filter((v) =>
         v.name.toLowerCase().includes(search.toLowerCase()) ||

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
 import { addShift, bulkAddShifts, deleteShift, deleteAllShifts } from './actions'
 import { useRouter } from 'next/navigation'
@@ -25,6 +25,10 @@ export default function ShiftManager({
     const [isAdding, setIsAdding] = useState(false)
     const [uploading, setUploading] = useState(false)
     const router = useRouter()
+
+    useEffect(() => {
+        setShifts(initialShifts)
+    }, [initialShifts])
 
     const filteredShifts = shifts.filter((s) => {
         const start = new Date(s.start_time).toLocaleString()
