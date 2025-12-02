@@ -79,13 +79,30 @@ export async function autoAssign(eventId: string) {
             body: JSON.stringify(apiPayload),
         })
 
-        if (!response.ok) {
+        let result
+        let assignedShifts
+        let unfilledShifts = []
+
+        if (response.status === 422) {
+            // Scheduling was impossible/incomplete - API returns detailed error info
+            const errorData = await response.json()
+            const detail = errorData.detail
+
+            // Extract partial assignments and unfilled shift info
+            assignedShifts = detail.assigned_shifts || {}
+            unfilledShifts = detail.unfilled_shifts || []
+
+            console.log('Partial scheduling result:', { assignedShifts, unfilledShifts })
+        } else if (!response.ok) {
+            // Other API errors
             const text = await response.text()
             throw new Error(`API Error: ${text}`)
+        } else {
+            // Success - all shifts filled
+            result = await response.json()
+            assignedShifts = result.assigned_shifts
+            unfilledShifts = result.unfilled_shifts || []
         }
-
-        const result = await response.json()
-        const assignedShifts = result.assigned_shifts // { "shift_id": ["vol_id", "vol_id"] }
 
         // 4. Update Database
         // Delete existing assignments for this event
@@ -100,7 +117,7 @@ export async function autoAssign(eventId: string) {
             await supabase.from('assignments').delete().in('shift_id', shiftIds)
         }
 
-        // Insert new assignments
+        // Insert new assignments (even if partial)
         const newAssignments = []
         for (const [shiftId, volunteerIds] of Object.entries(assignedShifts)) {
             // @ts-ignore
@@ -118,7 +135,18 @@ export async function autoAssign(eventId: string) {
         }
 
         revalidatePath(`/events/${eventId}/assign`)
-        return { success: true, unfilled: result.unfilled_shifts }
+
+        // Return success with unfilled shift details if any
+        if (unfilledShifts.length > 0) {
+            return {
+                success: true,
+                partial: true,
+                unfilled: unfilledShifts,
+                message: 'Partial assignment completed - some shifts could not be filled'
+            }
+        }
+
+        return { success: true, unfilled: [] }
 
     } catch (error: any) {
         console.error('Auto-assign error:', error)

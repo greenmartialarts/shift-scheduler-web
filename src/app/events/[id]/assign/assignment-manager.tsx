@@ -47,10 +47,30 @@ export default function AssignmentManager({
         setLoading(true)
         const res = await autoAssign(eventId)
         setLoading(false)
+
         if (res?.error) {
             alert('Error: ' + res.error)
+        } else if (res?.partial && res?.unfilled) {
+            // Partial assignment - some shifts couldn't be filled
+            const unfilledDetails = res.unfilled
+                .map(([shiftId, group, count]: [string, string, number]) => {
+                    const shift = shifts.find(s => s.id === shiftId)
+                    const timeStr = shift
+                        ? new Date(shift.start_time).toLocaleString()
+                        : shiftId
+                    return `  • ${timeStr}: Need ${count} more ${group}`
+                })
+                .join('\n')
+
+            alert(
+                `⚠️ Partial Assignment Complete\n\n` +
+                `Some shifts were filled, but the following positions remain unfilled:\n\n` +
+                `${unfilledDetails}\n\n` +
+                `Please add more volunteers or adjust shift requirements.`
+            )
+            router.refresh()
         } else {
-            alert('Auto-assignment complete!')
+            alert('✅ Auto-assignment complete! All shifts filled successfully.')
             router.refresh()
         }
     }
