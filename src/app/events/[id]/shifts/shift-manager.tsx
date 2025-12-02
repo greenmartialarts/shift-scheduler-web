@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 
 type Shift = {
     id: string
+    name: string | null
     start_time: string
     end_time: string
     required_groups: any
@@ -145,6 +146,15 @@ export default function ShiftManager({
                 <div className="mb-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
                     <form action={handleAdd} className="grid gap-4 sm:grid-cols-2">
                         <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="Optional shift name"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                            />
+                        </div>
+                        <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Time</label>
                             <input
                                 type="datetime-local"
@@ -201,6 +211,9 @@ export default function ShiftManager({
                     <thead className="bg-gray-50 dark:bg-gray-700">
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Start
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -218,6 +231,9 @@ export default function ShiftManager({
                         {filteredShifts.map((shift) => (
                             <tr key={shift.id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    {shift.name || '-'}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {new Date(shift.start_time).toLocaleString()}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
@@ -238,7 +254,7 @@ export default function ShiftManager({
                         ))}
                         {filteredShifts.length === 0 && (
                             <tr>
-                                <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                                     No shifts found.
                                 </td>
                             </tr>

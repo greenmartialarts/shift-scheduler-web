@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 
 export async function addShift(eventId: string, formData: FormData) {
     const supabase = await createClient()
+    const name = formData.get('name') as string
     const start = formData.get('start') as string
     const end = formData.get('end') as string
 
@@ -30,6 +31,7 @@ export async function addShift(eventId: string, formData: FormData) {
 
     const { error } = await supabase.from('shifts').insert({
         event_id: eventId,
+        name: name,
         start_time: start,
         end_time: end,
         required_groups: requiredGroups,
@@ -77,6 +79,7 @@ export async function bulkAddShifts(eventId: string, shifts: any[]) {
 
         return {
             event_id: eventId,
+            name: s.name,
             start_time: s.start,
             end_time: s.end,
             required_groups: requiredGroups,

@@ -30,6 +30,7 @@ export default async function AssignPage({
         .from('shifts')
         .select(`
       *,
+      name,
       assignments (
         id,
         shift_id,

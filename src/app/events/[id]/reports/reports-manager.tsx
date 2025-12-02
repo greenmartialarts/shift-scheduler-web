@@ -21,6 +21,7 @@ type Assignment = {
 
 type Shift = {
     id: string
+    name: string | null
     start_time: string
     end_time: string
     assignments?: Assignment[]
@@ -83,7 +84,7 @@ export default function ReportsManager({
     // --- Exports ---
 
     const exportMasterScheduleCSV = () => {
-        const rows = [['Shift Start', 'Shift End', 'Volunteer Name', 'Group', 'Status']]
+        const rows = [['Shift Name', 'Shift Start', 'Shift End', 'Volunteer Name', 'Group', 'Status']]
 
         shifts.forEach(shift => {
             const start = new Date(shift.start_time).toLocaleString()
@@ -93,6 +94,7 @@ export default function ReportsManager({
                 shift.assignments.forEach(a => {
                     const status = a.checked_in ? 'Present' : (new Date() > new Date(shift.end_time) ? 'Absent' : 'Scheduled')
                     rows.push([
+                        shift.name || '-',
                         start,
                         end,
                         a.volunteer?.name || 'Unknown',
@@ -101,7 +103,7 @@ export default function ReportsManager({
                     ])
                 })
             } else {
-                rows.push([start, end, 'UNFILLED', '-', '-'])
+                rows.push([shift.name || '-', start, end, 'UNFILLED', '-', '-'])
             }
         })
 
@@ -168,6 +170,7 @@ export default function ReportsManager({
             const end = new Date(s.end_time)
             tableData.push([
                 start.toLocaleDateString(),
+                s.name || '-',
                 `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
                 // @ts-ignore
                 (end.getTime() - start.getTime()) / (1000 * 60 * 60) + ' hrs'
@@ -176,7 +179,7 @@ export default function ReportsManager({
 
         // @ts-ignore
         autoTable(pdf, {
-            head: [['Date', 'Time', 'Duration']],
+            head: [['Date', 'Shift Name', 'Time', 'Duration']],
             body: tableData,
             startY: 45,
         })
@@ -204,8 +207,8 @@ export default function ReportsManager({
                     <button
                         onClick={() => setActiveTab('overview')}
                         className={`${activeTab === 'overview'
-                                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                            ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                             } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                     >
                         Overview & Exports
@@ -213,8 +216,8 @@ export default function ReportsManager({
                     <button
                         onClick={() => setActiveTab('stats')}
                         className={`${activeTab === 'stats'
-                                ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
-                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
+                            ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                             } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                     >
                         Volunteer Stats & PDFs

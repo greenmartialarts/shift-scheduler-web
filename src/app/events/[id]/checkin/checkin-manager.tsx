@@ -19,6 +19,7 @@ type Assignment = {
 
 type Shift = {
     id: string
+    name: string | null
     start_time: string
     end_time: string
     assignments?: Assignment[]
@@ -131,6 +132,7 @@ export default function CheckinManager({
                                     isCompleted ? 'text-green-800 dark:text-green-200' :
                                         'text-gray-900 dark:text-white'
                                     }`}>
+                                    {shift.name && <span className="font-bold mr-2">{shift.name}:</span>}
                                     {new Date(shift.start_time).toLocaleDateString()} {new Date(shift.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(shift.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                 </h3>
                                 {isLate && (

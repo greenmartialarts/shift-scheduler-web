@@ -19,6 +19,7 @@ type Assignment = {
 
 type Shift = {
     id: string
+    name: string | null
     start_time: string
     end_time: string
     assignments?: Assignment[] // Joined
@@ -246,6 +247,7 @@ export default function AssignmentManager({
 
                             <div className="mb-4 flex items-center justify-between">
                                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                                    {shift.name && <span className="font-bold mr-2">{shift.name}:</span>}
                                     {new Date(shift.start_time).toLocaleString()} - {new Date(shift.end_time).toLocaleTimeString()}
                                 </h3>
                                 <div className="flex items-center gap-2">

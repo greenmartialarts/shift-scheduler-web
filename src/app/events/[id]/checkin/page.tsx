@@ -11,6 +11,7 @@ export default async function CheckinPage({ params }: { params: Promise<{ id: st
         .from('shifts')
         .select(`
             *,
+            name,
             assignments (
                 id,
                 volunteer_id,

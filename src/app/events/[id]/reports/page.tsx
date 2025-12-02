@@ -36,6 +36,7 @@ export default async function ReportsPage({
         .from('shifts')
         .select(`
             *,
+            name,
             assignments (
                 id,
                 shift_id,
