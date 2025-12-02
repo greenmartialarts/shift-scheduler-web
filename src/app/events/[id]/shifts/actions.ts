@@ -112,3 +112,20 @@ export async function deleteShift(eventId: string, shiftId: string) {
     revalidatePath(`/events/${eventId}/shifts`)
     return { success: true }
 }
+
+export async function deleteAllShifts(eventId: string) {
+    const supabase = await createClient()
+
+    const { error } = await supabase
+        .from('shifts')
+        .delete()
+        .eq('event_id', eventId)
+
+    if (error) {
+        console.error('Error deleting all shifts:', error)
+        return { error: error.message }
+    }
+
+    revalidatePath(`/events/${eventId}/shifts`)
+    return { success: true }
+}

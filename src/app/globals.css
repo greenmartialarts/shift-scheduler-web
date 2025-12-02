@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -12,10 +14,17 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Dark mode support via .dark class */
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Default to dark if system prefers, but JS will override if user has preference */
+    /* We keep these here so there's no flash of wrong theme before JS loads if possible, 
+       though the Context handles the main logic */
   }
 }
 
@@ -23,4 +32,5 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  @apply bg-white text-gray-900 dark:bg-black dark:text-white transition-colors duration-200;
 }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Papa from 'papaparse'
-import { addShift, bulkAddShifts, deleteShift } from './actions'
+import { addShift, bulkAddShifts, deleteShift, deleteAllShifts } from './actions'
 import { useRouter } from 'next/navigation'
 
 type Shift = {
@@ -91,6 +91,16 @@ export default function ShiftManager({
         }
     }
 
+    async function handleDeleteAll() {
+        if (!confirm('Are you sure you want to delete ALL shifts? This cannot be undone.')) return
+        const res = await deleteAllShifts(eventId)
+        if (res?.error) {
+            alert('Error deleting all shifts: ' + res.error)
+        } else {
+            router.refresh()
+        }
+    }
+
     return (
         <div>
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -99,10 +109,16 @@ export default function ShiftManager({
                     placeholder="Search shifts (by date)..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs"
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
                 />
                 <div className="flex gap-2">
-                    <label className="cursor-pointer rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 border border-gray-300">
+                    <button
+                        onClick={handleDeleteAll}
+                        className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
+                    >
+                        Delete All
+                    </button>
+                    <label className="cursor-pointer rounded-md bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 transition-colors duration-200">
                         {uploading ? 'Uploading...' : 'Import CSV'}
                         <input
                             type="file"
@@ -114,7 +130,7 @@ export default function ShiftManager({
                     </label>
                     <button
                         onClick={() => setIsAdding(!isAdding)}
-                        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+                        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
                     >
                         {isAdding ? 'Cancel' : 'Add Shift'}
                     </button>
@@ -122,52 +138,52 @@ export default function ShiftManager({
             </div>
 
             {isAdding && (
-                <div className="mb-6 rounded-lg bg-gray-50 p-4 border border-gray-200">
+                <div className="mb-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
                     <form action={handleAdd} className="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Start Time</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Time</label>
                             <input
                                 type="datetime-local"
                                 name="start"
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">End Time</label>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Time</label>
                             <input
                                 type="datetime-local"
                                 name="end"
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                             />
                         </div>
                         <div className="sm:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Required Groups (JSON: e.g. {'{"Delegates": 1}'})
                             </label>
                             <input
                                 type="text"
                                 name="required_groups"
                                 placeholder='{"Delegates": 1}'
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
                             />
                         </div>
                         <div className="sm:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                                 Allowed Groups (JSON Array: e.g. ["Delegates"])
                             </label>
                             <input
                                 type="text"
                                 name="allowed_groups"
                                 placeholder='["Delegates"]'
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
                             />
                         </div>
                         <div className="sm:col-span-2 flex justify-end">
                             <button
                                 type="submit"
-                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
                             >
                                 Save
                             </button>
@@ -176,40 +192,40 @@ export default function ShiftManager({
                 </div>
             )}
 
-            <div className="overflow-hidden rounded-lg bg-white shadow">
-                <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+            <div className="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow transition-colors duration-200">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead className="bg-gray-50 dark:bg-gray-700">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Start
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 End
                             </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Requirements
                             </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                 Actions
                             </th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
                         {filteredShifts.map((shift) => (
                             <tr key={shift.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                     {new Date(shift.start_time).toLocaleString()}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {new Date(shift.end_time).toLocaleString()}
                                 </td>
-                                <td className="px-6 py-4 text-sm text-gray-500">
+                                <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                                     <pre className="text-xs">{JSON.stringify(shift.required_groups, null, 2)}</pre>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <button
                                         onClick={() => handleDelete(shift.id)}
-                                        className="text-red-600 hover:text-red-900"
+                                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
                                     >
                                         Delete
                                     </button>
@@ -218,7 +234,7 @@ export default function ShiftManager({
                         ))}
                         {filteredShifts.length === 0 && (
                             <tr>
-                                <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500">
+                                <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                                     No shifts found.
                                 </td>
                             </tr>

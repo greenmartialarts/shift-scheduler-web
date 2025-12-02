@@ -95,13 +95,13 @@ export default function AssignmentManager({
                     placeholder="Search shifts..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-4 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs"
+                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
                 />
                 <div className="flex gap-2">
                     <button
                         onClick={handleAutoAssign}
                         disabled={loading}
-                        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+                        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
                     >
                         {loading ? 'Assigning...' : 'Auto Assign'}
                     </button>
@@ -109,21 +109,21 @@ export default function AssignmentManager({
             </div>
 
             {selectedAssignment && (
-                <div className="mb-4 rounded-md bg-yellow-50 p-4 text-yellow-800">
+                <div className="mb-4 rounded-md bg-yellow-50 dark:bg-yellow-900/30 p-4 text-yellow-800 dark:text-yellow-200 transition-colors duration-200">
                     Select another assignment to swap with. <button onClick={() => setSelectedAssignment(null)} className="underline">Cancel</button>
                 </div>
             )}
 
             <div className="grid gap-6">
                 {filteredShifts.map((shift) => (
-                    <div key={shift.id} className="rounded-lg bg-white p-6 shadow">
+                    <div key={shift.id} className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition-colors duration-200">
                         <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-lg font-medium text-gray-900">
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                                 {new Date(shift.start_time).toLocaleString()} - {new Date(shift.end_time).toLocaleTimeString()}
                             </h3>
                             <div className="flex items-center gap-2">
                                 <select
-                                    className="rounded-md border border-gray-300 px-2 py-1 text-sm"
+                                    className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200"
                                     onChange={(e) => handleAssign(shift.id, e.target.value)}
                                     value=""
                                 >
@@ -141,22 +141,22 @@ export default function AssignmentManager({
                             {shift.assignments?.map((assignment) => (
                                 <div
                                     key={assignment.id}
-                                    className={`flex items-center justify-between rounded-md border p-3 ${selectedAssignment === assignment.id ? 'border-indigo-500 bg-indigo-50 ring-2 ring-indigo-500' : 'border-gray-200'
+                                    className={`flex items-center justify-between rounded-md border p-3 transition-colors duration-200 ${selectedAssignment === assignment.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 ring-2 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'
                                         }`}
                                 >
-                                    <span className="font-medium text-gray-900">
+                                    <span className="font-medium text-gray-900 dark:text-white">
                                         {assignment.volunteer?.name || 'Unknown Volunteer'}
                                     </span>
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => handleSwap(assignment.id)}
-                                            className="text-sm text-indigo-600 hover:text-indigo-800"
+                                            className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
                                         >
                                             {selectedAssignment === assignment.id ? 'Selected' : 'Swap'}
                                         </button>
                                         <button
                                             onClick={() => handleUnassign(assignment.id)}
-                                            className="text-sm text-red-600 hover:text-red-800"
+                                            className="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                                         >
                                             Remove
                                         </button>
@@ -164,7 +164,7 @@ export default function AssignmentManager({
                                 </div>
                             ))}
                             {(!shift.assignments || shift.assignments.length === 0) && (
-                                <p className="text-sm text-gray-500 italic">No volunteers assigned.</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 italic">No volunteers assigned.</p>
                             )}
                         </div>
                     </div>

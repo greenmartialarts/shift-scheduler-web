@@ -62,3 +62,20 @@ export async function deleteVolunteer(eventId: string, volunteerId: string) {
     revalidatePath(`/events/${eventId}/volunteers`)
     return { success: true }
 }
+
+export async function deleteAllVolunteers(eventId: string) {
+    const supabase = await createClient()
+
+    const { error } = await supabase
+        .from('volunteers')
+        .delete()
+        .eq('event_id', eventId)
+
+    if (error) {
+        console.error('Error deleting all volunteers:', error)
+        return { error: error.message }
+    }
+
+    revalidatePath(`/events/${eventId}/volunteers`)
+    return { success: true }
+}

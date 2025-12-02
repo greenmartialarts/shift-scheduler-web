@@ -32,16 +32,16 @@ export default async function ShiftsPage({
         .order('start_time', { ascending: true })
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-200">
             <div className="mx-auto max-w-6xl">
                 <div className="mb-8">
                     <Link
                         href={`/events/${id}`}
-                        className="text-indigo-600 hover:text-indigo-800"
+                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
                     >
                         &larr; Back to {event?.name || 'Event'}
                     </Link>
-                    <h1 className="mt-4 text-3xl font-bold text-gray-900">Shifts</h1>
+                    <h1 className="mt-4 text-3xl font-bold text-gray-900 dark:text-white">Shifts</h1>
                 </div>
 
                 <ShiftManager eventId={id} initialShifts={shifts || []} />

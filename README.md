@@ -89,3 +89,18 @@ This project integrates with the Shift Scheduler API. The auto-assign feature se
 ## License
 
 MIT
+
+## Recent Changes
+
+-   **New Landing Page**: A custom root landing page with feature highlights.
+-   **Dark Mode Toggle**: Repositioned to the bottom-right for better accessibility.
+-   **Login Error Handling**: Improved feedback with inline error messages.
+-   **Sample Data**:
+    -   Updated `sample_volunteers.csv` and `sample_shifts.csv` for feasible scheduling scenarios (121 volunteers, 150 shifts).
+    -   Added `sample_volunteers_impossible.csv` and `sample_shifts_impossible.csv` for testing impossible scheduling scenarios.
+    -   Included Python scripts (`generate_data.py`, `generate_impossible_data.py`) for data generation.
+-   **Delete All**: Added "Delete All" buttons for volunteers and shifts to easily clear data.
+
+## Known Issues
+
+-   **Auto-Assign Silent Failure**: The auto-assign feature currently does not explicitly notify the user if a valid schedule could not be found (i.e., if the problem is mathematically impossible). It may fail silently or return an incomplete schedule without a clear error message.
