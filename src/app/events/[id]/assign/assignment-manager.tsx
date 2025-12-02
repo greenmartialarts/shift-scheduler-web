@@ -36,15 +36,78 @@ export default function AssignmentManager({
     const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(false)
     const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null) // For swapping
+    const [unfilledShiftIds, setUnfilledShiftIds] = useState<Set<string>>(new Set())
     const router = useRouter()
+
+    // --- Conflict Detection Logic ---
+    const conflicts = new Map<string, string[]>() // shiftId -> messages
+
+    // 1. Group assignments by volunteer
+    const volunteerAssignments = new Map<string, { shiftId: string, start: number, end: number }[]>()
+
+    shifts.forEach(shift => {
+        if (!shift.assignments) return
+        const start = new Date(shift.start_time).getTime()
+        const end = new Date(shift.end_time).getTime()
+
+        shift.assignments.forEach(assignment => {
+            if (!assignment.volunteer_id) return
+            const list = volunteerAssignments.get(assignment.volunteer_id) || []
+            list.push({ shiftId: shift.id, start, end })
+            volunteerAssignments.set(assignment.volunteer_id, list)
+        })
+    })
+
+    // 2. Check for overlaps
+    volunteerAssignments.forEach((assignments, volunteerId) => {
+        for (let i = 0; i < assignments.length; i++) {
+            for (let j = i + 1; j < assignments.length; j++) {
+                const a = assignments[i]
+                const b = assignments[j]
+
+                // Check overlap: StartA < EndB && StartB < EndA
+                if (a.start < b.end && b.start < a.end) {
+                    // Conflict found!
+                    const vol = volunteers.find(v => v.id === volunteerId)
+                    const volName = vol ? vol.name : 'Volunteer'
+
+                    const msg = `Conflict: ${volName} is double-booked.`
+
+                    const existingA = conflicts.get(a.shiftId) || []
+                    if (!existingA.includes(msg)) conflicts.set(a.shiftId, [...existingA, msg])
+
+                    const existingB = conflicts.get(b.shiftId) || []
+                    if (!existingB.includes(msg)) conflicts.set(b.shiftId, [...existingB, msg])
+                }
+            }
+        }
+    })
 
     const filteredShifts = shifts.filter((s) => {
         const start = new Date(s.start_time).toLocaleString()
         return start.toLowerCase().includes(search.toLowerCase())
+    }).sort((a, b) => {
+        // Sort order:
+        // 1. Has conflicts (High priority)
+        // 2. Is unfilled from auto-assign (High priority)
+        // 3. Chronological (Standard)
+
+        const aHasConflict = conflicts.has(a.id)
+        const bHasConflict = conflicts.has(b.id)
+        if (aHasConflict && !bHasConflict) return -1
+        if (!aHasConflict && bHasConflict) return 1
+
+        const aUnfilled = unfilledShiftIds.has(a.id)
+        const bUnfilled = unfilledShiftIds.has(b.id)
+        if (aUnfilled && !bUnfilled) return -1
+        if (!aUnfilled && bUnfilled) return 1
+
+        return new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
     })
 
     async function handleAutoAssign() {
         setLoading(true)
+        setUnfilledShiftIds(new Set()) // Reset
         const res = await autoAssign(eventId)
         setLoading(false)
 
@@ -52,8 +115,11 @@ export default function AssignmentManager({
             alert('Error: ' + res.error)
         } else if (res?.partial && res?.unfilled) {
             // Partial assignment - some shifts couldn't be filled
+            const unfilledIds = new Set<string>()
+
             const unfilledDetails = res.unfilled
                 .map(([shiftId, group, count]: [string, string, number]) => {
+                    unfilledIds.add(shiftId)
                     const shift = shifts.find(s => s.id === shiftId)
                     const timeStr = shift
                         ? new Date(shift.start_time).toLocaleString()
@@ -62,11 +128,13 @@ export default function AssignmentManager({
                 })
                 .join('\n')
 
+            setUnfilledShiftIds(unfilledIds)
+
             alert(
                 `⚠️ Partial Assignment Complete\n\n` +
                 `Some shifts were filled, but the following positions remain unfilled:\n\n` +
                 `${unfilledDetails}\n\n` +
-                `Please add more volunteers or adjust shift requirements.`
+                `These shifts have been moved to the top of the list.`
             )
             router.refresh()
         } else {
@@ -135,60 +203,86 @@ export default function AssignmentManager({
             )}
 
             <div className="grid gap-6">
-                {filteredShifts.map((shift) => (
-                    <div key={shift.id} className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition-colors duration-200">
-                        <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                {new Date(shift.start_time).toLocaleString()} - {new Date(shift.end_time).toLocaleTimeString()}
-                            </h3>
-                            <div className="flex items-center gap-2">
-                                <select
-                                    className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200"
-                                    onChange={(e) => handleAssign(shift.id, e.target.value)}
-                                    value=""
-                                >
-                                    <option value="">+ Add Volunteer</option>
-                                    {volunteers.map((v) => (
-                                        <option key={v.id} value={v.id}>
-                                            {v.name}
-                                        </option>
-                                    ))}
-                                </select>
+                {filteredShifts.map((shift) => {
+                    const shiftConflicts = conflicts.get(shift.id)
+                    const isUnfilled = unfilledShiftIds.has(shift.id)
+
+                    return (
+                        <div key={shift.id} className={`rounded-lg p-6 shadow transition-colors duration-200 ${shiftConflicts ? 'bg-yellow-50 border-2 border-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-600' :
+                                isUnfilled ? 'bg-orange-50 border-2 border-orange-300 dark:bg-orange-900/20 dark:border-orange-600' :
+                                    'bg-white dark:bg-gray-800'
+                            }`}>
+                            {shiftConflicts && (
+                                <div className="mb-4 rounded-md bg-yellow-100 p-3 text-sm text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">
+                                    <p className="font-bold">⚠️ Scheduling Conflicts:</p>
+                                    <ul className="list-disc pl-5">
+                                        {shiftConflicts.map((msg, i) => (
+                                            <li key={i}>{msg}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+
+                            {isUnfilled && !shiftConflicts && (
+                                <div className="mb-4 rounded-md bg-orange-100 p-3 text-sm text-orange-800 dark:bg-orange-900/50 dark:text-orange-200">
+                                    <p className="font-bold">⚠️ Auto-Assign Incomplete:</p>
+                                    <p>This shift could not be fully filled.</p>
+                                </div>
+                            )}
+
+                            <div className="mb-4 flex items-center justify-between">
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                                    {new Date(shift.start_time).toLocaleString()} - {new Date(shift.end_time).toLocaleTimeString()}
+                                </h3>
+                                <div className="flex items-center gap-2">
+                                    <select
+                                        className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200"
+                                        onChange={(e) => handleAssign(shift.id, e.target.value)}
+                                        value=""
+                                    >
+                                        <option value="">+ Add Volunteer</option>
+                                        {volunteers.map((v) => (
+                                            <option key={v.id} value={v.id}>
+                                                {v.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                {shift.assignments?.map((assignment) => (
+                                    <div
+                                        key={assignment.id}
+                                        className={`flex items-center justify-between rounded-md border p-3 transition-colors duration-200 ${selectedAssignment === assignment.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 ring-2 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'
+                                            }`}
+                                    >
+                                        <span className="font-medium text-gray-900 dark:text-white">
+                                            {assignment.volunteer?.name || 'Unknown Volunteer'}
+                                        </span>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleSwap(assignment.id)}
+                                                className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                            >
+                                                {selectedAssignment === assignment.id ? 'Selected' : 'Swap'}
+                                            </button>
+                                            <button
+                                                onClick={() => handleUnassign(assignment.id)}
+                                                className="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                                {(!shift.assignments || shift.assignments.length === 0) && (
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 italic">No volunteers assigned.</p>
+                                )}
                             </div>
                         </div>
-
-                        <div className="space-y-2">
-                            {shift.assignments?.map((assignment) => (
-                                <div
-                                    key={assignment.id}
-                                    className={`flex items-center justify-between rounded-md border p-3 transition-colors duration-200 ${selectedAssignment === assignment.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 ring-2 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'
-                                        }`}
-                                >
-                                    <span className="font-medium text-gray-900 dark:text-white">
-                                        {assignment.volunteer?.name || 'Unknown Volunteer'}
-                                    </span>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleSwap(assignment.id)}
-                                            className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
-                                        >
-                                            {selectedAssignment === assignment.id ? 'Selected' : 'Swap'}
-                                        </button>
-                                        <button
-                                            onClick={() => handleUnassign(assignment.id)}
-                                            className="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                            {(!shift.assignments || shift.assignments.length === 0) && (
-                                <p className="text-sm text-gray-500 dark:text-gray-400 italic">No volunteers assigned.</p>
-                            )}
-                        </div>
-                    </div>
-                ))}
+                    )
+                })}
             </div>
         </div>
     )
