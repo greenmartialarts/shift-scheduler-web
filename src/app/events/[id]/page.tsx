@@ -50,7 +50,7 @@ export default async function EventDashboard({
     if (shiftIds.length > 0) {
         const { data } = await supabase
             .from('assignments')
-            .select('id, checked_in, late_dismissed, shift_id')
+            .select('id, checked_in, checked_out_at, late_dismissed, shift_id')
             .in('shift_id', shiftIds);
         eventAssignments = data || [];
     }
@@ -86,7 +86,11 @@ export default async function EventDashboard({
         totalHours += durationHours;
     });
 
+    // Checked In = Total Attendance (checked_in = true)
     const checkedInCount = realAssignments.filter(a => a.checked_in).length;
+
+    // Active Currently = On Site (checked_in = true AND checked_out_at IS NULL)
+    const activeCurrentlyCount = realAssignments.filter(a => a.checked_in && !a.checked_out_at).length;
 
     const now = new Date();
     const lateCount = realAssignments.filter(a => {
@@ -122,13 +126,19 @@ export default async function EventDashboard({
                             <p className="text-gray-500 dark:text-gray-400">{new Date(event.date).toLocaleDateString()}</p>
                         </div>
                         <div className="mt-4 md:mt-0 flex gap-4">
+                            <Link
+                                href={`/events/${id}/kiosk`}
+                                className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                            >
+                                Launch Kiosk
+                            </Link>
                             <CloneEventModal eventId={id} eventName={event.name} eventDate={event.date} />
                         </div>
                     </div>
                 </div>
 
                 {/* Quick Stats Banner */}
-                <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
+                <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
                     <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
                         <p className="text-sm text-gray-500 dark:text-gray-400">Fill Rate</p>
                         <p className={`text-2xl font-bold ${fillRate >= 80 ? 'text-green-600' : fillRate >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
@@ -147,6 +157,10 @@ export default async function EventDashboard({
                     <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
                         <p className="text-sm text-gray-500 dark:text-gray-400">Checked In</p>
                         <p className="text-2xl font-bold text-gray-900 dark:text-white">{checkedInCount}</p>
+                    </div>
+                    <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800 border-l-4 border-green-500">
+                        <p className="text-sm text-gray-500 dark:text-gray-400">Active Now</p>
+                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{activeCurrentlyCount}</p>
                     </div>
                 </div>
 
@@ -224,6 +238,18 @@ export default async function EventDashboard({
                         </h2>
                         <p className="text-gray-500 dark:text-gray-400">
                             Manage volunteer attendance and track late arrivals.
+                        </p>
+                    </Link>
+
+                    <Link
+                        href={`/events/${id}/assets`}
+                        className="group block rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition hover:shadow-md hover:ring-2 hover:ring-indigo-500 transition-colors duration-200"
+                    >
+                        <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                            Assets
+                        </h2>
+                        <p className="text-gray-500 dark:text-gray-400">
+                            Track radios, vests, and other equipment.
                         </p>
                     </Link>
 
