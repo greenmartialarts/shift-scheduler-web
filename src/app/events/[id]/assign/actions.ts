@@ -33,7 +33,7 @@ export async function unassignVolunteer(assignmentId: string) {
     return { success: true }
 }
 
-export async function autoAssign(eventId: string) {
+export async function autoAssign(eventId: string, strategy: string = 'minimize_unfilled') {
     const supabase = await createClient()
 
     // 1. Fetch all data
@@ -67,6 +67,7 @@ export async function autoAssign(eventId: string) {
             allowed_groups: s.allowed_groups,
             excluded_groups: s.excluded_groups,
         })),
+        strategy: strategy,
     }
 
     // 3. Call API

@@ -36,6 +36,7 @@ export default function AssignmentManager({
 }) {
     const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(false)
+    const [strategy, setStrategy] = useState('minimize_unfilled')
     const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null) // For swapping
     const router = useRouter()
 
@@ -133,7 +134,7 @@ export default function AssignmentManager({
 
     async function handleAutoAssign() {
         setLoading(true)
-        const res = await autoAssign(eventId)
+        const res = await autoAssign(eventId, strategy)
         setLoading(false)
 
         if (res?.error) {
@@ -206,6 +207,15 @@ export default function AssignmentManager({
                     className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
                 />
                 <div className="flex gap-2">
+                    <select
+                        value={strategy}
+                        onChange={(e) => setStrategy(e.target.value)}
+                        className="rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200"
+                    >
+                        <option value="minimize_unfilled">Minimize Unfilled (Default)</option>
+                        <option value="maximize_fairness">Maximize Fairness</option>
+                        <option value="minimize_overtime">Minimize Overtime</option>
+                    </select>
                     <button
                         onClick={handleAutoAssign}
                         disabled={loading}
