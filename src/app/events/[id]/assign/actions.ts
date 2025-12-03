@@ -81,7 +81,7 @@ export async function autoAssign(eventId: string, strategy: string = 'minimize_u
 
     // 3. Call API
     try {
-        const response = await fetch('https://shift-scheduler-api-j4wh.onrender.com/schedule/json', {
+        const response = await fetch('https://shift-scheduler-api-production.up.railway.app/schedule/json', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
