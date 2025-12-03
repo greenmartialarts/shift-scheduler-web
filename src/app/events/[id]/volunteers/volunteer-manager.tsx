@@ -12,12 +12,20 @@ type Volunteer = {
     max_hours: number | null
 }
 
+type Group = {
+    id: string
+    name: string
+    color: string | null
+}
+
 export default function VolunteerManager({
     eventId,
     initialVolunteers,
+    groups,
 }: {
     eventId: string
     initialVolunteers: Volunteer[]
+    groups: Group[]
 }) {
     const [volunteers, setVolunteers] = useState(initialVolunteers)
     const [search, setSearch] = useState('')
@@ -40,7 +48,6 @@ export default function VolunteerManager({
             alert('Error adding volunteer: ' + res.error)
         } else {
             setIsAdding(false)
-            // Optimistic update or router refresh
             router.refresh()
         }
     }
@@ -53,7 +60,6 @@ export default function VolunteerManager({
         Papa.parse(file, {
             header: true,
             complete: async (results) => {
-                // Filter out empty rows or rows without a name
                 const validVolunteers = results.data.filter((v: any) => v.name && v.name.trim() !== '')
 
                 if (validVolunteers.length === 0) {
@@ -96,6 +102,12 @@ export default function VolunteerManager({
         } else {
             router.refresh()
         }
+    }
+
+    const getGroupColor = (groupName: string | null) => {
+        if (!groupName) return '#9ca3af' // gray-400
+        const group = groups.find(g => g.name === groupName)
+        return group?.color || '#3b82f6' // blue-500
     }
 
     return (
@@ -148,11 +160,15 @@ export default function VolunteerManager({
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Group</label>
-                            <input
-                                type="text"
+                            <select
                                 name="group"
                                 className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            />
+                            >
+                                <option value="">-- Select Group --</option>
+                                {groups.map(g => (
+                                    <option key={g.id} value={g.name}>{g.name}</option>
+                                ))}
+                            </select>
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Max Hours</label>
@@ -200,7 +216,16 @@ export default function VolunteerManager({
                                     {volunteer.name}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {volunteer.group || '-'}
+                                    {volunteer.group ? (
+                                        <span
+                                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
+                                            style={{ backgroundColor: getGroupColor(volunteer.group) }}
+                                        >
+                                            {volunteer.group}
+                                        </span>
+                                    ) : (
+                                        '-'
+                                    )}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                                     {volunteer.max_hours || 'Unlimited'}

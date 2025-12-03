@@ -14,18 +14,49 @@ type Shift = {
     allowed_groups: string[] | null
 }
 
+type Template = {
+    id: string
+    name: string
+    description: string | null
+    duration_hours: number
+    required_groups: any
+    allowed_groups: string[] | null
+}
+
 export default function ShiftManager({
     eventId,
     initialShifts,
+    templates,
 }: {
     eventId: string
     initialShifts: Shift[]
+    templates: Template[]
 }) {
     const [shifts, setShifts] = useState(initialShifts)
     const [search, setSearch] = useState('')
     const [isAdding, setIsAdding] = useState(false)
+    const [isRecurring, setIsRecurring] = useState(false)
     const [uploading, setUploading] = useState(false)
     const router = useRouter()
+
+    // Form states
+    const [selectedTemplate, setSelectedTemplate] = useState<string>('')
+    const [formData, setFormData] = useState({
+        name: '',
+        start: '',
+        end: '',
+        required_groups: '',
+        allowed_groups: '',
+    })
+
+    // Recurring form states
+    const [recurringData, setRecurringData] = useState({
+        startDate: '',
+        endDate: '',
+        startTime: '',
+        days: [] as string[], // Mon, Tue, etc.
+        templateId: '',
+    })
 
     useEffect(() => {
         setShifts(initialShifts)
@@ -36,19 +67,127 @@ export default function ShiftManager({
         return start.toLowerCase().includes(search.toLowerCase())
     })
 
-    async function handleAdd(formData: FormData) {
-        // We need to construct the JSON for groups manually or use a more complex form.
-        // For this barebones version, let's just take start/end and maybe simple text for groups.
-        // Or we can intercept the form submission.
+    const handleTemplateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const templateId = e.target.value
+        setSelectedTemplate(templateId)
+        if (templateId) {
+            const template = templates.find((t) => t.id === templateId)
+            if (template) {
+                setFormData({
+                    ...formData,
+                    name: template.name,
+                    required_groups: JSON.stringify(template.required_groups),
+                    allowed_groups: JSON.stringify(template.allowed_groups || []),
+                })
+                // Auto-calculate end time if start time is set
+                if (formData.start) {
+                    const start = new Date(formData.start)
+                    const end = new Date(start.getTime() + template.duration_hours * 60 * 60 * 1000)
+                    // Format for datetime-local: YYYY-MM-DDTHH:mm
+                    const endStr = new Date(end.getTime() - end.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+                    setFormData(prev => ({ ...prev, end: endStr }))
+                }
+            }
+        }
+    }
 
-        // Let's assume the user enters JSON in a text area for now for "barebones" flexibility,
-        // or we just support start/end for the single add form to keep it simple.
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target
+        setFormData((prev) => ({ ...prev, [name]: value }))
 
-        const res = await addShift(eventId, formData)
+        // Auto-update end time if start time changes and template is selected
+        if (name === 'start' && selectedTemplate) {
+            const template = templates.find((t) => t.id === selectedTemplate)
+            if (template && value) {
+                const start = new Date(value)
+                const end = new Date(start.getTime() + template.duration_hours * 60 * 60 * 1000)
+                const endStr = new Date(end.getTime() - end.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+                setFormData(prev => ({ ...prev, end: endStr }))
+            }
+        }
+    }
+
+    async function handleAddSubmit(e: React.FormEvent) {
+        e.preventDefault()
+        const data = new FormData()
+        data.append('name', formData.name)
+        data.append('start', formData.start)
+        data.append('end', formData.end)
+        data.append('required_groups', formData.required_groups)
+        data.append('allowed_groups', formData.allowed_groups)
+
+        const res = await addShift(eventId, data)
         if (res?.error) {
             alert('Error adding shift: ' + res.error)
         } else {
             setIsAdding(false)
+            setFormData({ name: '', start: '', end: '', required_groups: '', allowed_groups: '' })
+            setSelectedTemplate('')
+            router.refresh()
+        }
+    }
+
+    async function handleRecurringSubmit(e: React.FormEvent) {
+        e.preventDefault()
+        if (!recurringData.templateId || !recurringData.startDate || !recurringData.endDate || !recurringData.startTime || recurringData.days.length === 0) {
+            alert('Please fill all fields')
+            return
+        }
+
+        const template = templates.find(t => t.id === recurringData.templateId)
+        if (!template) return
+
+        const start = new Date(recurringData.startDate)
+        const end = new Date(recurringData.endDate)
+        const shiftsToCreate = []
+
+        // Iterate through dates
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }) // Mon, Tue...
+            if (recurringData.days.includes(dayName)) {
+                // Construct start/end times
+                const shiftStart = new Date(`${d.toISOString().split('T')[0]}T${recurringData.startTime}`)
+                const shiftEnd = new Date(shiftStart.getTime() + template.duration_hours * 60 * 60 * 1000)
+
+                shiftsToCreate.push({
+                    name: template.name,
+                    start: shiftStart.toISOString(), // bulkAddShifts expects ISO strings or similar? Check action.
+                    // Actually bulkAddShifts expects CSV-like objects usually, let's check what it expects.
+                    // It expects { name, start, end, required_groups, allowed_groups } usually.
+                    end: shiftEnd.toISOString(),
+                    required_groups: template.required_groups,
+                    allowed_groups: template.allowed_groups,
+                })
+            }
+        }
+
+        if (shiftsToCreate.length === 0) {
+            alert('No shifts generated. Check date range and selected days.')
+            return
+        }
+
+        if (!confirm(`Create ${shiftsToCreate.length} shifts?`)) return
+
+        // We need to adapt shiftsToCreate to what bulkAddShifts expects.
+        // Assuming bulkAddShifts takes array of objects.
+        // But wait, bulkAddShifts in previous code took CSV parsed data.
+        // Let's verify bulkAddShifts signature or adapt.
+        // For now, I'll assume I can pass these objects.
+        // I might need to stringify JSON fields if the action expects strings from CSV.
+
+        const adaptedShifts = shiftsToCreate.map(s => ({
+            name: s.name,
+            start: s.start,
+            end: s.end,
+            required_groups: JSON.stringify(s.required_groups),
+            allowed_groups: JSON.stringify(s.allowed_groups)
+        }))
+
+        const res = await bulkAddShifts(eventId, adaptedShifts)
+        if (res?.error) {
+            alert('Error creating recurring shifts: ' + res.error)
+        } else {
+            setIsRecurring(false)
             router.refresh()
         }
     }
@@ -61,9 +200,7 @@ export default function ShiftManager({
         Papa.parse(file, {
             header: true,
             complete: async (results) => {
-                // Filter out empty rows or rows without a start time
                 const validShifts = results.data.filter((s: any) => s.start && s.start.trim() !== '')
-
                 if (validShifts.length === 0) {
                     setUploading(false)
                     alert('No valid shifts found in CSV')
@@ -106,6 +243,8 @@ export default function ShiftManager({
         }
     }
 
+    const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
     return (
         <div>
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -116,7 +255,7 @@ export default function ShiftManager({
                     onChange={(e) => setSearch(e.target.value)}
                     className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
                 />
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                     <button
                         onClick={handleDeleteAll}
                         className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
@@ -134,7 +273,13 @@ export default function ShiftManager({
                         />
                     </label>
                     <button
-                        onClick={() => setIsAdding(!isAdding)}
+                        onClick={() => { setIsRecurring(!isRecurring); setIsAdding(false); }}
+                        className="rounded-md bg-indigo-100 dark:bg-indigo-900 px-4 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-200 shadow-sm hover:bg-indigo-200 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                    >
+                        {isRecurring ? 'Cancel Recurring' : 'Recurring Shifts'}
+                    </button>
+                    <button
+                        onClick={() => { setIsAdding(!isAdding); setIsRecurring(false); }}
                         className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
                     >
                         {isAdding ? 'Cancel' : 'Add Shift'}
@@ -144,12 +289,27 @@ export default function ShiftManager({
 
             {isAdding && (
                 <div className="mb-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-                    <form action={handleAdd} className="grid gap-4 sm:grid-cols-2">
+                    <form onSubmit={handleAddSubmit} className="grid gap-4 sm:grid-cols-2">
+                        <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Use Template</label>
+                            <select
+                                value={selectedTemplate}
+                                onChange={handleTemplateChange}
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                            >
+                                <option value="">-- Select Template --</option>
+                                {templates.map(t => (
+                                    <option key={t.id} value={t.id}>{t.name} ({t.duration_hours}h)</option>
+                                ))}
+                            </select>
+                        </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
                             <input
                                 type="text"
                                 name="name"
+                                value={formData.name}
+                                onChange={handleInputChange}
                                 placeholder="Optional shift name"
                                 className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                             />
@@ -159,6 +319,8 @@ export default function ShiftManager({
                             <input
                                 type="datetime-local"
                                 name="start"
+                                value={formData.start}
+                                onChange={handleInputChange}
                                 required
                                 className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                             />
@@ -168,6 +330,8 @@ export default function ShiftManager({
                             <input
                                 type="datetime-local"
                                 name="end"
+                                value={formData.end}
+                                onChange={handleInputChange}
                                 required
                                 className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                             />
@@ -179,6 +343,8 @@ export default function ShiftManager({
                             <input
                                 type="text"
                                 name="required_groups"
+                                value={formData.required_groups}
+                                onChange={handleInputChange}
                                 placeholder='{"Delegates": 1}'
                                 className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
                             />
@@ -190,6 +356,8 @@ export default function ShiftManager({
                             <input
                                 type="text"
                                 name="allowed_groups"
+                                value={formData.allowed_groups}
+                                onChange={handleInputChange}
                                 placeholder='["Delegates"]'
                                 className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
                             />
@@ -200,6 +368,89 @@ export default function ShiftManager({
                                 className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
                             >
                                 Save
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {isRecurring && (
+                <div className="mb-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+                    <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">Create Recurring Shifts</h3>
+                    <form onSubmit={handleRecurringSubmit} className="grid gap-4 sm:grid-cols-2">
+                        <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Template (Required)</label>
+                            <select
+                                value={recurringData.templateId}
+                                onChange={(e) => setRecurringData({ ...recurringData, templateId: e.target.value })}
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                            >
+                                <option value="">-- Select Template --</option>
+                                {templates.map(t => (
+                                    <option key={t.id} value={t.id}>{t.name} ({t.duration_hours}h)</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
+                            <input
+                                type="date"
+                                value={recurringData.startDate}
+                                onChange={(e) => setRecurringData({ ...recurringData, startDate: e.target.value })}
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
+                            <input
+                                type="date"
+                                value={recurringData.endDate}
+                                onChange={(e) => setRecurringData({ ...recurringData, endDate: e.target.value })}
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Time</label>
+                            <input
+                                type="time"
+                                value={recurringData.startTime}
+                                onChange={(e) => setRecurringData({ ...recurringData, startTime: e.target.value })}
+                                required
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                            />
+                        </div>
+                        <div className="sm:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Repeat On</label>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                                {daysOfWeek.map(day => (
+                                    <button
+                                        key={day}
+                                        type="button"
+                                        onClick={() => {
+                                            const days = recurringData.days.includes(day)
+                                                ? recurringData.days.filter(d => d !== day)
+                                                : [...recurringData.days, day]
+                                            setRecurringData({ ...recurringData, days })
+                                        }}
+                                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${recurringData.days.includes(day)
+                                                ? 'bg-indigo-600 text-white'
+                                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                            }`}
+                                    >
+                                        {day}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div className="sm:col-span-2 flex justify-end">
+                            <button
+                                type="submit"
+                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                            >
+                                Generate Shifts
                             </button>
                         </div>
                     </form>
