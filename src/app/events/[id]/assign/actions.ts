@@ -57,7 +57,8 @@ export async function autoAssign(eventId: string, strategy: string = 'minimize_u
             id: v.id,
             name: v.name,
             group: v.group,
-            max_hours: v.max_hours,
+            // API requires a number, not null. Use a high number for unlimited volunteers
+            max_hours: v.max_hours ?? 999,
         })),
         shifts: shifts.map((s) => ({
             id: s.id,
@@ -69,6 +70,14 @@ export async function autoAssign(eventId: string, strategy: string = 'minimize_u
         })),
         strategy: strategy,
     }
+
+    // Debug logging
+    console.log('=== AUTO-ASSIGN DEBUG ===')
+    console.log('Volunteers:', volunteers.length)
+    console.log('Shifts:', shifts.length)
+    console.log('Sample volunteer:', volunteers[0])
+    console.log('Sample shift:', shifts[0])
+    console.log('API Payload:', JSON.stringify(apiPayload, null, 2))
 
     // 3. Call API
     try {
@@ -87,6 +96,9 @@ export async function autoAssign(eventId: string, strategy: string = 'minimize_u
         if (response.status === 422) {
             // Scheduling was impossible/incomplete - API returns detailed error info
             const errorData = await response.json()
+            console.log('=== 422 ERROR RESPONSE ===')
+            console.log('Full error data:', JSON.stringify(errorData, null, 2))
+
             const detail = errorData.detail
 
             // Extract partial assignments and unfilled shift info
@@ -103,6 +115,11 @@ export async function autoAssign(eventId: string, strategy: string = 'minimize_u
             result = await response.json()
             assignedShifts = result.assigned_shifts
             unfilledShifts = result.unfilled_shifts || []
+
+            console.log('=== API RESPONSE ===')
+            console.log('Status:', response.status)
+            console.log('Result:', result)
+            console.log('Assigned shifts count:', Object.keys(assignedShifts).length)
         }
 
         // 4. Update Database

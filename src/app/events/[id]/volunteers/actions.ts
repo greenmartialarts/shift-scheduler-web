@@ -63,6 +63,30 @@ export async function deleteVolunteer(eventId: string, volunteerId: string) {
     return { success: true }
 }
 
+export async function updateVolunteer(eventId: string, volunteerId: string, formData: FormData) {
+    const supabase = await createClient()
+    const name = formData.get('name') as string
+    const group = formData.get('group') as string
+    const maxHours = parseFloat(formData.get('max_hours') as string) || null
+
+    const { error } = await supabase
+        .from('volunteers')
+        .update({
+            name,
+            group,
+            max_hours: maxHours,
+        })
+        .eq('id', volunteerId)
+
+    if (error) {
+        console.error('Error updating volunteer:', error)
+        return { error: error.message }
+    }
+
+    revalidatePath(`/events/${eventId}/volunteers`)
+    return { success: true }
+}
+
 export async function deleteAllVolunteers(eventId: string) {
     const supabase = await createClient()
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
-import { addVolunteer, bulkAddVolunteers, deleteVolunteer, deleteAllVolunteers } from './actions'
+import { addVolunteer, bulkAddVolunteers, deleteVolunteer, deleteAllVolunteers, updateVolunteer } from './actions'
 import { useRouter } from 'next/navigation'
 
 type Volunteer = {
@@ -54,6 +54,7 @@ export default function VolunteerManager({
     const [search, setSearch] = useState('')
     const [isAdding, setIsAdding] = useState(false)
     const [uploading, setUploading] = useState(false)
+    const [editingId, setEditingId] = useState<string | null>(null)
     const router = useRouter()
 
     useEffect(() => {
@@ -129,6 +130,16 @@ export default function VolunteerManager({
         if (res?.error) {
             alert('Error deleting volunteer: ' + res.error)
         } else {
+            router.refresh()
+        }
+    }
+
+    async function handleUpdate(volunteerId: string, formData: FormData) {
+        const res = await updateVolunteer(eventId, volunteerId, formData)
+        if (res?.error) {
+            alert('Error updating volunteer: ' + res.error)
+        } else {
+            setEditingId(null)
             router.refresh()
         }
     }
@@ -280,36 +291,104 @@ export default function VolunteerManager({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                        {filteredVolunteers.map((volunteer) => (
-                            <tr key={volunteer.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                    {volunteer.name}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {volunteer.group ? (
-                                        <span
-                                            className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
-                                            style={{ backgroundColor: getGroupColor(volunteer.group) }}
-                                        >
-                                            {volunteer.group}
-                                        </span>
+                        {filteredVolunteers.map((volunteer) => {
+                            const isEditing = editingId === volunteer.id
+                            return (
+                                <tr key={volunteer.id}>
+                                    {isEditing ? (
+                                        <>
+                                            <td colSpan={4} className="px-6 py-4">
+                                                <form action={(formData) => handleUpdate(volunteer.id, formData)} className="grid gap-4 sm:grid-cols-4 items-end">
+                                                    <div className="sm:col-span-2">
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                                                        <input
+                                                            type="text"
+                                                            name="name"
+                                                            defaultValue={volunteer.name}
+                                                            required
+                                                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Group</label>
+                                                        <select
+                                                            name="group"
+                                                            defaultValue={volunteer.group || ''}
+                                                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                                        >
+                                                            <option value="">-- Select Group --</option>
+                                                            {allGroupNames.map(name => (
+                                                                <option key={name} value={name}>{name}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Max Hours</label>
+                                                        <input
+                                                            type="number"
+                                                            name="max_hours"
+                                                            defaultValue={volunteer.max_hours || ''}
+                                                            step="0.5"
+                                                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                                        />
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            type="submit"
+                                                            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                                                        >
+                                                            Save
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setEditingId(null)}
+                                                            className="rounded-md bg-gray-300 dark:bg-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </td>
+                                        </>
                                     ) : (
-                                        '-'
+                                        <>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                                {volunteer.name}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                {volunteer.group ? (
+                                                    <span
+                                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
+                                                        style={{ backgroundColor: getGroupColor(volunteer.group) }}
+                                                    >
+                                                        {volunteer.group}
+                                                    </span>
+                                                ) : (
+                                                    '-'
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                {volunteer.max_hours || 'Unlimited'}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                                <button
+                                                    onClick={() => setEditingId(volunteer.id)}
+                                                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(volunteer.id)}
+                                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </>
                                     )}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {volunteer.max_hours || 'Unlimited'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button
-                                        onClick={() => handleDelete(volunteer.id)}
-                                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                                </tr>
+                            )
+                        })}
                         {filteredVolunteers.length === 0 && (
                             <tr>
                                 <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">

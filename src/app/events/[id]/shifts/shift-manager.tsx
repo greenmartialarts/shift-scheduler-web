@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
-import { addShift, bulkAddShifts, deleteShift, deleteAllShifts } from './actions'
+import { addShift, bulkAddShifts, deleteShift, deleteAllShifts, updateShift } from './actions'
 import { useRouter } from 'next/navigation'
 
 type Shift = {
@@ -37,6 +37,7 @@ export default function ShiftManager({
     const [isAdding, setIsAdding] = useState(false)
     const [isRecurring, setIsRecurring] = useState(false)
     const [uploading, setUploading] = useState(false)
+    const [editingId, setEditingId] = useState<string | null>(null)
     const router = useRouter()
 
     // Form states
@@ -287,6 +288,16 @@ export default function ShiftManager({
         if (res?.error) {
             alert('Error deleting shift: ' + res.error)
         } else {
+            router.refresh()
+        }
+    }
+
+    async function handleUpdate(shiftId: string, formData: FormData) {
+        const res = await updateShift(eventId, shiftId, formData)
+        if (res?.error) {
+            alert('Error updating shift: ' + res.error)
+        } else {
+            setEditingId(null)
             router.refresh()
         }
     }
@@ -554,30 +565,108 @@ export default function ShiftManager({
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                        {filteredShifts.map((shift) => (
-                            <tr key={shift.id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                    {shift.name || '-'}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {new Date(shift.start_time).toLocaleString()}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {new Date(shift.end_time).toLocaleString()}
-                                </td>
-                                <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                    <pre className="text-xs">{JSON.stringify(shift.required_groups, null, 2)}</pre>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button
-                                        onClick={() => handleDelete(shift.id)}
-                                        className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                    >
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
+                        {filteredShifts.map((shift) => {
+                            const isEditing = editingId === shift.id
+                            const formatForInput = (dateStr: string) => {
+                                const d = new Date(dateStr)
+                                return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+                            }
+
+                            return (
+                                <tr key={shift.id}>
+                                    {isEditing ? (
+                                        <td colSpan={5} className="px-6 py-4">
+                                            <form action={(formData) => handleUpdate(shift.id, formData)} className="grid gap-4 grid-cols-1 md:grid-cols-5">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                                                    <input
+                                                        type="text"
+                                                        name="name"
+                                                        defaultValue={shift.name || ''}
+                                                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start</label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        name="start"
+                                                        defaultValue={formatForInput(shift.start_time)}
+                                                        required
+                                                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End</label>
+                                                    <input
+                                                        type="datetime-local"
+                                                        name="end"
+                                                        defaultValue={formatForInput(shift.end_time)}
+                                                        required
+                                                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Required Groups</label>
+                                                    <textarea
+                                                        name="required_groups"
+                                                        defaultValue={JSON.stringify(shift.required_groups)}
+                                                        rows={2}
+                                                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                                    />
+                                                </div>
+                                                <div className="flex gap-2 items-end">
+                                                    <button
+                                                        type="submit"
+                                                        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                                                    >
+                                                        Save
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setEditingId(null)}
+                                                        className="rounded-md bg-gray-300 dark:bg-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <input type="hidden" name="allowed_groups" value={JSON.stringify(shift.allowed_groups || [])} />
+                                                    <input type="hidden" name="excluded_groups" value="[]" />
+                                                </div>
+                                            </form>
+                                        </td>
+                                    ) : (
+                                        <>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                                {shift.name || '-'}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                {new Date(shift.start_time).toLocaleString()}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                {new Date(shift.end_time).toLocaleString()}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
+                                                <pre className="text-xs">{JSON.stringify(shift.required_groups, null, 2)}</pre>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                                <button
+                                                    onClick={() => setEditingId(shift.id)}
+                                                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                >
+                                                    Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(shift.id)}
+                                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                                >
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </>
+                                    )}
+                                </tr>
+                            )
+                        })}
                         {filteredShifts.length === 0 && (
                             <tr>
                                 <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">

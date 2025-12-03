@@ -129,6 +129,48 @@ export async function deleteShift(eventId: string, shiftId: string) {
     return { success: true }
 }
 
+export async function updateShift(eventId: string, shiftId: string, formData: FormData) {
+    const supabase = await createClient()
+    const name = formData.get('name') as string
+    const start = formData.get('start') as string
+    const end = formData.get('end') as string
+    const requiredGroupsRaw = formData.get('required_groups') as string
+    const allowedGroupsRaw = formData.get('allowed_groups') as string
+    const excludedGroupsRaw = formData.get('excluded_groups') as string
+
+    let requiredGroups = {}
+    let allowedGroups: string[] = []
+    let excludedGroups: string[] = []
+
+    try {
+        if (requiredGroupsRaw) requiredGroups = JSON.parse(requiredGroupsRaw)
+        if (allowedGroupsRaw) allowedGroups = JSON.parse(allowedGroupsRaw)
+        if (excludedGroupsRaw) excludedGroups = JSON.parse(excludedGroupsRaw)
+    } catch (e) {
+        console.error("Error parsing groups JSON", e)
+    }
+
+    const { error } = await supabase
+        .from('shifts')
+        .update({
+            name,
+            start_time: start,
+            end_time: end,
+            required_groups: requiredGroups,
+            allowed_groups: allowedGroups,
+            excluded_groups: excludedGroups,
+        })
+        .eq('id', shiftId)
+
+    if (error) {
+        console.error('Error updating shift:', error)
+        return { error: error.message }
+    }
+
+    revalidatePath(`/events/${eventId}/shifts`)
+    return { success: true }
+}
+
 export async function deleteAllShifts(eventId: string) {
     const supabase = await createClient()
 
