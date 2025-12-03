@@ -13,7 +13,36 @@ type Group = {
     volunteer_count?: number
 }
 
-export default function GroupManager({ eventId, groups }: { eventId: string; groups: Group[] }) {
+type Volunteer = {
+    id: string
+    name: string
+    group: string | null
+}
+
+const COLORS = [
+    '#ef4444', // red-500
+    '#f97316', // orange-500
+    '#f59e0b', // amber-500
+    '#84cc16', // lime-500
+    '#10b981', // emerald-500
+    '#06b6d4', // cyan-500
+    '#3b82f6', // blue-500
+    '#6366f1', // indigo-500
+    '#8b5cf6', // violet-500
+    '#d946ef', // fuchsia-500
+    '#f43f5e', // rose-500
+]
+
+const stringToColor = (str: string) => {
+    let hash = 0
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    const index = Math.abs(hash) % COLORS.length
+    return COLORS[index]
+}
+
+export default function GroupManager({ eventId, groups, volunteers }: { eventId: string; groups: Group[]; volunteers: Volunteer[] }) {
     const [isAdding, setIsAdding] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const router = useRouter()
@@ -80,6 +109,17 @@ export default function GroupManager({ eventId, groups }: { eventId: string; gro
             router.refresh()
         }
     }
+
+    // Identify discovered groups
+    const explicitGroupNames = new Set(groups.map(g => g.name))
+    const discoveredGroups = Array.from(new Set(volunteers.map(v => v.group).filter(Boolean)))
+        .filter(name => !explicitGroupNames.has(name as string))
+        .map(name => ({
+            name: name as string,
+            color: stringToColor(name as string),
+            count: volunteers.filter(v => v.group === name).length
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name))
 
     return (
         <div>
@@ -154,7 +194,7 @@ export default function GroupManager({ eventId, groups }: { eventId: string; gro
                 </div>
             )}
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-12">
                 {groups.map((group) => (
                     <div key={group.id} className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition-colors duration-200 border-l-4" style={{ borderLeftColor: group.color || '#3b82f6' }}>
                         <div className="flex justify-between items-start">
@@ -183,10 +223,48 @@ export default function GroupManager({ eventId, groups }: { eventId: string; gro
                 ))}
                 {groups.length === 0 && (
                     <div className="col-span-full text-center text-gray-500 dark:text-gray-400 py-8">
-                        No groups found. Create one to organize your volunteers.
+                        No explicit groups found. Create one to organize your volunteers.
                     </div>
                 )}
             </div>
+
+            {discoveredGroups.length > 0 && (
+                <div>
+                    <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Discovered Groups</h2>
+                    <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+                        These groups were found in your volunteer list but haven't been explicitly created.
+                        They are assigned a color automatically. Click "Customize" to save them as a permanent group.
+                    </p>
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {discoveredGroups.map((group) => (
+                            <div key={group.name} className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition-colors duration-200 border-l-4" style={{ borderLeftColor: group.color }}>
+                                <div className="flex justify-between items-start">
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">{group.name}</h3>
+                                    <button
+                                        onClick={() => {
+                                            setFormData({
+                                                name: group.name,
+                                                color: group.color,
+                                                description: '',
+                                                max_hours_default: '',
+                                            })
+                                            setIsAdding(true)
+                                            window.scrollTo({ top: 0, behavior: 'smooth' })
+                                        }}
+                                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm"
+                                    >
+                                        Customize
+                                    </button>
+                                </div>
+                                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 italic">Auto-discovered</p>
+                                <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                                    <p>Volunteers: {group.count}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

@@ -1,151 +1,151 @@
-name,id,start,end,required_groups,allowed_groups,excluded_groups
-Shift 1,s1,2025-12-01T08:00:00,2025-12-01T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 2,s2,2025-12-01T10:00:00,2025-12-01T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 3,s3,2025-12-01T12:00:00,2025-12-01T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 4,s4,2025-12-01T14:00:00,2025-12-01T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 5,s5,2025-12-01T16:00:00,2025-12-01T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 6,s6,2025-12-01T18:00:00,2025-12-01T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 7,s7,2025-12-01T20:00:00,2025-12-01T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 8,s8,2025-12-01T22:00:00,2025-12-02T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 9,s9,2025-12-02T00:00:00,2025-12-02T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 10,s10,2025-12-02T02:00:00,2025-12-02T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 11,s11,2025-12-01T08:00:00,2025-12-01T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 12,s12,2025-12-01T10:00:00,2025-12-01T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 13,s13,2025-12-01T12:00:00,2025-12-01T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 14,s14,2025-12-01T14:00:00,2025-12-01T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 15,s15,2025-12-01T16:00:00,2025-12-01T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 16,s16,2025-12-01T18:00:00,2025-12-01T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 17,s17,2025-12-01T20:00:00,2025-12-01T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 18,s18,2025-12-01T22:00:00,2025-12-02T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 19,s19,2025-12-02T00:00:00,2025-12-02T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 20,s20,2025-12-02T02:00:00,2025-12-02T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 21,s21,2025-12-01T08:00:00,2025-12-01T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 22,s22,2025-12-01T10:00:00,2025-12-01T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 23,s23,2025-12-01T12:00:00,2025-12-01T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 24,s24,2025-12-01T14:00:00,2025-12-01T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 25,s25,2025-12-01T16:00:00,2025-12-01T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 26,s26,2025-12-01T18:00:00,2025-12-01T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 27,s27,2025-12-01T20:00:00,2025-12-01T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 28,s28,2025-12-01T22:00:00,2025-12-02T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 29,s29,2025-12-02T00:00:00,2025-12-02T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 30,s30,2025-12-02T02:00:00,2025-12-02T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 31,s31,2025-12-01T08:00:00,2025-12-01T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 32,s32,2025-12-01T10:00:00,2025-12-01T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 33,s33,2025-12-01T12:00:00,2025-12-01T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 34,s34,2025-12-01T14:00:00,2025-12-01T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 35,s35,2025-12-01T16:00:00,2025-12-01T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 36,s36,2025-12-01T18:00:00,2025-12-01T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 37,s37,2025-12-01T20:00:00,2025-12-01T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 38,s38,2025-12-01T22:00:00,2025-12-02T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 39,s39,2025-12-02T00:00:00,2025-12-02T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 40,s40,2025-12-02T02:00:00,2025-12-02T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 41,s41,2025-12-01T08:00:00,2025-12-01T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 42,s42,2025-12-01T10:00:00,2025-12-01T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 43,s43,2025-12-01T12:00:00,2025-12-01T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 44,s44,2025-12-01T14:00:00,2025-12-01T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 45,s45,2025-12-01T16:00:00,2025-12-01T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 46,s46,2025-12-01T18:00:00,2025-12-01T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 47,s47,2025-12-01T20:00:00,2025-12-01T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 48,s48,2025-12-01T22:00:00,2025-12-02T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 49,s49,2025-12-02T00:00:00,2025-12-02T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 50,s50,2025-12-02T02:00:00,2025-12-02T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 51,s51,2025-12-02T08:00:00,2025-12-02T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 52,s52,2025-12-02T10:00:00,2025-12-02T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 53,s53,2025-12-02T12:00:00,2025-12-02T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 54,s54,2025-12-02T14:00:00,2025-12-02T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 55,s55,2025-12-02T16:00:00,2025-12-02T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 56,s56,2025-12-02T18:00:00,2025-12-02T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 57,s57,2025-12-02T20:00:00,2025-12-02T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 58,s58,2025-12-02T22:00:00,2025-12-03T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 59,s59,2025-12-03T00:00:00,2025-12-03T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 60,s60,2025-12-03T02:00:00,2025-12-03T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 61,s61,2025-12-02T08:00:00,2025-12-02T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 62,s62,2025-12-02T10:00:00,2025-12-02T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 63,s63,2025-12-02T12:00:00,2025-12-02T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 64,s64,2025-12-02T14:00:00,2025-12-02T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 65,s65,2025-12-02T16:00:00,2025-12-02T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 66,s66,2025-12-02T18:00:00,2025-12-02T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 67,s67,2025-12-02T20:00:00,2025-12-02T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 68,s68,2025-12-02T22:00:00,2025-12-03T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 69,s69,2025-12-03T00:00:00,2025-12-03T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 70,s70,2025-12-03T02:00:00,2025-12-03T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 71,s71,2025-12-02T08:00:00,2025-12-02T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 72,s72,2025-12-02T10:00:00,2025-12-02T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 73,s73,2025-12-02T12:00:00,2025-12-02T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 74,s74,2025-12-02T14:00:00,2025-12-02T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 75,s75,2025-12-02T16:00:00,2025-12-02T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 76,s76,2025-12-02T18:00:00,2025-12-02T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 77,s77,2025-12-02T20:00:00,2025-12-02T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 78,s78,2025-12-02T22:00:00,2025-12-03T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 79,s79,2025-12-03T00:00:00,2025-12-03T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 80,s80,2025-12-03T02:00:00,2025-12-03T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 81,s81,2025-12-02T08:00:00,2025-12-02T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 82,s82,2025-12-02T10:00:00,2025-12-02T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 83,s83,2025-12-02T12:00:00,2025-12-02T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 84,s84,2025-12-02T14:00:00,2025-12-02T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 85,s85,2025-12-02T16:00:00,2025-12-02T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 86,s86,2025-12-02T18:00:00,2025-12-02T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 87,s87,2025-12-02T20:00:00,2025-12-02T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 88,s88,2025-12-02T22:00:00,2025-12-03T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 89,s89,2025-12-03T00:00:00,2025-12-03T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 90,s90,2025-12-03T02:00:00,2025-12-03T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 91,s91,2025-12-02T08:00:00,2025-12-02T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 92,s92,2025-12-02T10:00:00,2025-12-02T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 93,s93,2025-12-02T12:00:00,2025-12-02T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 94,s94,2025-12-02T14:00:00,2025-12-02T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 95,s95,2025-12-02T16:00:00,2025-12-02T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 96,s96,2025-12-02T18:00:00,2025-12-02T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 97,s97,2025-12-02T20:00:00,2025-12-02T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 98,s98,2025-12-02T22:00:00,2025-12-03T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 99,s99,2025-12-03T00:00:00,2025-12-03T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 100,s100,2025-12-03T02:00:00,2025-12-03T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 101,s101,2025-12-03T08:00:00,2025-12-03T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 102,s102,2025-12-03T10:00:00,2025-12-03T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 103,s103,2025-12-03T12:00:00,2025-12-03T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 104,s104,2025-12-03T14:00:00,2025-12-03T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 105,s105,2025-12-03T16:00:00,2025-12-03T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 106,s106,2025-12-03T18:00:00,2025-12-03T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 107,s107,2025-12-03T20:00:00,2025-12-03T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 108,s108,2025-12-03T22:00:00,2025-12-04T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 109,s109,2025-12-04T00:00:00,2025-12-04T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 110,s110,2025-12-04T02:00:00,2025-12-04T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 111,s111,2025-12-03T08:00:00,2025-12-03T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 112,s112,2025-12-03T10:00:00,2025-12-03T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 113,s113,2025-12-03T12:00:00,2025-12-03T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 114,s114,2025-12-03T14:00:00,2025-12-03T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 115,s115,2025-12-03T16:00:00,2025-12-03T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 116,s116,2025-12-03T18:00:00,2025-12-03T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 117,s117,2025-12-03T20:00:00,2025-12-03T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 118,s118,2025-12-03T22:00:00,2025-12-04T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 119,s119,2025-12-04T00:00:00,2025-12-04T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 120,s120,2025-12-04T02:00:00,2025-12-04T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 121,s121,2025-12-03T08:00:00,2025-12-03T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 122,s122,2025-12-03T10:00:00,2025-12-03T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 123,s123,2025-12-03T12:00:00,2025-12-03T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 124,s124,2025-12-03T14:00:00,2025-12-03T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 125,s125,2025-12-03T16:00:00,2025-12-03T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 126,s126,2025-12-03T18:00:00,2025-12-03T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 127,s127,2025-12-03T20:00:00,2025-12-03T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 128,s128,2025-12-03T22:00:00,2025-12-04T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 129,s129,2025-12-04T00:00:00,2025-12-04T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 130,s130,2025-12-04T02:00:00,2025-12-04T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 131,s131,2025-12-03T08:00:00,2025-12-03T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 132,s132,2025-12-03T10:00:00,2025-12-03T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 133,s133,2025-12-03T12:00:00,2025-12-03T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 134,s134,2025-12-03T14:00:00,2025-12-03T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 135,s135,2025-12-03T16:00:00,2025-12-03T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 136,s136,2025-12-03T18:00:00,2025-12-03T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 137,s137,2025-12-03T20:00:00,2025-12-03T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 138,s138,2025-12-03T22:00:00,2025-12-04T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 139,s139,2025-12-04T00:00:00,2025-12-04T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 140,s140,2025-12-04T02:00:00,2025-12-04T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 141,s141,2025-12-03T08:00:00,2025-12-03T10:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 142,s142,2025-12-03T10:00:00,2025-12-03T12:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 143,s143,2025-12-03T12:00:00,2025-12-03T14:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 144,s144,2025-12-03T14:00:00,2025-12-03T16:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 145,s145,2025-12-03T16:00:00,2025-12-03T18:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 146,s146,2025-12-03T18:00:00,2025-12-03T20:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 147,s147,2025-12-03T20:00:00,2025-12-03T22:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 148,s148,2025-12-03T22:00:00,2025-12-04T00:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 149,s149,2025-12-04T00:00:00,2025-12-04T02:00:00,Delegates:2|Adults:2,Delegates|Adults,
-Shift 150,s150,2025-12-04T02:00:00,2025-12-04T04:00:00,Delegates:2|Adults:2,Delegates|Adults,
+Name,Start,End,Groups
+Shift 1,12/01/2025 08:00 AM,12/01/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 2,12/01/2025 10:00 AM,12/01/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 3,12/01/2025 12:00 PM,12/01/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 4,12/01/2025 02:00 PM,12/01/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 5,12/01/2025 04:00 PM,12/01/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 6,12/01/2025 06:00 PM,12/01/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 7,12/01/2025 08:00 PM,12/01/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 8,12/01/2025 10:00 PM,12/02/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 9,12/02/2025 12:00 AM,12/02/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 10,12/02/2025 02:00 AM,12/02/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 11,12/02/2025 04:00 AM,12/02/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 12,12/02/2025 06:00 AM,12/02/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 13,12/02/2025 08:00 AM,12/02/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 14,12/02/2025 10:00 AM,12/02/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 15,12/02/2025 12:00 PM,12/02/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 16,12/02/2025 02:00 PM,12/02/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 17,12/02/2025 04:00 PM,12/02/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 18,12/02/2025 06:00 PM,12/02/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 19,12/02/2025 08:00 PM,12/02/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 20,12/02/2025 10:00 PM,12/03/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 21,12/03/2025 12:00 AM,12/03/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 22,12/03/2025 02:00 AM,12/03/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 23,12/03/2025 04:00 AM,12/03/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 24,12/03/2025 06:00 AM,12/03/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 25,12/03/2025 08:00 AM,12/03/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 26,12/03/2025 10:00 AM,12/03/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 27,12/03/2025 12:00 PM,12/03/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 28,12/03/2025 02:00 PM,12/03/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 29,12/03/2025 04:00 PM,12/03/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 30,12/03/2025 06:00 PM,12/03/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 31,12/03/2025 08:00 PM,12/03/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 32,12/03/2025 10:00 PM,12/04/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 33,12/04/2025 12:00 AM,12/04/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 34,12/04/2025 02:00 AM,12/04/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 35,12/04/2025 04:00 AM,12/04/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 36,12/04/2025 06:00 AM,12/04/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 37,12/04/2025 08:00 AM,12/04/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 38,12/04/2025 10:00 AM,12/04/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 39,12/04/2025 12:00 PM,12/04/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 40,12/04/2025 02:00 PM,12/04/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 41,12/04/2025 04:00 PM,12/04/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 42,12/04/2025 06:00 PM,12/04/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 43,12/04/2025 08:00 PM,12/04/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 44,12/04/2025 10:00 PM,12/05/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 45,12/05/2025 12:00 AM,12/05/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 46,12/05/2025 02:00 AM,12/05/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 47,12/05/2025 04:00 AM,12/05/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 48,12/05/2025 06:00 AM,12/05/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 49,12/05/2025 08:00 AM,12/05/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 50,12/05/2025 10:00 AM,12/05/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 51,12/02/2025 08:00 AM,12/02/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 52,12/02/2025 10:00 AM,12/02/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 53,12/02/2025 12:00 PM,12/02/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 54,12/02/2025 02:00 PM,12/02/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 55,12/02/2025 04:00 PM,12/02/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 56,12/02/2025 06:00 PM,12/02/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 57,12/02/2025 08:00 PM,12/02/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 58,12/02/2025 10:00 PM,12/03/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 59,12/03/2025 12:00 AM,12/03/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 60,12/03/2025 02:00 AM,12/03/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 61,12/03/2025 04:00 AM,12/03/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 62,12/03/2025 06:00 AM,12/03/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 63,12/03/2025 08:00 AM,12/03/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 64,12/03/2025 10:00 AM,12/03/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 65,12/03/2025 12:00 PM,12/03/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 66,12/03/2025 02:00 PM,12/03/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 67,12/03/2025 04:00 PM,12/03/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 68,12/03/2025 06:00 PM,12/03/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 69,12/03/2025 08:00 PM,12/03/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 70,12/03/2025 10:00 PM,12/04/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 71,12/04/2025 12:00 AM,12/04/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 72,12/04/2025 02:00 AM,12/04/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 73,12/04/2025 04:00 AM,12/04/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 74,12/04/2025 06:00 AM,12/04/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 75,12/04/2025 08:00 AM,12/04/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 76,12/04/2025 10:00 AM,12/04/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 77,12/04/2025 12:00 PM,12/04/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 78,12/04/2025 02:00 PM,12/04/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 79,12/04/2025 04:00 PM,12/04/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 80,12/04/2025 06:00 PM,12/04/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 81,12/04/2025 08:00 PM,12/04/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 82,12/04/2025 10:00 PM,12/05/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 83,12/05/2025 12:00 AM,12/05/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 84,12/05/2025 02:00 AM,12/05/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 85,12/05/2025 04:00 AM,12/05/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 86,12/05/2025 06:00 AM,12/05/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 87,12/05/2025 08:00 AM,12/05/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 88,12/05/2025 10:00 AM,12/05/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 89,12/05/2025 12:00 PM,12/05/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 90,12/05/2025 02:00 PM,12/05/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 91,12/05/2025 04:00 PM,12/05/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 92,12/05/2025 06:00 PM,12/05/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 93,12/05/2025 08:00 PM,12/05/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 94,12/05/2025 10:00 PM,12/06/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 95,12/06/2025 12:00 AM,12/06/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 96,12/06/2025 02:00 AM,12/06/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 97,12/06/2025 04:00 AM,12/06/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 98,12/06/2025 06:00 AM,12/06/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 99,12/06/2025 08:00 AM,12/06/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 100,12/06/2025 10:00 AM,12/06/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 101,12/03/2025 08:00 AM,12/03/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 102,12/03/2025 10:00 AM,12/03/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 103,12/03/2025 12:00 PM,12/03/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 104,12/03/2025 02:00 PM,12/03/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 105,12/03/2025 04:00 PM,12/03/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 106,12/03/2025 06:00 PM,12/03/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 107,12/03/2025 08:00 PM,12/03/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 108,12/03/2025 10:00 PM,12/04/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 109,12/04/2025 12:00 AM,12/04/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 110,12/04/2025 02:00 AM,12/04/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 111,12/04/2025 04:00 AM,12/04/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 112,12/04/2025 06:00 AM,12/04/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 113,12/04/2025 08:00 AM,12/04/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 114,12/04/2025 10:00 AM,12/04/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 115,12/04/2025 12:00 PM,12/04/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 116,12/04/2025 02:00 PM,12/04/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 117,12/04/2025 04:00 PM,12/04/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 118,12/04/2025 06:00 PM,12/04/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 119,12/04/2025 08:00 PM,12/04/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 120,12/04/2025 10:00 PM,12/05/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 121,12/05/2025 12:00 AM,12/05/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 122,12/05/2025 02:00 AM,12/05/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 123,12/05/2025 04:00 AM,12/05/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 124,12/05/2025 06:00 AM,12/05/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 125,12/05/2025 08:00 AM,12/05/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 126,12/05/2025 10:00 AM,12/05/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 127,12/05/2025 12:00 PM,12/05/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 128,12/05/2025 02:00 PM,12/05/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 129,12/05/2025 04:00 PM,12/05/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 130,12/05/2025 06:00 PM,12/05/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 131,12/05/2025 08:00 PM,12/05/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 132,12/05/2025 10:00 PM,12/06/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 133,12/06/2025 12:00 AM,12/06/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 134,12/06/2025 02:00 AM,12/06/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 135,12/06/2025 04:00 AM,12/06/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 136,12/06/2025 06:00 AM,12/06/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 137,12/06/2025 08:00 AM,12/06/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 138,12/06/2025 10:00 AM,12/06/2025 12:00 PM,"Delegates:2, Adults:2"
+Shift 139,12/06/2025 12:00 PM,12/06/2025 02:00 PM,"Delegates:2, Adults:2"
+Shift 140,12/06/2025 02:00 PM,12/06/2025 04:00 PM,"Delegates:2, Adults:2"
+Shift 141,12/06/2025 04:00 PM,12/06/2025 06:00 PM,"Delegates:2, Adults:2"
+Shift 142,12/06/2025 06:00 PM,12/06/2025 08:00 PM,"Delegates:2, Adults:2"
+Shift 143,12/06/2025 08:00 PM,12/06/2025 10:00 PM,"Delegates:2, Adults:2"
+Shift 144,12/06/2025 10:00 PM,12/07/2025 12:00 AM,"Delegates:2, Adults:2"
+Shift 145,12/07/2025 12:00 AM,12/07/2025 02:00 AM,"Delegates:2, Adults:2"
+Shift 146,12/07/2025 02:00 AM,12/07/2025 04:00 AM,"Delegates:2, Adults:2"
+Shift 147,12/07/2025 04:00 AM,12/07/2025 06:00 AM,"Delegates:2, Adults:2"
+Shift 148,12/07/2025 06:00 AM,12/07/2025 08:00 AM,"Delegates:2, Adults:2"
+Shift 149,12/07/2025 08:00 AM,12/07/2025 10:00 AM,"Delegates:2, Adults:2"
+Shift 150,12/07/2025 10:00 AM,12/07/2025 12:00 PM,"Delegates:2, Adults:2"

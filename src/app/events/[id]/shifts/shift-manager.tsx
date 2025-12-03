@@ -192,27 +192,85 @@ export default function ShiftManager({
         }
     }
 
+    const parseDate = (dateStr: string): string | null => {
+        if (!dateStr) return null
+        const d = new Date(dateStr)
+        if (isNaN(d.getTime())) return null
+        return d.toISOString()
+    }
+
+    const parseGroups = (groupStr: string) => {
+        if (!groupStr) return { required: {}, allowed: [] }
+        // Split by comma or pipe
+        const parts = groupStr.split(/[,|]/).map(s => s.trim()).filter(Boolean)
+        const required: Record<string, number> = {}
+        const allowed: string[] = []
+
+        parts.forEach(part => {
+            // Check for "Group:Count" format
+            const [name, countStr] = part.split(':').map(s => s.trim())
+            const count = countStr ? parseInt(countStr) : 1
+
+            if (name) {
+                required[name] = count
+                allowed.push(name)
+            }
+        })
+        return { required, allowed }
+    }
+
     async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0]
         if (!file) return
 
         setUploading(true)
+        setUploading(true)
         Papa.parse(file, {
             header: true,
+            skipEmptyLines: true,
             complete: async (results) => {
-                const validShifts = results.data.filter((s: any) => s.start && s.start.trim() !== '')
-                if (validShifts.length === 0) {
+                const parsedShifts = results.data.map((row: any) => {
+                    // Map columns loosely
+                    const name = row['Name'] || row['name'] || row['Shift'] || row['shift'] || ''
+                    const startRaw = row['Start'] || row['start'] || row['Start Time'] || row['start_time'] || row['Date'] || row['date']
+                    const endRaw = row['End'] || row['end'] || row['End Time'] || row['end_time']
+                    const groupsRaw = row['Groups'] || row['groups'] || row['Required'] || row['required'] || row['Group'] || row['group'] || ''
+
+                    const start = parseDate(startRaw)
+                    // If end is missing, assume 1 hour duration or try to parse
+                    let end = parseDate(endRaw)
+                    if (start && !end) {
+                        // Default to 1 hour if end time missing but start exists
+                        const startDate = new Date(start)
+                        end = new Date(startDate.getTime() + 60 * 60 * 1000).toISOString()
+                    }
+
+                    const { required, allowed } = parseGroups(groupsRaw)
+
+                    if (!start || !end) return null
+
+                    return {
+                        name,
+                        start,
+                        end,
+                        required_groups: required,
+                        allowed_groups: allowed,
+                        excluded_groups: []
+                    }
+                }).filter(Boolean)
+
+                if (parsedShifts.length === 0) {
                     setUploading(false)
-                    alert('No valid shifts found in CSV')
+                    alert('No valid shifts found in CSV. Please check date formats.')
                     return
                 }
 
-                const res = await bulkAddShifts(eventId, validShifts)
+                const res = await bulkAddShifts(eventId, parsedShifts)
                 setUploading(false)
                 if (res?.error) {
                     alert('Error uploading shifts: ' + res.error)
                 } else {
-                    alert(`Successfully added ${validShifts.length} shifts`)
+                    alert(`Successfully added ${parsedShifts.length} shifts`)
                     router.refresh()
                 }
             },
@@ -262,16 +320,33 @@ export default function ShiftManager({
                     >
                         Delete All
                     </button>
-                    <label className="cursor-pointer rounded-md bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 transition-colors duration-200">
-                        {uploading ? 'Uploading...' : 'Import CSV'}
-                        <input
-                            type="file"
-                            accept=".csv"
-                            className="hidden"
-                            onChange={handleFileUpload}
-                            disabled={uploading}
-                        />
-                    </label>
+                    <div className="relative group flex items-center">
+                        <label className="cursor-pointer rounded-md bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 transition-colors duration-200 flex items-center gap-2">
+                            {uploading ? 'Uploading...' : 'Import CSV'}
+                            <input
+                                type="file"
+                                accept=".csv"
+                                className="hidden"
+                                onChange={handleFileUpload}
+                                disabled={uploading}
+                            />
+                        </label>
+                        <div className="ml-2 cursor-help text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                            </svg>
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-80 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-xl z-50">
+                                <p className="font-bold mb-1">CSV Format Instructions:</p>
+                                <ul className="list-disc pl-4 space-y-1">
+                                    <li><strong>Name:</strong> Shift name (optional)</li>
+                                    <li><strong>Start/End:</strong> Flexible formats (e.g., "12/25/2025 9:00 AM")</li>
+                                    <li><strong>Groups:</strong> "Group1, Group2" or "Group1:2, Group2:1"</li>
+                                </ul>
+                                <p className="mt-2 text-gray-400">Columns: Name, Start, End, Groups</p>
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                    </div>
                     <button
                         onClick={() => { setIsRecurring(!isRecurring); setIsAdding(false); }}
                         className="rounded-md bg-indigo-100 dark:bg-indigo-900 px-4 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-200 shadow-sm hover:bg-indigo-200 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
@@ -436,8 +511,8 @@ export default function ShiftManager({
                                             setRecurringData({ ...recurringData, days })
                                         }}
                                         className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${recurringData.days.includes(day)
-                                                ? 'bg-indigo-600 text-white'
-                                                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                            ? 'bg-indigo-600 text-white'
+                                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                                             }`}
                                     >
                                         {day}

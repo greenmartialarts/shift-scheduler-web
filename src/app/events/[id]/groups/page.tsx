@@ -37,6 +37,11 @@ export default async function GroupsPage({
         volunteer_count: g.volunteers?.[0]?.count || 0
     })) || []
 
+    const { data: volunteers } = await supabase
+        .from('volunteers')
+        .select('*')
+        .eq('event_id', id)
+
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-200">
             <div className="mx-auto max-w-6xl">
@@ -51,7 +56,7 @@ export default async function GroupsPage({
                     <p className="text-gray-500 dark:text-gray-400">Manage groups and their colors.</p>
                 </div>
 
-                <GroupManager eventId={id} groups={groupsWithCount} />
+                <GroupManager eventId={id} groups={groupsWithCount} volunteers={volunteers || []} />
             </div>
         </div>
     )

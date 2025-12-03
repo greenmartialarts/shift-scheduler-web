@@ -52,29 +52,42 @@ export async function bulkAddShifts(eventId: string, shifts: any[]) {
 
     const formattedShifts = shifts.map((s) => {
         // Parse required_groups: "Delegates:1|Adults:1" -> {"Delegates": 1, "Adults": 1}
+        // Parse required_groups: "Delegates:1|Adults:1" -> {"Delegates": 1, "Adults": 1}
         let requiredGroups = {}
         if (s.required_groups) {
-            try {
-                requiredGroups = s.required_groups.split('|').reduce((acc: any, item: string) => {
-                    const [group, count] = item.split(':')
-                    if (group && count) acc[group.trim()] = parseInt(count)
-                    return acc
-                }, {})
-            } catch (e) {
-                console.error("Error parsing required_groups", s.required_groups)
+            if (typeof s.required_groups === 'object') {
+                requiredGroups = s.required_groups
+            } else {
+                try {
+                    requiredGroups = s.required_groups.split('|').reduce((acc: any, item: string) => {
+                        const [group, count] = item.split(':')
+                        if (group && count) acc[group.trim()] = parseInt(count)
+                        return acc
+                    }, {})
+                } catch (e) {
+                    console.error("Error parsing required_groups", s.required_groups)
+                }
             }
         }
 
         // Parse allowed_groups: "Delegates|Adults" -> ["Delegates", "Adults"]
         let allowedGroups: string[] = []
         if (s.allowed_groups) {
-            allowedGroups = s.allowed_groups.split('|').map((g: string) => g.trim())
+            if (Array.isArray(s.allowed_groups)) {
+                allowedGroups = s.allowed_groups
+            } else {
+                allowedGroups = s.allowed_groups.split('|').map((g: string) => g.trim())
+            }
         }
 
         // Parse excluded_groups
         let excludedGroups: string[] = []
         if (s.excluded_groups) {
-            excludedGroups = s.excluded_groups.split('|').map((g: string) => g.trim())
+            if (Array.isArray(s.excluded_groups)) {
+                excludedGroups = s.excluded_groups
+            } else {
+                excludedGroups = s.excluded_groups.split('|').map((g: string) => g.trim())
+            }
         }
 
         return {

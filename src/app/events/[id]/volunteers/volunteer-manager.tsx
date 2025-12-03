@@ -18,6 +18,29 @@ type Group = {
     color: string | null
 }
 
+const COLORS = [
+    '#ef4444', // red-500
+    '#f97316', // orange-500
+    '#f59e0b', // amber-500
+    '#84cc16', // lime-500
+    '#10b981', // emerald-500
+    '#06b6d4', // cyan-500
+    '#3b82f6', // blue-500
+    '#6366f1', // indigo-500
+    '#8b5cf6', // violet-500
+    '#d946ef', // fuchsia-500
+    '#f43f5e', // rose-500
+]
+
+const stringToColor = (str: string) => {
+    let hash = 0
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash)
+    }
+    const index = Math.abs(hash) % COLORS.length
+    return COLORS[index]
+}
+
 export default function VolunteerManager({
     eventId,
     initialVolunteers,
@@ -59,21 +82,37 @@ export default function VolunteerManager({
         setUploading(true)
         Papa.parse(file, {
             header: true,
+            skipEmptyLines: true,
             complete: async (results) => {
-                const validVolunteers = results.data.filter((v: any) => v.name && v.name.trim() !== '')
+                const parsedVolunteers = results.data.map((row: any) => {
+                    // Map columns loosely
+                    const name = row['Name'] || row['name'] || row['Volunteer'] || row['volunteer'] || ''
+                    const group = row['Group'] || row['group'] || row['Role'] || row['role'] || null
+                    const maxHoursRaw = row['Max Hours'] || row['max_hours'] || row['Hours'] || row['hours'] || row['Limit'] || row['limit']
 
-                if (validVolunteers.length === 0) {
+                    const max_hours = maxHoursRaw ? parseFloat(maxHoursRaw) : null
+
+                    if (!name) return null
+
+                    return {
+                        name,
+                        group,
+                        max_hours
+                    }
+                }).filter(Boolean)
+
+                if (parsedVolunteers.length === 0) {
                     setUploading(false)
                     alert('No valid volunteers found in CSV')
                     return
                 }
 
-                const res = await bulkAddVolunteers(eventId, validVolunteers)
+                const res = await bulkAddVolunteers(eventId, parsedVolunteers)
                 setUploading(false)
                 if (res?.error) {
                     alert('Error uploading volunteers: ' + res.error)
                 } else {
-                    alert(`Successfully added ${validVolunteers.length} volunteers`)
+                    alert(`Successfully added ${parsedVolunteers.length} volunteers`)
                     router.refresh()
                 }
             },
@@ -104,10 +143,24 @@ export default function VolunteerManager({
         }
     }
 
+    // Auto-discover groups from volunteers
+    const discoveredGroups = Array.from(new Set(volunteers.map(v => v.group).filter(Boolean))) as string[]
+
+    // Merge with explicit groups (prioritize explicit)
+    const allGroupNames = Array.from(new Set([
+        ...groups.map(g => g.name),
+        ...discoveredGroups
+    ])).sort()
+
     const getGroupColor = (groupName: string | null) => {
         if (!groupName) return '#9ca3af' // gray-400
-        const group = groups.find(g => g.name === groupName)
-        return group?.color || '#3b82f6' // blue-500
+
+        // Check explicit groups first
+        const explicitGroup = groups.find(g => g.name === groupName)
+        if (explicitGroup?.color) return explicitGroup.color
+
+        // Fallback to generated color
+        return stringToColor(groupName)
     }
 
     return (
@@ -127,16 +180,33 @@ export default function VolunteerManager({
                     >
                         Delete All
                     </button>
-                    <label className="cursor-pointer rounded-md bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 transition-colors duration-200">
-                        {uploading ? 'Uploading...' : 'Import CSV'}
-                        <input
-                            type="file"
-                            accept=".csv"
-                            className="hidden"
-                            onChange={handleFileUpload}
-                            disabled={uploading}
-                        />
-                    </label>
+                    <div className="relative group flex items-center">
+                        <label className="cursor-pointer rounded-md bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 transition-colors duration-200 flex items-center gap-2">
+                            {uploading ? 'Uploading...' : 'Import CSV'}
+                            <input
+                                type="file"
+                                accept=".csv"
+                                className="hidden"
+                                onChange={handleFileUpload}
+                                disabled={uploading}
+                            />
+                        </label>
+                        <div className="ml-2 cursor-help text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                            </svg>
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-xl z-50">
+                                <p className="font-bold mb-1">CSV Format Instructions:</p>
+                                <ul className="list-disc pl-4 space-y-1">
+                                    <li><strong>Name:</strong> Volunteer name (Required)</li>
+                                    <li><strong>Group:</strong> Role/Group (e.g., "Delegates")</li>
+                                    <li><strong>Max Hours:</strong> Number (e.g., 8.0)</li>
+                                </ul>
+                                <p className="mt-2 text-gray-400">Columns: Name, Group, Max Hours</p>
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                        </div>
+                    </div>
                     <button
                         onClick={() => setIsAdding(!isAdding)}
                         className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
@@ -165,8 +235,8 @@ export default function VolunteerManager({
                                 className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                             >
                                 <option value="">-- Select Group --</option>
-                                {groups.map(g => (
-                                    <option key={g.id} value={g.name}>{g.name}</option>
+                                {allGroupNames.map(name => (
+                                    <option key={name} value={name}>{name}</option>
                                 ))}
                             </select>
                         </div>
