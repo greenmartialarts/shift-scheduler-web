@@ -159,7 +159,7 @@ export default function ReportsManager({
         pdf.text(`Group: ${vol.group || '-'}`, 14, 40)
 
         // Table Data
-        const tableData = []
+        const tableData: string[][] = []
         // We need to find the actual shift details again or store them better
         // Let's iterate shifts to find assignments for this volunteer
         const myShifts = shifts.filter(s => s.assignments?.some(a => a.volunteer_id === volId))
@@ -198,6 +198,62 @@ export default function ReportsManager({
         })
 
         doc.save(`${eventName}_all_schedules.pdf`)
+    }
+
+    const generateSignInSheet = () => {
+        const doc = new jsPDF()
+
+        // Header
+        doc.setFontSize(18)
+        doc.text(eventName, 14, 22)
+        doc.setFontSize(14)
+        doc.text('Sign-In Sheet', 14, 32)
+        doc.setFontSize(10)
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 38)
+
+        const tableData: any[] = []
+
+        // Flatten assignments
+        shifts.forEach(shift => {
+            if (shift.assignments && shift.assignments.length > 0) {
+                shift.assignments.forEach(a => {
+                    const start = new Date(shift.start_time)
+                    const end = new Date(shift.end_time)
+                    tableData.push({
+                        volunteer: a.volunteer?.name || 'Unknown',
+                        shift: shift.name || '-',
+                        time: `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+                        startObj: start,
+                        shiftName: shift.name || ''
+                    })
+                })
+            }
+        })
+
+        // Sort
+        tableData.sort((a, b) => {
+            if (a.startObj.getTime() !== b.startObj.getTime()) return a.startObj.getTime() - b.startObj.getTime()
+            if (a.shiftName !== b.shiftName) return a.shiftName.localeCompare(b.shiftName)
+            return a.volunteer.localeCompare(b.volunteer)
+        })
+
+        // Generate Table
+        // @ts-ignore
+        autoTable(doc, {
+            head: [['Volunteer Name', 'Shift', 'Time', 'Signature']],
+            body: tableData.map(r => [r.volunteer, r.shift, r.time, '']),
+            startY: 45,
+            styles: { minCellHeight: 15, valign: 'middle' }, // Make rows taller for signatures
+            columnStyles: {
+                0: { cellWidth: 50 },
+                1: { cellWidth: 40 },
+                2: { cellWidth: 40 },
+                3: { cellWidth: 'auto' } // Remaining space for signature
+            },
+            headStyles: { fillColor: [63, 81, 181] }
+        })
+
+        doc.save(`${eventName}_signin_sheet.pdf`)
     }
 
     return (
@@ -252,6 +308,19 @@ export default function ReportsManager({
                                     className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                                 >
                                     Download CSV
+                                </button>
+                            </div>
+
+                            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Sign-In Sheet</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                    Print a blank sign-in sheet with all scheduled volunteers listed chronologically.
+                                </p>
+                                <button
+                                    onClick={generateSignInSheet}
+                                    className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                >
+                                    Download PDF
                                 </button>
                             </div>
                         </div>
