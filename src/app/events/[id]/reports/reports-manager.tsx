@@ -150,13 +150,13 @@ export default function ReportsManager({
 
         // Header
         pdf.setFontSize(18)
-        pdf.text(eventName, 14, 22)
+        pdf.text(eventName, 10, 20)
         pdf.setFontSize(14)
-        pdf.text(`Volunteer Schedule: ${vol.name}`, 14, 32)
+        pdf.text(`Volunteer Schedule: ${vol.name}`, 10, 30)
 
         // Stats
         pdf.setFontSize(10)
-        pdf.text(`Group: ${vol.group || '-'}`, 14, 40)
+        pdf.text(`Group: ${vol.group || '-'}`, 10, 38)
 
         // Table Data
         const tableData: string[][] = []
@@ -182,6 +182,10 @@ export default function ReportsManager({
             head: [['Date', 'Shift Name', 'Time', 'Duration']],
             body: tableData,
             startY: 45,
+            theme: 'grid',
+            headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0, 0, 0] },
+            styles: { textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.1 },
+            margin: 10,
         })
 
         if (!isBulk) {
@@ -205,11 +209,11 @@ export default function ReportsManager({
 
         // Header
         doc.setFontSize(18)
-        doc.text(eventName, 14, 22)
+        doc.text(eventName, 10, 20)
         doc.setFontSize(14)
-        doc.text('Sign-In Sheet', 14, 32)
+        doc.text('Sign-In Sheet', 10, 30)
         doc.setFontSize(10)
-        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 38)
+        doc.text(`Generated: ${new Date().toLocaleDateString()}`, 10, 36)
 
         const tableData: any[] = []
 
@@ -222,6 +226,7 @@ export default function ReportsManager({
                     tableData.push({
                         volunteer: a.volunteer?.name || 'Unknown',
                         shift: shift.name || '-',
+                        date: start.toLocaleDateString([], { month: 'numeric', day: 'numeric' }),
                         time: `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
                         startObj: start,
                         shiftName: shift.name || ''
@@ -240,17 +245,21 @@ export default function ReportsManager({
         // Generate Table
         // @ts-ignore
         autoTable(doc, {
-            head: [['Volunteer Name', 'Shift', 'Time', 'Signature']],
-            body: tableData.map(r => [r.volunteer, r.shift, r.time, '']),
-            startY: 45,
-            styles: { minCellHeight: 15, valign: 'middle' }, // Make rows taller for signatures
+            head: [['Volunteer Name', 'Shift', 'Date', 'Time', 'Checked In', 'Checked Out']],
+            body: tableData.map(r => [r.volunteer, r.shift, r.date, r.time, '[   ]', '[   ]']),
+            startY: 40,
+            theme: 'grid',
+            styles: { minCellHeight: 15, valign: 'middle', textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.1 },
             columnStyles: {
                 0: { cellWidth: 50 },
                 1: { cellWidth: 40 },
-                2: { cellWidth: 40 },
-                3: { cellWidth: 'auto' } // Remaining space for signature
+                2: { cellWidth: 25 },
+                3: { cellWidth: 35 },
+                4: { cellWidth: 20, halign: 'center' },
+                5: { cellWidth: 20, halign: 'center' }
             },
-            headStyles: { fillColor: [63, 81, 181] }
+            headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0, 0, 0] },
+            margin: 10,
         })
 
         doc.save(`${eventName}_signin_sheet.pdf`)

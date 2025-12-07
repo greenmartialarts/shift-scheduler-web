@@ -9,9 +9,11 @@ A comprehensive web application for managing event volunteers, shifts, and assig
 -   **Shift Management**: Create and manage shifts with specific requirements (time, required groups).
 -   **Templates & Recurring Shifts**: Quickly generate schedules using templates and recurring patterns.
 -   **Clone Events**: Easily duplicate entire events including their shift structures.
+-   **Inline Editing**: Update shift details and requirements on the fly.
 
 ### 👥 Volunteer Management
 -   **Volunteer Database**: Manage volunteer profiles and group affiliations.
+-   **Inline Editing**: Quickly update volunteer details directly from the list view.
 -   **Bulk Upload**: Import volunteers and shifts via CSV.
 -   **Group Management**: Organize volunteers into groups (e.g., "Medical", "Security", "General") with color-coding.
 
@@ -30,8 +32,13 @@ A comprehensive web application for managing event volunteers, shifts, and assig
 -   **Status Monitoring**: Track which assets are available, assigned, lost, or in maintenance.
 
 ### 📊 Reporting
--   **Export Data**: Download schedules and volunteer lists as CSV or PDF.
+-   **Export Data**: Download schedules and volunteer lists as CSV.
+-   **PDF Reports**: Generate printable Sign-In Sheets and individual Volunteer Schedule PDFs.
 -   **Live Stats**: Monitor "Active Currently" (on-site) vs "Total Checked In" (attendance) counts.
+
+### 🔐 Security & Access Control
+-   **Role-Based Access**: Distinguishes between 'Admin' (full access).
+-   **Authentication**: Secure login with error feedback and basic password reset functionality.
 
 ## Tech Stack
 
