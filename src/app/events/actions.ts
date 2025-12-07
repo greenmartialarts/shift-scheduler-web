@@ -16,15 +16,35 @@ export async function createEvent(formData: FormData) {
         redirect('/login')
     }
 
-    const { error } = await supabase.from('events').insert({
-        name,
-        user_id: user.id,
-        date: new Date().toISOString(), // Default to today for now
-    })
+    // 1. Create Event
+    const { data: event, error: eventError } = await supabase
+        .from('events')
+        .insert({
+            name,
+            user_id: user.id,
+            date: new Date().toISOString(), // Default to today for now
+        })
+        .select()
+        .single()
 
-    if (error) {
-        console.error('Error creating event:', error)
-        // Handle error (e.g., return state to display)
+    if (eventError) {
+        console.error('Error creating event:', eventError)
+        return // Handle error
+    }
+
+    // 2. Add creator as Admin
+    const { error: adminError } = await supabase
+        .from('event_admins')
+        .insert({
+            event_id: event.id,
+            user_id: user.id,
+            role: 'admin',
+        })
+
+    if (adminError) {
+        console.error('Error adding admin:', adminError)
+        // Cleanup event if admin creation fails? Or just log.
+        // If this fails, the user created an event they can't see.
     }
 
     revalidatePath('/events')
@@ -42,3 +62,59 @@ export async function deleteEvent(formData: FormData) {
 
     revalidatePath('/events')
 }
+
+export async function getUserInvitations() {
+    const supabase = await createClient()
+
+    // Fetch invites using the secure function that includes event name
+    const { data, error } = await supabase.rpc('get_my_pending_invitations')
+
+    if (error) {
+        console.error('Error fetching invitations:', error)
+        return []
+    }
+
+    // Map to expected format for frontend (shim to match previous structure if needed, or just return)
+    // The previous structure was { ..., events: { name: '...' } }
+    // The new structure is { ..., event_name: '...' }
+    // We can map it here to minimize frontend changes
+    return data?.map((invite: any) => ({
+        ...invite,
+        events: { name: invite.event_name }
+    })) || []
+}
+
+export async function acceptInvitation(invitationId: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) return { error: 'Not authenticated' }
+
+    // Use secure RPC function to accept the invitation
+    const { error } = await supabase.rpc('accept_event_invitation', {
+        invitation_id: invitationId
+    })
+
+    if (error) {
+        console.error('Error accepting invitation:', error)
+        return { error: error.message }
+    }
+
+    revalidatePath('/events')
+    return { success: true }
+}
+
+export async function declineInvitation(invitationId: string) {
+    const supabase = await createClient()
+
+    const { error } = await supabase
+        .from('event_invitations')
+        .update({ status: 'declined' }) // Or delete()
+        .eq('id', invitationId)
+
+    if (error) return { error: error.message }
+
+    revalidatePath('/events')
+    return { success: true }
+}
+
