@@ -55,6 +55,7 @@ export default function VolunteerManager({
     const [isAdding, setIsAdding] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
     const router = useRouter()
 
     useEffect(() => {
@@ -110,6 +111,7 @@ export default function VolunteerManager({
 
                 const res = await bulkAddVolunteers(eventId, parsedVolunteers)
                 setUploading(false)
+                setIsUploadModalOpen(false) // Close modal on success
                 if (res?.error) {
                     alert('Error uploading volunteers: ' + res.error)
                 } else {
@@ -192,31 +194,12 @@ export default function VolunteerManager({
                         Delete All
                     </button>
                     <div className="relative group flex items-center">
-                        <label className="cursor-pointer rounded-md bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 transition-colors duration-200 flex items-center gap-2">
+                        <button
+                            onClick={() => setIsUploadModalOpen(true)}
+                            className="curso-pointer rounded-md bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 transition-colors duration-200 flex items-center gap-2"
+                        >
                             {uploading ? 'Uploading...' : 'Import CSV'}
-                            <input
-                                type="file"
-                                accept=".csv"
-                                className="hidden"
-                                onChange={handleFileUpload}
-                                disabled={uploading}
-                            />
-                        </label>
-                        <div className="ml-2 cursor-help text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                            </svg>
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 shadow-xl z-50">
-                                <p className="font-bold mb-1">CSV Format Instructions:</p>
-                                <ul className="list-disc pl-4 space-y-1">
-                                    <li><strong>Name:</strong> Volunteer name (Required)</li>
-                                    <li><strong>Group:</strong> Role/Group (e.g., "Delegates")</li>
-                                    <li><strong>Max Hours:</strong> Number (e.g., 8.0)</li>
-                                </ul>
-                                <p className="mt-2 text-gray-400">Columns: Name, Group, Max Hours</p>
-                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900"></div>
-                            </div>
-                        </div>
+                        </button>
                     </div>
                     <button
                         onClick={() => setIsAdding(!isAdding)}
@@ -399,6 +382,63 @@ export default function VolunteerManager({
                     </tbody>
                 </table>
             </div>
+
+            {/* CSV Upload Modal */}
+            {isUploadModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Import Volunteers from CSV</h3>
+
+                        <div className="mb-4 text-sm text-gray-600 dark:text-gray-300 space-y-3">
+                            <p>
+                                Please ensure your CSV file follows the correct format.
+                                We recommend using our template to avoid errors.
+                            </p>
+                            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded border border-indigo-100 dark:border-indigo-800">
+                                <p className="font-medium text-indigo-900 dark:text-indigo-200 mb-1">Format Requirements:</p>
+                                <ul className="list-disc pl-5 space-y-1">
+                                    <li><strong>Name:</strong> Required</li>
+                                    <li><strong>Group:</strong> Optional (e.g. "Delegates")</li>
+                                    <li><strong>Max Hours:</strong> Optional (e.g. 8.0)</li>
+                                </ul>
+                            </div>
+
+                            <div className="pt-2">
+                                <a
+                                    href="https://docs.google.com/spreadsheets/d/1SBULQrNoxh_ShzWPl9asw4AV1QL6vvviTmLr3ascY54/copy"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline font-medium flex items-center gap-1"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Get CSV Template
+                                </a>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 mt-6">
+                            <button
+                                onClick={() => setIsUploadModalOpen(false)}
+                                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
+                            >
+                                Cancel
+                            </button>
+                            <label className="cursor-pointer px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 flex items-center gap-2">
+                                {uploading ? 'Uploading...' : 'Continue to Import'}
+                                <input
+                                    type="file"
+                                    accept=".csv"
+                                    className="hidden"
+                                    onChange={handleFileUpload}
+                                    disabled={uploading}
+                                />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
