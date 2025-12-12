@@ -16,6 +16,15 @@ export async function inviteAdmin(eventId: string, email: string) {
     // For now, let's trust the invite flow.
     // But we can check if there's already an invite.
 
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user?.email === 'test@example.com') {
+        return { error: 'The test account cannot invite others.' }
+    }
+
+    if (email === 'test@example.com') {
+        return { error: 'The test account cannot be invited as an admin.' }
+    }
+
     // 1. Check existing invites
     const { data: existing } = await supabase
         .from('event_invitations')
@@ -69,6 +78,10 @@ export async function removeAdmin(eventId: string, userId: string) {
 
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { error: 'Unauthorized' }
+
+    if (user.email === 'test@example.com') {
+        return { error: 'The test account cannot manage access.' }
+    }
 
     if (userId === user.id) {
         const { count } = await supabase
