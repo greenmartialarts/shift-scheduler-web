@@ -84,6 +84,23 @@ export default function LoginPage() {
                                 Forgot your password?
                             </Link>
                         </div>
+
+                        <div className="rounded-md bg-blue-50 p-4 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800">
+                            <div className="flex">
+                                <div className="ml-3">
+                                    <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                                        For Testing
+                                    </h3>
+                                    <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
+                                        <p>Use these credentials to test the site:</p>
+                                        <ul className="list-disc pl-5 space-y-1 mt-1">
+                                            <li>Email: test@example.com</li>
+                                            <li>Password: test123</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
