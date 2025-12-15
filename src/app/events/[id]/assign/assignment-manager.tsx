@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { assignVolunteer, unassignVolunteer, autoAssign, swapAssignments } from './actions'
+import { assignVolunteer, unassignVolunteer, autoAssign, swapAssignments, clearAssignments } from './actions'
 import { useRouter } from 'next/navigation'
 
 type Volunteer = {
@@ -36,7 +36,7 @@ export default function AssignmentManager({
 }) {
     const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(false)
-    const [strategy, setStrategy] = useState('minimize_unfilled')
+    const [strategy, setStrategy] = useState('greedy')
     const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null) // For swapping
     const router = useRouter()
 
@@ -164,6 +164,18 @@ export default function AssignmentManager({
         }
     }
 
+    async function handleClearAssignments() {
+        if (!confirm('Are you sure you want to remove ALL assignments? This cannot be undone.')) return
+        setLoading(true)
+        const res = await clearAssignments(eventId)
+        setLoading(false)
+        if (res?.error) alert(res.error)
+        else {
+            alert('All assignments cleared.')
+            router.refresh()
+        }
+    }
+
     async function handleAssign(shiftId: string, volunteerId: string) {
         if (!volunteerId) return
         const res = await assignVolunteer(shiftId, volunteerId)
@@ -212,9 +224,9 @@ export default function AssignmentManager({
                         onChange={(e) => setStrategy(e.target.value)}
                         className="rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200"
                     >
-                        <option value="minimize_unfilled">Minimize Unfilled (Default)</option>
-                        <option value="maximize_fairness">Maximize Fairness</option>
-                        <option value="minimize_overtime">Minimize Overtime</option>
+                        <option value="greedy">Standard (Fast, Worse)</option>
+                        <option value="cpsat">Advanced (Slower, Better)</option>
+                        <option value="optimal">Optimal (Slowest, Average)</option>
                     </select>
                     <button
                         onClick={handleAutoAssign}
@@ -222,6 +234,13 @@ export default function AssignmentManager({
                         className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
                     >
                         {loading ? 'Assigning...' : 'Auto Assign'}
+                    </button>
+                    <button
+                        onClick={handleClearAssignments}
+                        disabled={loading}
+                        className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
+                    >
+                        Clear All
                     </button>
                 </div>
             </div>

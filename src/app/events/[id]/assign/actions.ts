@@ -33,7 +33,7 @@ export async function unassignVolunteer(assignmentId: string) {
     return { success: true }
 }
 
-export async function autoAssign(eventId: string, strategy: string = 'minimize_unfilled') {
+export async function autoAssign(eventId: string, strategy: string = 'greedy') {
     const supabase = await createClient()
 
     // 1. Fetch all data
@@ -68,25 +68,33 @@ export async function autoAssign(eventId: string, strategy: string = 'minimize_u
             allowed_groups: s.allowed_groups,
             excluded_groups: s.excluded_groups,
         })),
-        strategy: strategy,
+        // Strategy is no longer part of the payload, it determines the endpoint
+    }
+
+    // Determine Endpoint
+    let endpoint = 'https://shift-scheduler-api-production.up.railway.app/schedule/json'
+    if (strategy === 'optimal') {
+        endpoint = 'https://shift-scheduler-api-production.up.railway.app/schedule/json_optimal?timeout=30'
+    } else if (strategy === 'cpsat') {
+        endpoint = 'https://shift-scheduler-api-production.up.railway.app/schedule/json_cpsat?timeout=30'
     }
 
     // Debug logging
     console.log('=== AUTO-ASSIGN DEBUG ===')
+    console.log('Strategy:', strategy)
+    console.log('Endpoint:', endpoint)
     console.log('Volunteers:', volunteers.length)
     console.log('Shifts:', shifts.length)
-    console.log('Sample volunteer:', volunteers[0])
-    console.log('Sample shift:', shifts[0])
-    console.log('API Payload:', JSON.stringify(apiPayload, null, 2))
+    // console.log('API Payload:', JSON.stringify(apiPayload, null, 2))
 
     // 3. Call API
     try {
-        const response = await fetch('https://shift-scheduler-api-production.up.railway.app/schedule/json', {
+        const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(apiPayload),
+            body: JSON.stringify(apiPayload), // Payload without strategy
         })
 
         let result
@@ -187,5 +195,35 @@ export async function swapAssignments(assignmentId1: string, assignmentId2: stri
 
     if (e1 || e2) return { error: 'Error swapping' }
 
+    return { success: true }
+}
+
+export async function clearAssignments(eventId: string) {
+    const supabase = await createClient()
+
+    // 1. Get all shift IDs for this event
+    const { data: shifts } = await supabase
+        .from('shifts')
+        .select('id')
+        .eq('event_id', eventId)
+
+    if (!shifts || shifts.length === 0) {
+        return { success: true }
+    }
+
+    const shiftIds = shifts.map(s => s.id)
+
+    // 2. Delete all assignments for these shifts
+    const { error } = await supabase
+        .from('assignments')
+        .delete()
+        .in('shift_id', shiftIds)
+
+    if (error) {
+        console.error('Error clearing assignments:', error)
+        return { error: error.message }
+    }
+
+    revalidatePath(`/events/${eventId}/assign`)
     return { success: true }
 }
