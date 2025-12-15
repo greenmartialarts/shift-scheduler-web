@@ -72,11 +72,11 @@ export async function autoAssign(eventId: string, strategy: string = 'greedy') {
     }
 
     // Determine Endpoint
-    let endpoint = 'https://shift-scheduler-api-production.up.railway.app/schedule/json'
+    let endpoint = 'https://shift-scheduler-api.up.railway.app/schedule/json'
     if (strategy === 'optimal') {
-        endpoint = 'https://shift-scheduler-api-production.up.railway.app/schedule/json_optimal?timeout=30'
+        endpoint = 'https://shift-scheduler-api.up.railway.app/schedule/json_optimal?timeout=30'
     } else if (strategy === 'cpsat') {
-        endpoint = 'https://shift-scheduler-api-production.up.railway.app/schedule/json_cpsat?timeout=30'
+        endpoint = 'https://shift-scheduler-api.up.railway.app/schedule/json_cpsat?timeout=30'
     }
 
     // Debug logging
