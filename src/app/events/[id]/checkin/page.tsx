@@ -31,13 +31,13 @@ export default async function CheckinPage({ params }: { params: Promise<{ id: st
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-200">
-            <div className="mx-auto max-w-4xl">
-                <div className="mb-8">
-                    <Link href={`/events/${id}`} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300">
-                        &larr; Back to Dashboard
-                    </Link>
-                    <h1 className="mt-4 text-3xl font-bold text-gray-900 dark:text-white">Volunteer Check-in</h1>
+        <div className="p-8">
+            <div className="mx-auto max-w-6xl">
+                <div className="mb-12">
+                    <h1 className="text-5xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">Volunteer Check-in</h1>
+                    <p className="text-zinc-500 dark:text-zinc-400 mt-2 font-medium italic">
+                        Real-time attendance tracking and personnel management
+                    </p>
                 </div>
                 <CheckinManager eventId={id} shifts={shifts || []} />
             </div>

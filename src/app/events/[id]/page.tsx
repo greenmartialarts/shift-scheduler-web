@@ -1,271 +1,226 @@
-import { createClient } from '@/lib/supabase/server'
+"use client";
+
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { Users, Calendar, Clock, CheckCircle, AlertTriangle, PieChart as PieChartIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Users, Calendar, AlertTriangle, PieChart as PieChartIcon, Zap } from 'lucide-react'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { AnalyticsCharts } from '@/components/dashboard/AnalyticsCharts'
 import { CloneEventModal } from '@/components/dashboard/CloneEventModal'
 
-export default async function EventDashboard({
+export default function EventDashboard({
     params,
 }: {
-    params: Promise<{ id: string }>
+    params: any
 }) {
-    const { id } = await params
-    const supabase = await createClient()
+    const router = useRouter()
+    const [id, setId] = useState<string | null>(null)
+    const [event, setEvent] = useState<any>(null)
+    const [stats, setStats] = useState<any>(null)
+    const [loading, setLoading] = useState(true)
 
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-        redirect('/login')
-    }
-
-    const { data: event } = await supabase
-        .from('events')
-        .select('*')
-        .eq('id', id)
-        .single()
-
-    if (!event) {
-        notFound()
-    }
-
-    // Fetch data for analytics
-    const [
-        { count: totalVolunteers, data: volunteers },
-        { data: shifts },
-    ] = await Promise.all([
-        supabase.from('volunteers').select('group', { count: 'exact' }).eq('event_id', id),
-        supabase.from('shifts').select('id, start_time, end_time, required_groups').eq('event_id', id),
-    ])
-
-    // Re-fetch assignments properly by filtering on shifts
-    const { data: eventShifts } = await supabase.from('shifts').select('id').eq('event_id', id);
-    const shiftIds = eventShifts?.map(s => s.id) || [];
-
-    // Only query assignments if there are shifts
-    let eventAssignments: any[] = [];
-    if (shiftIds.length > 0) {
-        const { data } = await supabase
-            .from('assignments')
-            .select('id, checked_in, checked_out_at, late_dismissed, shift_id')
-            .in('shift_id', shiftIds);
-        eventAssignments = data || [];
-    }
-
-    const realAssignments = eventAssignments || [];
-    const realShifts = shifts || [];
-    const realVolunteers = volunteers || [];
-
-    // Calculate Metrics
-    const totalVolunteersCount = totalVolunteers || 0;
-    const totalShiftsCount = realShifts.length;
-
-    // Calculate total slots from required_groups JSON
-    let totalSlots = 0;
-    realShifts.forEach(shift => {
-        const required = shift.required_groups as Record<string, number>;
-        if (required) {
-            Object.values(required).forEach(count => {
-                totalSlots += Number(count) || 0;
-            });
+    useEffect(() => {
+        async function loadParams() {
+            const resolvedParams = await params
+            setId(resolvedParams.id)
         }
-    });
+        loadParams()
+    }, [params])
 
-    const filledSlotsCount = realAssignments.length;
-    const fillRate = totalSlots > 0 ? (filledSlotsCount / totalSlots) * 100 : 0;
+    useEffect(() => {
+        if (!id) return;
 
-    // Calculate total hours
-    let totalHours = 0;
-    realShifts.forEach(shift => {
-        const start = new Date(shift.start_time).getTime();
-        const end = new Date(shift.end_time).getTime();
-        const durationHours = (end - start) / (1000 * 60 * 60);
-        totalHours += durationHours;
-    });
+        async function loadData() {
+            const supabase = createClient()
+            const { data: { user } } = await supabase.auth.getUser()
 
-    // Checked In = Total Attendance (checked_in = true)
-    const checkedInCount = realAssignments.filter(a => a.checked_in).length;
+            if (!user) {
+                router.push('/login')
+                return
+            }
 
-    // Active Currently = On Site (checked_in = true AND checked_out_at IS NULL)
-    const activeCurrentlyCount = realAssignments.filter(a => a.checked_in && !a.checked_out_at).length;
+            const { data: eventData } = await supabase
+                .from('events')
+                .select('*')
+                .eq('id', id)
+                .single()
 
-    const now = new Date();
-    const lateCount = realAssignments.filter(a => {
-        if (a.checked_in) return false;
-        const shift = realShifts.find(s => s.id === a.shift_id);
-        if (!shift) return false;
-        return new Date(shift.start_time) < now;
-    }).length;
+            if (!eventData) {
+                router.push('/events')
+                return
+            }
+            setEvent(eventData)
 
-    // Prepare Chart Data
-    const volunteersByGroupMap = new Map<string, number>();
-    realVolunteers.forEach(v => {
-        const group = v.group || 'Unassigned';
-        volunteersByGroupMap.set(group, (volunteersByGroupMap.get(group) || 0) + 1);
-    });
-    const volunteersByGroupData = Array.from(volunteersByGroupMap.entries()).map(([name, value]) => ({ name, value }));
+            // Fetch data for analytics
+            const [
+                { count: totalVolunteers, data: volunteers },
+                { data: shifts },
+            ] = await Promise.all([
+                supabase.from('volunteers').select('group', { count: 'exact' }).eq('event_id', id),
+                supabase.from('shifts').select('id, start_time, end_time, required_groups').eq('event_id', id),
+            ])
 
-    const shiftFillStatusData = [
-        { name: 'Filled', value: filledSlotsCount },
-        { name: 'Unfilled', value: Math.max(0, totalSlots - filledSlotsCount) },
-    ];
+            // Re-fetch assignments properly
+            const shiftIds = shifts?.map(s => s.id) || [];
+            let eventAssignments: any[] = [];
+            if (shiftIds.length > 0) {
+                const { data } = await supabase
+                    .from('assignments')
+                    .select('id, checked_in, checked_out_at, late_dismissed, shift_id')
+                    .in('shift_id', shiftIds);
+                eventAssignments = data || [];
+            }
+
+            // Calculate Metrics
+            let totalSlots = 0;
+            shifts?.forEach(shift => {
+                const required = shift.required_groups as Record<string, number>;
+                if (required) {
+                    Object.values(required).forEach(count => {
+                        totalSlots += Number(count) || 0;
+                    });
+                }
+            });
+
+            const filledSlotsCount = eventAssignments.length;
+            const fillRate = totalSlots > 0 ? (filledSlotsCount / totalSlots) * 100 : 0;
+
+            let totalHours = 0;
+            shifts?.forEach(shift => {
+                const start = new Date(shift.start_time).getTime();
+                const end = new Date(shift.end_time).getTime();
+                totalHours += (end - start) / (1000 * 60 * 60);
+            });
+
+            const now = new Date();
+            const lateCount = eventAssignments.filter(a => {
+                if (a.checked_in) return false;
+                const shift = shifts?.find(s => s.id === a.shift_id);
+                if (!shift) return false;
+                return new Date(shift.start_time) < now;
+            }).length;
+
+            const volunteersByGroupMap = new Map<string, number>();
+            volunteers?.forEach(v => {
+                const group = v.group || 'Unassigned';
+                volunteersByGroupMap.set(group, (volunteersByGroupMap.get(group) || 0) + 1);
+            });
+
+            setStats({
+                totalVolunteersCount: totalVolunteers || 0,
+                totalShiftsCount: shifts?.length || 0,
+                totalSlots,
+                filledSlotsCount,
+                fillRate,
+                totalHours,
+                checkedInCount: eventAssignments.filter(a => a.checked_in).length,
+                activeCurrentlyCount: eventAssignments.filter(a => a.checked_in && !a.checked_out_at).length,
+                lateCount,
+                volunteersByGroupData: Array.from(volunteersByGroupMap.entries()).map(([name, value]) => ({ name, value })),
+                shiftFillStatusData: [
+                    { name: 'Filled', value: filledSlotsCount },
+                    { name: 'Unfilled', value: Math.max(0, totalSlots - filledSlotsCount) },
+                ]
+            })
+            setLoading(false)
+        }
+        loadData()
+    }, [id, router])
+
+    if (loading || !event || !stats) {
+        return (
+            <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center">
+                <div className="h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            </div>
+        )
+    }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-200">
+        <main className="p-6 md:p-12">
             <div className="mx-auto max-w-6xl">
-                <div className="mb-8">
-                    <Link href="/events" className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300">
-                        &larr; Back to Events
-                    </Link>
-                    <div className="mt-4 flex flex-col md:flex-row md:items-center md:justify-between">
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{event.name}</h1>
-                            <p className="text-gray-500 dark:text-gray-400">{new Date(event.date).toLocaleDateString()}</p>
-                        </div>
-                        <div className="mt-4 md:mt-0 flex gap-4">
-                            <Link
-                                href={`/events/${id}/kiosk`}
-                                className="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
-                            >
-                                Launch Kiosk
-                            </Link>
-                            <CloneEventModal eventId={id} eventName={event.name} eventDate={event.date} />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Quick Stats Banner */}
-                <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-5">
-                    <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Fill Rate</p>
-                        <p className={`text-2xl font-bold ${fillRate >= 80 ? 'text-green-600' : fillRate >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
-                            {Math.round(fillRate)}%
+                <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h1 className="text-5xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">
+                            {event.name}
+                        </h1>
+                        <p className="text-zinc-500 dark:text-zinc-400 mt-2 font-medium italic">
+                            Event coordination control center
                         </p>
-                        <p className="text-xs text-gray-400">{filledSlotsCount} / {totalSlots} slots</p>
                     </div>
-                    <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Volunteers</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalVolunteersCount}</p>
+                    <div className="flex gap-3">
+                        <Link
+                            href={`/events/${id}/kiosk`}
+                            className="button-premium"
+                        >
+                            <Zap className="w-4 h-4 mr-2" />
+                            Launch Kiosk
+                        </Link>
+                        <CloneEventModal eventId={id!} eventName={event.name} eventDate={event.date} />
                     </div>
-                    <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Hours</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{Math.round(totalHours)}</p>
-                    </div>
-                    <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Checked In</p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{checkedInCount}</p>
-                    </div>
-                    <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800 border-l-4 border-green-500">
-                        <p className="text-sm text-gray-500 dark:text-gray-400">Active Now</p>
-                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{activeCurrentlyCount}</p>
-                    </div>
+                </header>
+
+                {/* Quick Stats Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    {[
+                        { label: 'Fill Rate', value: `${Math.round(stats.fillRate)}%`, sub: `${stats.filledSlotsCount} / ${stats.totalSlots}`, color: stats.fillRate >= 80 ? 'text-green-500' : stats.fillRate >= 50 ? 'text-yellow-500' : 'text-red-500' },
+                        { label: 'Volunteers', value: stats.totalVolunteersCount, sub: 'Registered members' },
+                        { label: 'Hours Tracked', value: Math.round(stats.totalHours), sub: 'Projected demand' },
+                        { label: 'Active Personnel', value: stats.activeCurrentlyCount, sub: 'Currently on-site', color: 'text-green-500' },
+                    ].map((stat) => (
+                        <div key={stat.label} className="premium-card p-6">
+                            <p className="text-xs font-black uppercase tracking-wider text-zinc-400 mb-1">{stat.label}</p>
+                            <p className={`text-4xl font-black tracking-tighter ${stat.color || 'text-zinc-900 dark:text-zinc-50'}`}>{stat.value}</p>
+                            <p className="text-xs font-bold text-zinc-500 mt-1">{stat.sub}</p>
+                        </div>
+                    ))}
                 </div>
 
-                {/* Main Analytics Grid */}
-                <div className="mb-8 grid gap-6 md:grid-cols-3">
-                    <StatCard
-                        label="Total Shifts"
-                        value={totalShiftsCount}
-                        icon={Calendar}
-                    />
-                    <StatCard
-                        label="Total Slots"
-                        value={totalSlots}
-                        icon={Users}
-                    />
-                    <StatCard
-                        label="Late Arrivals"
-                        value={lateCount}
-                        icon={AlertTriangle}
-                        className={lateCount > 0 ? 'border-l-4 border-red-500' : ''}
-                    />
+                {/* Secondary Metrics */}
+                <div className="grid md:grid-cols-3 gap-6 mb-12">
+                    <StatCard label="Total Shifts" value={stats.totalShiftsCount} icon={Calendar} className="premium-card" />
+                    <StatCard label="Total Slots" value={stats.totalSlots} icon={Users} className="premium-card" />
+                    <StatCard label="Late Arrivals" value={stats.lateCount} icon={AlertTriangle} className={`premium-card ${stats.lateCount > 0 ? 'border-red-500/30' : ''}`} />
                 </div>
 
-                {/* Charts */}
-                <div className="mb-8">
+                {/* Charts & Analytics */}
+                <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/30 mb-12">
+                    <div className="flex items-center gap-2 mb-8">
+                        <PieChartIcon className="w-5 h-5 text-indigo-500" />
+                        <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Operational Intelligence</h2>
+                    </div>
                     <AnalyticsCharts
-                        volunteersByGroup={volunteersByGroupData}
-                        shiftFillStatus={shiftFillStatusData}
+                        volunteersByGroup={stats.volunteersByGroupData}
+                        shiftFillStatus={stats.shiftFillStatusData}
                     />
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-3">
-                    <Link
-                        href={`/events/${id}/volunteers`}
-                        className="group block rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition hover:shadow-md hover:ring-2 hover:ring-indigo-500 transition-colors duration-200"
-                    >
-                        <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                            Volunteers
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400">
-                            Manage volunteers, add individually or bulk upload via CSV.
-                        </p>
-                    </Link>
-
-                    <Link
-                        href={`/events/${id}/shifts`}
-                        className="group block rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition hover:shadow-md hover:ring-2 hover:ring-indigo-500 transition-colors duration-200"
-                    >
-                        <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                            Shifts
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400">
-                            Manage shifts, set requirements, and bulk upload.
-                        </p>
-                    </Link>
-
-                    <Link
-                        href={`/events/${id}/assign`}
-                        className="group block rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition hover:shadow-md hover:ring-2 hover:ring-indigo-500 transition-colors duration-200"
-                    >
-                        <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                            Assignments
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400">
-                            Assign volunteers to shifts manually or use Auto-Assign.
-                        </p>
-                    </Link>
-
-                    <Link
-                        href={`/events/${id}/checkin`}
-                        className="group block rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition hover:shadow-md hover:ring-2 hover:ring-indigo-500 transition-colors duration-200"
-                    >
-                        <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                            Check-in
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400">
-                            Manage volunteer attendance and track late arrivals.
-                        </p>
-                    </Link>
-
-                    <Link
-                        href={`/events/${id}/assets`}
-                        className="group block rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition hover:shadow-md hover:ring-2 hover:ring-indigo-500 transition-colors duration-200"
-                    >
-                        <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                            Assets
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400">
-                            Track radios, vests, and other equipment.
-                        </p>
-                    </Link>
-
-                    <Link
-                        href={`/events/${id}/reports`}
-                        className="group block rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition hover:shadow-md hover:ring-2 hover:ring-indigo-500 transition-colors duration-200"
-                    >
-                        <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                            Reports
-                        </h2>
-                        <p className="text-gray-500 dark:text-gray-400">
-                            Export schedules, track hours, and generate PDFs.
-                        </p>
-                    </Link>
+                {/* Core Management Modules */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[
+                        { name: 'Volunteers', desc: 'Manage profiles, groups, and bulk CSV imports.', href: `/events/${id}/volunteers` },
+                        { name: 'Shifts', desc: 'Configure shift timelines and group requirements.', href: `/events/${id}/shifts` },
+                        { name: 'Assets', desc: 'Track radios, vests, and other event equipment.', href: `/events/${id}/assets` },
+                        { name: 'Assignments', desc: 'Auto-optimize or manually curate the roster.', href: `/events/${id}/assign` },
+                        { name: 'Attendance', desc: 'Real-time check-in/out and arrival tracking.', href: `/events/${id}/checkin` },
+                        { name: 'Reports', desc: 'Export analytics, sign-in docs, and hours.', href: `/events/${id}/reports` },
+                        { name: 'Settings', desc: 'Sharing controls and event configurations.', href: `/events/${id}/share` },
+                    ].map((module) => (
+                        <Link
+                            key={module.name}
+                            href={module.href}
+                            className="premium-card p-8 group hover:bg-zinc-50 dark:hover:bg-zinc-900/50"
+                        >
+                            <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 mb-3">
+                                {module.name}
+                            </h3>
+                            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 leading-relaxed italic">
+                                {module.desc}
+                            </p>
+                        </Link>
+                    ))}
                 </div>
             </div>
-        </div>
+        </main>
     )
 }

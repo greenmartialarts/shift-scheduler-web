@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
 import { addVolunteer, bulkAddVolunteers, deleteVolunteer, deleteAllVolunteers, updateVolunteer } from './actions'
 import { useRouter } from 'next/navigation'
+import { Search, UserPlus, Trash2, Upload, FileText, X, Check, Edit2, Download, AlertCircle } from 'lucide-react'
 
 type Volunteer = {
     id: string
@@ -19,6 +20,10 @@ type Group = {
 }
 
 const COLORS = [
+    '#6366f1', // indigo-500
+    '#8b5cf6', // violet-500
+    '#d946ef', // fuchsia-500
+    '#f43f5e', // rose-500
     '#ef4444', // red-500
     '#f97316', // orange-500
     '#f59e0b', // amber-500
@@ -26,10 +31,6 @@ const COLORS = [
     '#10b981', // emerald-500
     '#06b6d4', // cyan-500
     '#3b82f6', // blue-500
-    '#6366f1', // indigo-500
-    '#8b5cf6', // violet-500
-    '#d946ef', // fuchsia-500
-    '#f43f5e', // rose-500
 ]
 
 const stringToColor = (str: string) => {
@@ -87,7 +88,6 @@ export default function VolunteerManager({
             skipEmptyLines: true,
             complete: async (results) => {
                 const parsedVolunteers = results.data.map((row: any) => {
-                    // Map columns loosely
                     const name = row['Name'] || row['name'] || row['Volunteer'] || row['volunteer'] || ''
                     const group = row['Group'] || row['group'] || row['Role'] || row['role'] || null
                     const maxHoursRaw = row['Max Hours'] || row['max_hours'] || row['Hours'] || row['hours'] || row['Limit'] || row['limit']
@@ -111,11 +111,10 @@ export default function VolunteerManager({
 
                 const res = await bulkAddVolunteers(eventId, parsedVolunteers)
                 setUploading(false)
-                setIsUploadModalOpen(false) // Close modal on success
+                setIsUploadModalOpen(false)
                 if (res?.error) {
                     alert('Error uploading volunteers: ' + res.error)
                 } else {
-                    alert(`Successfully added ${parsedVolunteers.length} volunteers`)
                     router.refresh()
                 }
             },
@@ -156,285 +155,306 @@ export default function VolunteerManager({
         }
     }
 
-    // Auto-discover groups from volunteers
     const discoveredGroups = Array.from(new Set(volunteers.map(v => v.group).filter(Boolean))) as string[]
-
-    // Merge with explicit groups (prioritize explicit)
     const allGroupNames = Array.from(new Set([
         ...groups.map(g => g.name),
         ...discoveredGroups
     ])).sort()
 
     const getGroupColor = (groupName: string | null) => {
-        if (!groupName) return '#9ca3af' // gray-400
-
-        // Check explicit groups first
+        if (!groupName) return '#9ca3af'
         const explicitGroup = groups.find(g => g.name === groupName)
         if (explicitGroup?.color) return explicitGroup.color
-
-        // Fallback to generated color
         return stringToColor(groupName)
     }
 
     return (
-        <div>
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <input
-                    type="text"
-                    placeholder="Search volunteers..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
-                />
-                <div className="flex gap-2">
+        <div className="space-y-8">
+            {/* Header / Search Controls */}
+            <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+                <div className="relative w-full md:max-w-md">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5 pointer-events-none" />
+                    <input
+                        type="text"
+                        placeholder="Search volunteers by name or group..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full pl-12 pr-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-zinc-50 outline-none transition-all placeholder:text-zinc-400 font-medium"
+                    />
+                </div>
+
+                <div className="flex flex-wrap gap-3 w-full md:w-auto justify-end">
                     <button
                         onClick={handleDeleteAll}
-                        className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
+                        className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all font-bold"
+                        title="Delete All Volunteers"
                     >
-                        Delete All
+                        <Trash2 className="w-5 h-5" />
                     </button>
-                    <div className="relative group flex items-center">
-                        <button
-                            onClick={() => setIsUploadModalOpen(true)}
-                            className="curso-pointer rounded-md bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 transition-colors duration-200 flex items-center gap-2"
-                        >
-                            {uploading ? 'Uploading...' : 'Import CSV'}
-                        </button>
-                    </div>
+                    <button
+                        onClick={() => setIsUploadModalOpen(true)}
+                        className="flex items-center gap-2 px-5 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-sm"
+                    >
+                        <Upload className="w-5 h-5" />
+                        <span>Import</span>
+                    </button>
                     <button
                         onClick={() => setIsAdding(!isAdding)}
-                        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                        className="button-premium px-6"
                     >
+                        {isAdding ? <X className="w-5 h-5 mr-1" /> : <UserPlus className="w-5 h-5 mr-2" />}
                         {isAdding ? 'Cancel' : 'Add Volunteer'}
                     </button>
                 </div>
             </div>
 
             {isAdding && (
-                <div className="mb-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-                    <form action={handleAdd} className="grid gap-4 sm:grid-cols-4 items-end">
-                        <div className="sm:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-                            <input
-                                type="text"
-                                name="name"
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Group</label>
-                            <select
-                                name="group"
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            >
-                                <option value="">-- Select Group --</option>
-                                {allGroupNames.map(name => (
-                                    <option key={name} value={name}>{name}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Max Hours</label>
-                            <input
-                                type="number"
-                                name="max_hours"
-                                step="0.5"
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            />
-                        </div>
-                        <div className="sm:col-span-4 flex justify-end">
-                            <button
-                                type="submit"
-                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
-                            >
-                                Save
-                            </button>
-                        </div>
-                    </form>
+                <div className="overflow-hidden">
+                    <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/10 border-indigo-500/20">
+                        <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2">
+                            <UserPlus className="w-5 h-5 text-indigo-500" />
+                            Create New Volunteer
+                        </h3>
+                        <form action={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Full Name</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    required
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Group Assignment</label>
+                                <select
+                                    name="group"
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none"
+                                >
+                                    <option value="">No Group</option>
+                                    {allGroupNames.map(name => (
+                                        <option key={name} value={name}>{name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Max Hours (Weekly)</label>
+                                <input
+                                    type="number"
+                                    name="max_hours"
+                                    step="0.5"
+                                    placeholder="Unlimited"
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div className="md:col-span-4 flex justify-end">
+                                <button type="submit" className="button-premium px-8">Confirm Addition</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
 
-            <div className="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow transition-colors duration-200">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Name
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Group
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Max Hours
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                        {filteredVolunteers.map((volunteer) => {
-                            const isEditing = editingId === volunteer.id
-                            return (
-                                <tr key={volunteer.id}>
-                                    {isEditing ? (
-                                        <>
-                                            <td colSpan={4} className="px-6 py-4">
-                                                <form action={(formData) => handleUpdate(volunteer.id, formData)} className="grid gap-4 sm:grid-cols-4 items-end">
-                                                    <div className="sm:col-span-2">
-                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+            {/* Table Section */}
+            <div className="premium-card overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
+                            <tr>
+                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Volunteer</th>
+                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Group</th>
+                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Max Hours</th>
+                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                            {filteredVolunteers.map((volunteer) => {
+                                const isEditing = editingId === volunteer.id
+                                return (
+                                    <tr
+                                        key={volunteer.id}
+                                        className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-colors"
+                                    >
+                                        {isEditing ? (
+                                            <td colSpan={4} className="px-8 py-6">
+                                                <form
+                                                    action={(formData) => handleUpdate(volunteer.id, formData)}
+                                                    className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end"
+                                                >
+                                                    <div className="md:col-span-1">
                                                         <input
                                                             type="text"
                                                             name="name"
                                                             defaultValue={volunteer.name}
                                                             required
-                                                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
                                                         />
                                                     </div>
                                                     <div>
-                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Group</label>
                                                         <select
                                                             name="group"
                                                             defaultValue={volunteer.group || ''}
-                                                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
                                                         >
-                                                            <option value="">-- Select Group --</option>
+                                                            <option value="">No Group</option>
                                                             {allGroupNames.map(name => (
                                                                 <option key={name} value={name}>{name}</option>
                                                             ))}
                                                         </select>
                                                     </div>
                                                     <div>
-                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Max Hours</label>
                                                         <input
                                                             type="number"
                                                             name="max_hours"
                                                             defaultValue={volunteer.max_hours || ''}
                                                             step="0.5"
-                                                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
                                                         />
                                                     </div>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            type="submit"
-                                                            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
-                                                        >
-                                                            Save
+                                                    <div className="flex justify-end gap-2">
+                                                        <button type="submit" className="p-2 rounded-lg bg-green-500 text-white shadow-lg hover:scale-105 transition-transform">
+                                                            <Check className="w-5 h-5" />
                                                         </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setEditingId(null)}
-                                                            className="rounded-md bg-gray-300 dark:bg-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200"
-                                                        >
-                                                            Cancel
+                                                        <button type="button" onClick={() => setEditingId(null)} className="p-2 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:scale-105 transition-transform">
+                                                            <X className="w-5 h-5" />
                                                         </button>
                                                     </div>
                                                 </form>
                                             </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                                {volunteer.name}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {volunteer.group ? (
-                                                    <span
-                                                        className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white"
-                                                        style={{ backgroundColor: getGroupColor(volunteer.group) }}
-                                                    >
-                                                        {volunteer.group}
-                                                    </span>
-                                                ) : (
-                                                    '-'
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {volunteer.max_hours || 'Unlimited'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                                <button
-                                                    onClick={() => setEditingId(volunteer.id)}
-                                                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(volunteer.id)}
-                                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </>
-                                    )}
+                                        ) : (
+                                            <>
+                                                <td className="px-8 py-5">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center border border-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-black text-xs">
+                                                            {volunteer.name.charAt(0)}
+                                                        </div>
+                                                        <span className="font-bold text-zinc-900 dark:text-zinc-50">{volunteer.name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5 text-sm">
+                                                    {volunteer.group ? (
+                                                        <span
+                                                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black text-white shadow-sm"
+                                                            style={{ backgroundColor: getGroupColor(volunteer.group) }}
+                                                        >
+                                                            {volunteer.group}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-zinc-400 italic">None</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-8 py-5 text-sm font-bold text-zinc-500">
+                                                    {volunteer.max_hours ? `${volunteer.max_hours} hours` : 'Unlimited'}
+                                                </td>
+                                                <td className="px-8 py-5 text-right">
+                                                    <div className="flex justify-end items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button
+                                                            onClick={() => setEditingId(volunteer.id)}
+                                                            className="p-2 rounded-lg text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all"
+                                                            title="Edit Volunteer"
+                                                        >
+                                                            <Edit2 className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(volunteer.id)}
+                                                            className="p-2 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                                            title="Delete Volunteer"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                )
+                            })}
+                            {filteredVolunteers.length === 0 && (
+                                <tr>
+                                    <td colSpan={4} className="px-8 py-12 text-center">
+                                        <div className="flex flex-col items-center gap-3 text-zinc-400">
+                                            <Search className="w-10 h-10 opacity-20" />
+                                            <p className="font-bold italic">No matching volunteers found in this event.</p>
+                                        </div>
+                                    </td>
                                 </tr>
-                            )
-                        })}
-                        {filteredVolunteers.length === 0 && (
-                            <tr>
-                                <td colSpan={4} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                                    No volunteers found.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            {/* CSV Upload Modal */}
+            {/* CSV Export / Instructions / Links */}
+            <div className="grid md:grid-cols-2 gap-8">
+                <div className="premium-card p-6 bg-indigo-500/5 border-indigo-500/20">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Download className="w-6 h-6 text-indigo-500" />
+                        <h4 className="text-lg font-black text-zinc-900 dark:text-zinc-50">Bulk Operations</h4>
+                    </div>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed italic mb-6">
+                        Efficiently scale your volunteer base. Use our standardized format to sync data across platforms.
+                    </p>
+                    <a
+                        href="https://docs.google.com/spreadsheets/d/1SBULQrNoxh_ShzWPl9asw4AV1QL6vvviTmLr3ascY54/copy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
+                    >
+                        <FileText className="w-4 h-4" />
+                        Download CSV Template
+                    </a>
+                </div>
+            </div>
+
+            {/* Premium CSV Modal */}
             {isUploadModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Import Volunteers from CSV</h3>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                    <div
+                        onClick={() => setIsUploadModalOpen(false)}
+                        className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md"
+                    />
+                    <div
+                        className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl max-w-lg w-full p-8 relative z-10"
+                    >
+                        <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 mb-4">Import Core Database</h3>
 
-                        <div className="mb-4 text-sm text-gray-600 dark:text-gray-300 space-y-3">
-                            <p>
-                                Please ensure your CSV file follows the correct format.
-                                We recommend using our template to avoid errors.
+                        <div className="space-y-6">
+                            <p className="text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed italic">
+                                Prepare your CSV file for global distribution. The system will automatically detect headers and map fields.
                             </p>
-                            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded border border-indigo-100 dark:border-indigo-800">
-                                <p className="font-medium text-indigo-900 dark:text-indigo-200 mb-1">Format Requirements:</p>
-                                <ul className="list-disc pl-5 space-y-1">
-                                    <li><strong>Name:</strong> Required</li>
-                                    <li><strong>Group:</strong> Optional (e.g. "Delegates")</li>
-                                    <li><strong>Max Hours:</strong> Optional (e.g. 8.0)</li>
-                                </ul>
+
+                            <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+                                <div className="flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
+                                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                    <span className="font-bold uppercase tracking-tighter text-sm">Mapping Protocol</span>
+                                </div>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {['Name', 'Group', 'Hours'].map(field => (
+                                        <div key={field} className="px-3 py-2 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-center text-xs font-black text-zinc-400">
+                                            {field}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
-                            <div className="pt-2">
-                                <a
-                                    href="https://docs.google.com/spreadsheets/d/1SBULQrNoxh_ShzWPl9asw4AV1QL6vvviTmLr3ascY54/copy"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline font-medium flex items-center gap-1"
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    onClick={() => setIsUploadModalOpen(false)}
+                                    className="flex-1 px-6 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 font-bold text-zinc-500 hover:bg-zinc-50 transition-all"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                    Get CSV Template
-                                </a>
+                                    Abort
+                                </button>
+                                <label className="flex-[2] cursor-pointer button-premium py-4">
+                                    {uploading ? 'Processing Architecture...' : 'Upload & Distribute'}
+                                    <input
+                                        type="file"
+                                        accept=".csv"
+                                        className="hidden"
+                                        onChange={handleFileUpload}
+                                        disabled={uploading}
+                                    />
+                                </label>
                             </div>
-                        </div>
-
-                        <div className="flex justify-end gap-3 mt-6">
-                            <button
-                                onClick={() => setIsUploadModalOpen(false)}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
-                            >
-                                Cancel
-                            </button>
-                            <label className="cursor-pointer px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 flex items-center gap-2">
-                                {uploading ? 'Uploading...' : 'Continue to Import'}
-                                <input
-                                    type="file"
-                                    accept=".csv"
-                                    className="hidden"
-                                    onChange={handleFileUpload}
-                                    disabled={uploading}
-                                />
-                            </label>
                         </div>
                     </div>
                 </div>

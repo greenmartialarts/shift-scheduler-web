@@ -110,7 +110,7 @@ export default function CheckinManager({
                     placeholder="Search volunteers, dates, or times..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-md dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
+                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 px-4 py-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-md dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500"
                 />
             </div>
 
@@ -123,9 +123,9 @@ export default function CheckinManager({
                     return (
                         <div
                             key={shift.id}
-                            className={`rounded-lg border p-4 shadow-sm transition-all duration-200 ${isLate ? 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800' :
-                                isCompleted ? 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800 opacity-75' :
-                                    'bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700'
+                            className={`rounded-3xl border p-6 ${isLate ? 'bg-red-50/50 border-red-200 dark:bg-red-900/10 dark:border-red-800 shadow-lg shadow-red-500/5' :
+                                isCompleted ? 'bg-zinc-50/50 border-zinc-200 dark:bg-zinc-900/10 dark:border-zinc-800 opacity-60' :
+                                    'glass-panel shadow-lg shadow-zinc-500/5 hover:shadow-2xl hover:shadow-indigo-500/5'
                                 }`}
                         >
                             <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between">

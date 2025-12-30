@@ -216,7 +216,7 @@ export default function AssignmentManager({
                     placeholder="Search shifts..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
+                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 px-4 py-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500 transition-all duration-200"
                 />
                 <div className="flex gap-2">
                     <select
@@ -231,14 +231,14 @@ export default function AssignmentManager({
                     <button
                         onClick={handleAutoAssign}
                         disabled={loading}
-                        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                        className="rounded-2xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 hover:scale-[1.02]"
                     >
                         {loading ? 'Assigning...' : 'Auto Assign'}
                     </button>
                     <button
                         onClick={handleClearAssignments}
                         disabled={loading}
-                        className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
+                        className="rounded-2xl bg-zinc-100 dark:bg-zinc-800 px-6 py-2.5 text-sm font-bold text-zinc-900 dark:text-zinc-100 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 disabled:opacity-50 transition-all duration-200"
                     >
                         Clear All
                     </button>
@@ -257,9 +257,9 @@ export default function AssignmentManager({
                     const isUnfilled = unfilledShiftIds.has(shift.id)
 
                     return (
-                        <div key={shift.id} className={`rounded-lg p-6 shadow transition-colors duration-200 ${shiftConflicts ? 'bg-yellow-50 border-2 border-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-600' :
-                            isUnfilled ? 'bg-orange-50 border-2 border-orange-300 dark:bg-orange-900/20 dark:border-orange-600' :
-                                'bg-white dark:bg-gray-800'
+                        <div key={shift.id} className={`rounded-3xl p-6 transition-all duration-300 ${shiftConflicts ? 'bg-yellow-50/50 border border-yellow-200 dark:bg-yellow-900/10 dark:border-yellow-800 shadow-lg shadow-yellow-500/5' :
+                            isUnfilled ? 'bg-orange-50/50 border border-orange-200 dark:bg-orange-900/10 dark:border-orange-800 shadow-lg shadow-orange-500/5' :
+                                'glass-panel hover:shadow-2xl hover:shadow-indigo-500/5'
                             }`}>
                             {shiftConflicts && (
                                 <div className="mb-4 rounded-md bg-yellow-100 p-3 text-sm text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">

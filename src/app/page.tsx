@@ -2,21 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-
-const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-};
-
-const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
 
 const features = [
   {
@@ -102,63 +87,34 @@ export default function Home() {
       {/* Navigation / Header */}
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/70 dark:bg-zinc-950/70 border-b border-zinc-200 dark:border-zinc-800/50">
         <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto w-full">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <div
             className="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2"
           >
             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
               <span className="text-white text-lg">V</span>
             </div>
             Volunteer Scheduler
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
+          </div>
+          <div>
             <Link
               href="/login"
               className="rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:shadow-xl hover:shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all duration-200"
             >
               Login
             </Link>
-          </motion.div>
+          </div>
         </div>
       </header>
 
       <main className="flex-grow">
         {/* Hero Section */}
         <section className="relative px-6 py-20 lg:py-32 overflow-hidden">
-          {/* Animated Background Orbs */}
-          <div className="absolute inset-0 -z-10 overflow-hidden">
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                rotate: [0, 90, 0],
-              }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="absolute -top-24 -right-24 w-[500px] h-[500px] bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-full blur-[120px]"
-            />
-            <motion.div
-              animate={{
-                scale: [1, 1.1, 1],
-                rotate: [0, -90, 0],
-              }}
-              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-              className="absolute -bottom-24 -left-24 w-[500px] h-[500px] bg-gradient-to-tr from-purple-500/20 to-pink-500/20 rounded-full blur-[120px]"
-            />
-          </div>
-
           <div className="mx-auto max-w-7xl relative">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
-              <motion.div
-                variants={staggerContainer}
-                initial="initial"
-                animate="animate"
+              <div
                 className="max-w-2xl"
               >
-                <motion.div
-                  variants={fadeInUp}
+                <div
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100/50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-medium mb-8 border border-indigo-200/50 dark:border-indigo-800/50 backdrop-blur-sm"
                 >
                   <span className="relative flex h-2 w-2">
@@ -166,27 +122,24 @@ export default function Home() {
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                   </span>
                   Powered by Intelligent Optimization
-                </motion.div>
+                </div>
 
-                <motion.h1
-                  variants={fadeInUp}
+                <h1
                   className="text-5xl font-bold tracking-tight sm:text-7xl mb-8 leading-[1.1]"
                 >
                   Streamline Your <br />
                   <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                     Volunteer Force
                   </span>
-                </motion.h1>
+                </h1>
 
-                <motion.p
-                  variants={fadeInUp}
+                <p
                   className="text-xl leading-relaxed text-zinc-600 dark:text-zinc-400 mb-10 max-w-xl"
                 >
                   The complete solution for modern organizers. Automated scheduling, real-time check-ins, and deep analytics to make your event a success.
-                </motion.p>
+                </p>
 
-                <motion.div
-                  variants={fadeInUp}
+                <div
                   className="flex flex-wrap items-center gap-6"
                 >
                   <Link
@@ -201,13 +154,10 @@ export default function Home() {
                   >
                     Explore features <span aria-hidden="true" className="inline-block group-hover:translate-x-1 transition-transform">→</span>
                   </a>
-                </motion.div>
-              </motion.div>
+                </div>
+              </div>
 
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
-                animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                transition={{ duration: 1, ease: "easeOut" }}
+              <div
                 className="relative hidden lg:block"
               >
                 <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-3xl blur-3xl -z-10 transform translate-x-4 translate-y-4" />
@@ -222,7 +172,7 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/20 to-transparent pointer-events-none" />
                 </div>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -231,35 +181,25 @@ export default function Home() {
         <section id="features" className="relative bg-zinc-50 dark:bg-zinc-900/50 py-24 sm:py-32 overflow-hidden">
           <div className="mx-auto max-w-7xl px-6 lg:px-8 relative">
             <div className="mx-auto max-w-2xl lg:text-center mb-16 sm:mb-20">
-              <motion.h2
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
+              <h2
                 className="text-base font-semibold leading-7 text-indigo-600 dark:text-indigo-400"
               >
                 The Full Stack
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+              </h2>
+              <p
                 className="text-4xl font-bold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-50 mt-4"
               >
                 Everything built for scale
-              </motion.p>
+              </p>
             </div>
 
-            <motion.div
-              variants={staggerContainer}
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true }}
+            <div
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             >
               {features.map((feature) => (
-                <motion.div
+                <div
                   key={feature.name}
-                  variants={fadeInUp}
-                  whileHover={{ y: -8 }}
-                  className="group relative rounded-3xl border border-zinc-200 dark:border-zinc-800/50 bg-white dark:bg-zinc-900 p-8 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300"
+                  className="group relative rounded-3xl border border-zinc-200 dark:border-zinc-800/50 bg-white dark:bg-zinc-900 p-8 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-shadow duration-200"
                 >
                   <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${feature.gradient} shadow-lg mb-6 group-hover:scale-110 transition-transform duration-300`}>
                     <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
@@ -272,22 +212,19 @@ export default function Home() {
                   <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
                     {feature.description}
                   </p>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           </div>
         </section>
 
         {/* CTA Section */}
         <section className="relative py-24 sm:py-32">
           <div className="mx-auto max-w-7xl px-6 lg:px-8 relative">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+            <div
               className="relative overflow-hidden rounded-[40px] bg-zinc-900 dark:bg-indigo-600 px-8 py-20 text-center shadow-2xl sm:px-16"
             >
-              <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 opacity-30">
-                <div className="absolute -top-1/2 -left-1/4 w-[150%] h-[150%] bg-[radial-gradient(circle,rgba(255,255,255,0.2)_0%,transparent_70%)] animate-pulse" />
+              <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 bg-indigo-500/10 dark:bg-white/5">
               </div>
 
               <h2 className="mx-auto max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
@@ -311,7 +248,7 @@ export default function Home() {
                   Explore demo <span aria-hidden="true">→</span>
                 </Link>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
       </main>

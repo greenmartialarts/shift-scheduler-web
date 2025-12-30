@@ -24,7 +24,7 @@ export async function login(prevState: string | undefined, formData: FormData) {
     redirect('/events')
 }
 
-export async function signup(formData: FormData) {
+export async function signup(prevState: string | undefined, formData: FormData) {
     const supabase = await createClient()
 
     const email = formData.get('email') as string
@@ -36,7 +36,7 @@ export async function signup(formData: FormData) {
     })
 
     if (error) {
-        redirect('/error')
+        return error.message
     }
 
     revalidatePath('/', 'layout')

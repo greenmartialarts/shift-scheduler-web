@@ -127,14 +127,14 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Volunteer Groups</h2>
                 <button
                     onClick={() => { resetForm(); setIsAdding(!isAdding); }}
-                    className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                    className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                     {isAdding ? 'Cancel' : 'Add Group'}
                 </button>
             </div>
 
             {isAdding && (
-                <div className="mb-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+                <div className="mb-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700">
                     <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
@@ -143,7 +143,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                             />
                         </div>
                         <div>
@@ -159,7 +159,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                                     type="text"
                                     value={formData.color}
                                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                                    className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                    className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                                 />
                             </div>
                         </div>
@@ -169,7 +169,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={2}
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                             />
                         </div>
                         <div>
@@ -179,13 +179,13 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                                 step="0.5"
                                 value={formData.max_hours_default}
                                 onChange={(e) => setFormData({ ...formData, max_hours_default: e.target.value })}
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                             />
                         </div>
                         <div className="sm:col-span-2 flex justify-end">
                             <button
                                 type="submit"
-                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                             >
                                 {editingId ? 'Update Group' : 'Save Group'}
                             </button>
@@ -196,7 +196,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-12">
                 {groups.map((group) => (
-                    <div key={group.id} className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition-colors duration-200 border-l-4" style={{ borderLeftColor: group.color || '#3b82f6' }}>
+                    <div key={group.id} className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow border-l-4" style={{ borderLeftColor: group.color || '#3b82f6' }}>
                         <div className="flex justify-between items-start">
                             <h3 className="text-lg font-medium text-gray-900 dark:text-white">{group.name}</h3>
                             <div className="flex gap-2">
@@ -237,7 +237,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                     </p>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {discoveredGroups.map((group) => (
-                            <div key={group.name} className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition-colors duration-200 border-l-4" style={{ borderLeftColor: group.color }}>
+                            <div key={group.name} className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow border-l-4" style={{ borderLeftColor: group.color }}>
                                 <div className="flex justify-between items-start">
                                     <h3 className="text-lg font-medium text-gray-900 dark:text-white">{group.name}</h3>
                                     <button

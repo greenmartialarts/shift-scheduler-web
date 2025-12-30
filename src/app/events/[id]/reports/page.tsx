@@ -54,16 +54,13 @@ export default async function ReportsPage({
         .order('start_time')
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-200">
+        <div className="p-8">
             <div className="mx-auto max-w-6xl">
-                <div className="mb-8">
-                    <Link
-                        href={`/events/${id}`}
-                        className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
-                    >
-                        &larr; Back to {event?.name || 'Event'}
-                    </Link>
-                    <h1 className="mt-4 text-3xl font-bold text-gray-900 dark:text-white">Reporting & Analytics</h1>
+                <div className="mb-12">
+                    <h1 className="text-5xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">Reporting & Analytics</h1>
+                    <p className="text-zinc-500 dark:text-zinc-400 mt-2 font-medium italic">
+                        Operational intelligence and administrative exports for {event?.name || 'the event'}
+                    </p>
                 </div>
 
                 <ReportsManager

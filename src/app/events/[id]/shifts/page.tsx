@@ -38,22 +38,19 @@ export default async function ShiftsPage({
         .order('name', { ascending: true })
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-200">
+        <div className="p-8">
             <div className="mx-auto max-w-6xl">
-                <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div>
-                        <Link
-                            href={`/events/${id}`}
-                            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
-                        >
-                            &larr; Back to {event?.name || 'Event'}
-                        </Link>
-                        <h1 className="mt-4 text-3xl font-bold text-gray-900 dark:text-white">Shifts</h1>
+                        <h1 className="text-5xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">Shifts</h1>
+                        <p className="text-zinc-500 dark:text-zinc-400 mt-2 font-medium italic">
+                            Operational timeline for {event?.name || 'the event'}
+                        </p>
                     </div>
-                    <div className="mt-4 sm:mt-0">
+                    <div className="flex gap-3">
                         <Link
                             href={`/events/${id}/shifts/templates`}
-                            className="inline-flex items-center rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                            className="flex items-center gap-2 px-5 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-sm"
                         >
                             Manage Templates
                         </Link>

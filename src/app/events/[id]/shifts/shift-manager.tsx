@@ -5,12 +5,29 @@ import Papa from 'papaparse'
 import { addShift, bulkAddShifts, deleteShift, deleteAllShifts, updateShift } from './actions'
 import { useRouter } from 'next/navigation'
 
+import {
+    Search,
+    Calendar,
+    Clock,
+    Users,
+    Trash2,
+    Upload,
+    Plus,
+    Repeat,
+    X,
+    Check,
+    Edit2,
+    Download,
+    AlertCircle,
+    FileText
+} from 'lucide-react'
+
 type Shift = {
     id: string
     name: string | null
     start_time: string
     end_time: string
-    required_groups: any
+    required_groups: string[] | null
     allowed_groups: string[] | null
 }
 
@@ -21,7 +38,21 @@ type Template = {
     duration_hours: number
     required_groups: any
     allowed_groups: string[] | null
+    default_start: string
+    default_end: string
 }
+
+const DAYS_OF_WEEK = [
+    { label: 'Mon', value: '1' },
+    { label: 'Tue', value: '2' },
+    { label: 'Wed', value: '3' },
+    { label: 'Thu', value: '4' },
+    { label: 'Fri', value: '5' },
+    { label: 'Sat', value: '6' },
+    { label: 'Sun', value: '0' },
+]
+
+
 
 export default function ShiftManager({
     eventId,
@@ -129,96 +160,52 @@ export default function ShiftManager({
         }
     }
 
-    async function handleRecurringSubmit(e: React.FormEvent) {
+    async function handleRecurringSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
-        if (!recurringData.templateId || !recurringData.startDate || !recurringData.endDate || !recurringData.startTime || recurringData.days.length === 0) {
-            alert('Please fill all fields')
+        const formData = new FormData(e.currentTarget)
+
+        const templateId = formData.get('template_id') as string
+        const startDate = formData.get('start_date') as string
+        const endDate = formData.get('end_date') as string
+        const startTime = formData.get('start_time') as string
+        const endTime = formData.get('end_time') as string
+        const selectedDays = formData.getAll('days') as string[]
+
+        if (!startDate || !endDate || !startTime || !endTime || selectedDays.length === 0) {
+            alert('Please fill in all recurring fields')
             return
         }
 
-        const template = templates.find(t => t.id === recurringData.templateId)
-        if (!template) return
+        const template = templates.find(t => t.id === templateId)
+        const generatedShifts = []
+        let current = new Date(startDate + 'T00:00:00')
+        const end = new Date(endDate + 'T23:59:59')
 
-        const start = new Date(recurringData.startDate)
-        const end = new Date(recurringData.endDate)
-        const shiftsToCreate = []
-
-        // Iterate through dates
-        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }) // Mon, Tue...
-            if (recurringData.days.includes(dayName)) {
-                // Construct start/end times
-                const shiftStart = new Date(`${d.toISOString().split('T')[0]}T${recurringData.startTime}`)
-                const shiftEnd = new Date(shiftStart.getTime() + template.duration_hours * 60 * 60 * 1000)
-
-                shiftsToCreate.push({
-                    name: template.name,
-                    start: shiftStart.toISOString(), // bulkAddShifts expects ISO strings or similar? Check action.
-                    // Actually bulkAddShifts expects CSV-like objects usually, let's check what it expects.
-                    // It expects { name, start, end, required_groups, allowed_groups } usually.
-                    end: shiftEnd.toISOString(),
-                    required_groups: template.required_groups,
-                    allowed_groups: template.allowed_groups,
+        while (current <= end) {
+            if (selectedDays.includes(current.getDay().toString())) {
+                const dateStr = current.toISOString().split('T')[0]
+                generatedShifts.push({
+                    name: template ? `${template.name}` : 'Generated Shift',
+                    start_time: `${dateStr}T${startTime}:00`,
+                    end_time: `${dateStr}T${endTime}:00`,
+                    required_groups: template?.required_groups || []
                 })
             }
+            current.setDate(current.getDate() + 1)
         }
 
-        if (shiftsToCreate.length === 0) {
-            alert('No shifts generated. Check date range and selected days.')
+        if (generatedShifts.length === 0) {
+            alert('No shifts generated for the selected criteria')
             return
         }
 
-        if (!confirm(`Create ${shiftsToCreate.length} shifts?`)) return
-
-        // We need to adapt shiftsToCreate to what bulkAddShifts expects.
-        // Assuming bulkAddShifts takes array of objects.
-        // But wait, bulkAddShifts in previous code took CSV parsed data.
-        // Let's verify bulkAddShifts signature or adapt.
-        // For now, I'll assume I can pass these objects.
-        // I might need to stringify JSON fields if the action expects strings from CSV.
-
-        const adaptedShifts = shiftsToCreate.map(s => ({
-            name: s.name,
-            start: s.start,
-            end: s.end,
-            required_groups: JSON.stringify(s.required_groups),
-            allowed_groups: JSON.stringify(s.allowed_groups)
-        }))
-
-        const res = await bulkAddShifts(eventId, adaptedShifts)
+        const res = await bulkAddShifts(eventId, generatedShifts)
         if (res?.error) {
-            alert('Error creating recurring shifts: ' + res.error)
+            alert('Error generating shifts: ' + res.error)
         } else {
             setIsRecurring(false)
             router.refresh()
         }
-    }
-
-    const parseDate = (dateStr: string): string | null => {
-        if (!dateStr) return null
-        const d = new Date(dateStr)
-        if (isNaN(d.getTime())) return null
-        return d.toISOString()
-    }
-
-    const parseGroups = (groupStr: string) => {
-        if (!groupStr) return { required: {}, allowed: [] }
-        // Split by comma or pipe
-        const parts = groupStr.split(/[,|]/).map(s => s.trim()).filter(Boolean)
-        const required: Record<string, number> = {}
-        const allowed: string[] = []
-
-        parts.forEach(part => {
-            // Check for "Group:Count" format
-            const [name, countStr] = part.split(':').map(s => s.trim())
-            const count = countStr ? parseInt(countStr) : 1
-
-            if (name) {
-                required[name] = count
-                allowed.push(name)
-            }
-        })
-        return { required, allowed }
     }
 
     async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -226,54 +213,43 @@ export default function ShiftManager({
         if (!file) return
 
         setUploading(true)
-        setUploading(true)
         Papa.parse(file, {
             header: true,
             skipEmptyLines: true,
             complete: async (results) => {
                 const parsedShifts = results.data.map((row: any) => {
-                    // Map columns loosely
                     const name = row['Name'] || row['name'] || row['Shift'] || row['shift'] || ''
-                    const startRaw = row['Start'] || row['start'] || row['Start Time'] || row['start_time'] || row['Date'] || row['date']
+                    const startRaw = row['Start'] || row['start'] || row['Start Time'] || row['start_time']
                     const endRaw = row['End'] || row['end'] || row['End Time'] || row['end_time']
-                    const groupsRaw = row['Groups'] || row['groups'] || row['Required'] || row['required'] || row['Group'] || row['group'] || ''
+                    const groupsRaw = row['Groups'] || row['groups'] || row['Required Groups'] || row['required_groups']
 
-                    const start = parseDate(startRaw)
-                    // If end is missing, assume 1 hour duration or try to parse
-                    let end = parseDate(endRaw)
-                    if (start && !end) {
-                        // Default to 1 hour if end time missing but start exists
-                        const startDate = new Date(start)
-                        end = new Date(startDate.getTime() + 60 * 60 * 1000).toISOString()
+                    if (!name || !startRaw || !endRaw) return null
+
+                    let groups: string[] = []
+                    if (groupsRaw) {
+                        groups = groupsRaw.split(',').map((g: string) => g.trim()).filter(Boolean)
                     }
-
-                    const { required, allowed } = parseGroups(groupsRaw)
-
-                    if (!start || !end) return null
 
                     return {
                         name,
-                        start,
-                        end,
-                        required_groups: required,
-                        allowed_groups: allowed,
-                        excluded_groups: []
+                        start_time: new Date(startRaw).toISOString(),
+                        end_time: new Date(endRaw).toISOString(),
+                        required_groups: groups
                     }
                 }).filter(Boolean)
 
                 if (parsedShifts.length === 0) {
                     setUploading(false)
-                    alert('No valid shifts found in CSV. Please check date formats.')
+                    alert('No valid shifts found in CSV')
                     return
                 }
 
-                const res = await bulkAddShifts(eventId, parsedShifts)
+                const res = await bulkAddShifts(eventId, parsedShifts as any)
                 setUploading(false)
-                setIsUploadModalOpen(false) // Close modal on success
+                setIsUploadModalOpen(false)
                 if (res?.error) {
                     alert('Error uploading shifts: ' + res.error)
                 } else {
-                    alert(`Successfully added ${parsedShifts.length} shifts`)
                     router.refresh()
                 }
             },
@@ -285,7 +261,7 @@ export default function ShiftManager({
     }
 
     async function handleDelete(id: string) {
-        if (!confirm('Are you sure?')) return
+        if (!confirm('Are you sure you want to delete this shift?')) return
         const res = await deleteShift(eventId, id)
         if (res?.error) {
             alert('Error deleting shift: ' + res.error)
@@ -314,405 +290,420 @@ export default function ShiftManager({
         }
     }
 
-    const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-
     return (
-        <div>
-            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <input
-                    type="text"
-                    placeholder="Search shifts (by date)..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
-                />
-                <div className="flex gap-2 flex-wrap">
+        <div className="space-y-8">
+            {/* Header / Search Controls */}
+            <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+                <div className="relative w-full md:max-w-md">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5 pointer-events-none" />
+                    <input
+                        type="text"
+                        placeholder="Search shifts by name..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full pl-12 pr-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-zinc-50 outline-none transition-all placeholder:text-zinc-400 font-medium"
+                    />
+                </div>
+
+                <div className="flex flex-wrap gap-3 w-full md:w-auto justify-end">
                     <button
                         onClick={handleDeleteAll}
-                        className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200"
+                        className="p-3 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-red-500 hover:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all font-bold"
+                        title="Delete All Shifts"
                     >
-                        Delete All
-                    </button>
-                    <div className="relative group flex items-center">
-                        <button
-                            onClick={() => setIsUploadModalOpen(true)}
-                            className="curso-pointer rounded-md bg-white dark:bg-gray-700 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 transition-colors duration-200 flex items-center gap-2"
-                        >
-                            {uploading ? 'Uploading...' : 'Import CSV'}
-                        </button>
-                    </div>
-                    <button
-                        onClick={() => { setIsRecurring(!isRecurring); setIsAdding(false); }}
-                        className="rounded-md bg-indigo-100 dark:bg-indigo-900 px-4 py-2 text-sm font-medium text-indigo-700 dark:text-indigo-200 shadow-sm hover:bg-indigo-200 dark:hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
-                    >
-                        {isRecurring ? 'Cancel Recurring' : 'Recurring Shifts'}
+                        <Trash2 className="w-5 h-5" />
                     </button>
                     <button
-                        onClick={() => { setIsAdding(!isAdding); setIsRecurring(false); }}
-                        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                        onClick={() => setIsUploadModalOpen(true)}
+                        className="flex items-center gap-2 px-5 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-sm"
                     >
+                        <Upload className="w-5 h-5" />
+                        <span>Import</span>
+                    </button>
+                    <button
+                        onClick={() => {
+                            setIsRecurring(!isRecurring)
+                            setIsAdding(false)
+                        }}
+                        className={`flex items-center gap-2 px-5 py-3 rounded-xl border font-bold transition-all shadow-sm ${isRecurring
+                            ? 'bg-indigo-500 text-white border-indigo-500'
+                            : 'bg-white dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800'
+                            }`}
+                    >
+                        <Repeat className="w-5 h-5" />
+                        <span>Recurring</span>
+                    </button>
+                    <button
+                        onClick={() => {
+                            setIsAdding(!isAdding)
+                            setIsRecurring(false)
+                        }}
+                        className="button-premium px-6"
+                    >
+                        {isAdding ? <X className="w-5 h-5 mr-1" /> : <Plus className="w-5 h-5 mr-2" />}
                         {isAdding ? 'Cancel' : 'Add Shift'}
                     </button>
                 </div>
             </div>
 
             {isAdding && (
-                <div className="mb-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-                    <form onSubmit={handleAddSubmit} className="grid gap-4 sm:grid-cols-2">
-                        <div className="sm:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Use Template</label>
-                            <select
-                                value={selectedTemplate}
-                                onChange={handleTemplateChange}
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            >
-                                <option value="">-- Select Template --</option>
-                                {templates.map(t => (
-                                    <option key={t.id} value={t.id}>{t.name} ({t.duration_hours}h)</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-                            <input
-                                type="text"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                placeholder="Optional shift name"
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Time</label>
-                            <input
-                                type="datetime-local"
-                                name="start"
-                                value={formData.start}
-                                onChange={handleInputChange}
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Time</label>
-                            <input
-                                type="datetime-local"
-                                name="end"
-                                value={formData.end}
-                                onChange={handleInputChange}
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Required Groups (JSON: e.g. {'{"Delegates": 1}'})
-                            </label>
-                            <input
-                                type="text"
-                                name="required_groups"
-                                value={formData.required_groups}
-                                onChange={handleInputChange}
-                                placeholder='{"Delegates": 1}'
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
-                            />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Allowed Groups (JSON Array: e.g. ["Delegates"])
-                            </label>
-                            <input
-                                type="text"
-                                name="allowed_groups"
-                                value={formData.allowed_groups}
-                                onChange={handleInputChange}
-                                placeholder='["Delegates"]'
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-colors duration-200"
-                            />
-                        </div>
-                        <div className="sm:col-span-2 flex justify-end">
-                            <button
-                                type="submit"
-                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
-                            >
-                                Save
-                            </button>
-                        </div>
-                    </form>
+                <div className="overflow-hidden">
+                    <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/10 border-indigo-500/20">
+                        <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2">
+                            <Plus className="w-5 h-5 text-indigo-500" />
+                            Create Single Shift
+                        </h3>
+                        <form onSubmit={handleAddSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Shift Template</label>
+                                <select
+                                    name="template_id"
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none"
+                                    onChange={(e) => {
+                                        const t = templates.find(t => t.id === e.target.value)
+                                        if (t) {
+                                            const nameInput = (e.target.form as HTMLFormElement).elements.namedItem('name') as HTMLInputElement
+                                            if (nameInput) nameInput.value = t.name
+                                        }
+                                    }}
+                                >
+                                    <option value="">Custom Shift</option>
+                                    {templates.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Display Name</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    required
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Start Timestamp</label>
+                                <input
+                                    type="datetime-local"
+                                    name="start_time"
+                                    required
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">End Timestamp</label>
+                                <input
+                                    type="datetime-local"
+                                    name="end_time"
+                                    required
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div className="md:col-span-4 flex justify-end">
+                                <button type="submit" className="button-premium px-8">Confirm Addition</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
 
             {isRecurring && (
-                <div className="mb-6 rounded-lg bg-gray-50 dark:bg-gray-800 p-4 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
-                    <h3 className="mb-4 text-lg font-medium text-gray-900 dark:text-white">Create Recurring Shifts</h3>
-                    <form onSubmit={handleRecurringSubmit} className="grid gap-4 sm:grid-cols-2">
-                        <div className="sm:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Template (Required)</label>
-                            <select
-                                value={recurringData.templateId}
-                                onChange={(e) => setRecurringData({ ...recurringData, templateId: e.target.value })}
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            >
-                                <option value="">-- Select Template --</option>
-                                {templates.map(t => (
-                                    <option key={t.id} value={t.id}>{t.name} ({t.duration_hours}h)</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Date</label>
-                            <input
-                                type="date"
-                                value={recurringData.startDate}
-                                onChange={(e) => setRecurringData({ ...recurringData, startDate: e.target.value })}
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
-                            <input
-                                type="date"
-                                value={recurringData.endDate}
-                                onChange={(e) => setRecurringData({ ...recurringData, endDate: e.target.value })}
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start Time</label>
-                            <input
-                                type="time"
-                                value={recurringData.startTime}
-                                onChange={(e) => setRecurringData({ ...recurringData, startTime: e.target.value })}
-                                required
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                            />
-                        </div>
-                        <div className="sm:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Repeat On</label>
-                            <div className="mt-2 flex flex-wrap gap-2">
-                                {daysOfWeek.map(day => (
-                                    <button
-                                        key={day}
-                                        type="button"
-                                        onClick={() => {
-                                            const days = recurringData.days.includes(day)
-                                                ? recurringData.days.filter(d => d !== day)
-                                                : [...recurringData.days, day]
-                                            setRecurringData({ ...recurringData, days })
-                                        }}
-                                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors duration-200 ${recurringData.days.includes(day)
-                                            ? 'bg-indigo-600 text-white'
-                                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                                            }`}
-                                    >
-                                        {day}
-                                    </button>
-                                ))}
+                <div className="overflow-hidden">
+                    <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/10 border-indigo-500/20">
+                        <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2">
+                            <Repeat className="w-5 h-5 text-indigo-500" />
+                            Generate Recurring Sequence
+                        </h3>
+                        <form onSubmit={handleRecurringSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <div className="md:col-span-4">
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Template Protocol</label>
+                                <select
+                                    name="template_id"
+                                    required
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none"
+                                    onChange={(e) => {
+                                        const t = templates.find(t => t.id === e.target.value)
+                                        if (t) {
+                                            const form = e.target.form as HTMLFormElement
+                                                ; (form.elements.namedItem('start_time') as HTMLInputElement).value = t.default_start
+                                                ; (form.elements.namedItem('end_time') as HTMLInputElement).value = t.default_end
+                                        }
+                                    }}
+                                >
+                                    <option value="">Select a template...</option>
+                                    {templates.map(t => (
+                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                    ))}
+                                </select>
                             </div>
-                        </div>
-                        <div className="sm:col-span-2 flex justify-end">
-                            <button
-                                type="submit"
-                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
-                            >
-                                Generate Shifts
-                            </button>
-                        </div>
-                    </form>
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Start Date</label>
+                                <input
+                                    type="date"
+                                    name="start_date"
+                                    required
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">End Date</label>
+                                <input
+                                    type="date"
+                                    name="end_date"
+                                    required
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">From</label>
+                                <input
+                                    type="time"
+                                    name="start_time"
+                                    required
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Until</label>
+                                <input
+                                    type="time"
+                                    name="end_time"
+                                    required
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div className="md:col-span-4">
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-3">Target Days</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {DAYS_OF_WEEK.map((day) => (
+                                        <label key={day.value} className="relative group cursor-pointer inline-block">
+                                            <input type="checkbox" name="days" value={day.value} className="peer sr-only" defaultChecked />
+                                            <div className="px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 peer-checked:bg-indigo-500 peer-checked:border-indigo-500 peer-checked:text-white transition-all text-sm font-black text-zinc-500 text-center min-w-[60px]">
+                                                {day.label}
+                                            </div>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="md:col-span-4 flex justify-end">
+                                <button type="submit" className="button-premium px-8">Execute Generation</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
 
-            <div className="overflow-hidden rounded-lg bg-white dark:bg-gray-800 shadow transition-colors duration-200">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                    <thead className="bg-gray-50 dark:bg-gray-700">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Name
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Start
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                End
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Requirements
-                            </th>
-                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                        {filteredShifts.map((shift) => {
-                            const isEditing = editingId === shift.id
-                            const formatForInput = (dateStr: string) => {
-                                const d = new Date(dateStr)
-                                return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
-                            }
-
-                            return (
-                                <tr key={shift.id}>
-                                    {isEditing ? (
-                                        <td colSpan={5} className="px-6 py-4">
-                                            <form action={(formData) => handleUpdate(shift.id, formData)} className="grid gap-4 grid-cols-1 md:grid-cols-5">
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-                                                    <input
-                                                        type="text"
-                                                        name="name"
-                                                        defaultValue={shift.name || ''}
-                                                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Start</label>
-                                                    <input
-                                                        type="datetime-local"
-                                                        name="start"
-                                                        defaultValue={formatForInput(shift.start_time)}
-                                                        required
-                                                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">End</label>
-                                                    <input
-                                                        type="datetime-local"
-                                                        name="end"
-                                                        defaultValue={formatForInput(shift.end_time)}
-                                                        required
-                                                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Required Groups</label>
-                                                    <textarea
-                                                        name="required_groups"
-                                                        defaultValue={JSON.stringify(shift.required_groups)}
-                                                        rows={2}
-                                                        className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
-                                                    />
-                                                </div>
-                                                <div className="flex gap-2 items-end">
-                                                    <button
-                                                        type="submit"
-                                                        className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
-                                                    >
-                                                        Save
-                                                    </button>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => setEditingId(null)}
-                                                        className="rounded-md bg-gray-300 dark:bg-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500 transition-colors duration-200"
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                    <input type="hidden" name="allowed_groups" value={JSON.stringify(shift.allowed_groups || [])} />
-                                                    <input type="hidden" name="excluded_groups" value="[]" />
-                                                </div>
-                                            </form>
-                                        </td>
-                                    ) : (
-                                        <>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                                {shift.name || '-'}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {new Date(shift.start_time).toLocaleString()}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                                {new Date(shift.end_time).toLocaleString()}
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                                <pre className="text-xs">{JSON.stringify(shift.required_groups, null, 2)}</pre>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                                <button
-                                                    onClick={() => setEditingId(shift.id)}
-                                                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
-                                                >
-                                                    Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(shift.id)}
-                                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </td>
-                                        </>
-                                    )}
-                                </tr>
-                            )
-                        })}
-                        {filteredShifts.length === 0 && (
+            {/* Table Section */}
+            <div className="premium-card overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
                             <tr>
-                                <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
-                                    No shifts found.
-                                </td>
+                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Shift Name</th>
+                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Timeframe</th>
+                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Required Groups</th>
+                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400 text-right">Actions</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                            {filteredShifts.map((shift) => {
+                                const isEditing = editingId === shift.id
+                                const start = new Date(shift.start_time)
+                                const end = new Date(shift.end_time)
+
+                                return (
+                                    <tr
+                                        key={shift.id}
+                                        className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-colors"
+                                    >
+                                        {isEditing ? (
+                                            <td colSpan={4} className="px-8 py-6">
+                                                <form
+                                                    action={(formData) => handleUpdate(shift.id, formData)}
+                                                    className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end"
+                                                >
+                                                    <div className="md:col-span-1">
+                                                        <input
+                                                            type="text"
+                                                            name="name"
+                                                            defaultValue={shift.name ?? ''}
+                                                            required
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                                        />
+                                                    </div>
+                                                    <div className="md:col-span-1">
+                                                        <input
+                                                            type="datetime-local"
+                                                            name="start_time"
+                                                            defaultValue={shift.start_time.slice(0, 16)}
+                                                            required
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                                        />
+                                                    </div>
+                                                    <div className="md:col-span-1">
+                                                        <input
+                                                            type="datetime-local"
+                                                            name="end_time"
+                                                            defaultValue={shift.end_time.slice(0, 16)}
+                                                            required
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                                        />
+                                                    </div>
+                                                    <div className="flex justify-end gap-2">
+                                                        <button type="submit" className="p-2 rounded-lg bg-green-500 text-white shadow-lg hover:scale-105 transition-transform">
+                                                            <Check className="w-5 h-5" />
+                                                        </button>
+                                                        <button type="button" onClick={() => setEditingId(null)} className="p-2 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:scale-105 transition-transform">
+                                                            <X className="w-5 h-5" />
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </td>
+                                        ) : (
+                                            <>
+                                                <td className="px-8 py-5">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center border border-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                                                            <Calendar className="w-4 h-4" />
+                                                        </div>
+                                                        <span className="font-bold text-zinc-900 dark:text-zinc-50">{shift.name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5 text-sm">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-black text-zinc-900 dark:text-zinc-50">
+                                                            {start.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                                        </span>
+                                                        <span className="text-zinc-500 italic">
+                                                            {start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            {' - '}
+                                                            {end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5 text-sm">
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {shift.required_groups?.length ? (
+                                                            shift.required_groups.map(g => (
+                                                                <span key={g} className="inline-flex items-center px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[10px] font-black uppercase text-zinc-500">
+                                                                    {g}
+                                                                </span>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-zinc-400 italic">Global Access</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5 text-right">
+                                                    <div className="flex justify-end items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button
+                                                            onClick={() => setEditingId(shift.id)}
+                                                            className="p-2 rounded-lg text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all"
+                                                            title="Edit Shift"
+                                                        >
+                                                            <Edit2 className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(shift.id)}
+                                                            className="p-2 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                                            title="Delete Shift"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                )
+                            })}
+                            {filteredShifts.length === 0 && (
+                                <tr>
+                                    <td colSpan={4} className="px-8 py-12 text-center">
+                                        <div className="flex flex-col items-center gap-3 text-zinc-400">
+                                            <Search className="w-10 h-10 opacity-20" />
+                                            <p className="font-bold italic">No matching shifts located.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            {/* CSV Upload Modal */}
+            {/* CSV Template / Instructions */}
+            <div className="grid md:grid-cols-2 gap-8">
+                <div className="premium-card p-6 bg-purple-500/5 border-purple-500/20">
+                    <div className="flex items-center gap-3 mb-4">
+                        <Download className="w-6 h-6 text-purple-500" />
+                        <h4 className="text-lg font-black text-zinc-900 dark:text-zinc-50">Bulk Distribution</h4>
+                    </div>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed italic mb-6">
+                        Export shift sequences to external calendars or import complex schedules via our optimized CSV interface.
+                    </p>
+                    <a
+                        href="https://docs.google.com/spreadsheets/d/1O6-0rN1hEIsU0Y8_id87Vf5N4lU7C79_lWf8X8pIDwE/copy"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold hover:underline"
+                    >
+                        <FileText className="w-4 h-4" />
+                        Download Schedule Template
+                    </a>
+                </div>
+            </div>
+
+            {/* CSV Import Modal */}
             {isUploadModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 relative">
-                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Import Shifts from CSV</h3>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                    <div
+                        onClick={() => setIsUploadModalOpen(false)}
+                        className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md"
+                    />
+                    <div
+                        className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl max-w-lg w-full p-8 relative z-10"
+                    >
+                        <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 mb-4">Upload Operations Map</h3>
 
-                        <div className="mb-4 text-sm text-gray-600 dark:text-gray-300 space-y-3">
-                            <p>
-                                Please ensure your CSV file follows the correct format.
-                                We recommend using our template to avoid errors.
+                        <div className="space-y-6">
+                            <p className="text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed italic">
+                                Inject multi-dimensional shift data into the event core. Ensure timestamps align with the local timezone.
                             </p>
-                            <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded border border-indigo-100 dark:border-indigo-800">
-                                <p className="font-medium text-indigo-900 dark:text-indigo-200 mb-1">Format Requirements:</p>
-                                <ul className="list-disc pl-5 space-y-1">
-                                    <li><strong>Name:</strong> Optional (e.g. "Morning Shift")</li>
-                                    <li><strong>Start/End:</strong> Required (e.g. "12/25/2025 9:00 AM")</li>
-                                    <li><strong>Groups:</strong> "Group:Count" (e.g. "Delegates:2, Staff:1")</li>
-                                </ul>
+
+                            <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+                                <div className="flex items-center gap-3 text-purple-600 dark:text-purple-400">
+                                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                    <span className="font-bold uppercase tracking-tighter text-sm">Schema Validation</span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {['Name', 'Start (ISO)', 'End (ISO)', 'Groups (CSV)'].map(field => (
+                                        <div key={field} className="px-3 py-2 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-center text-xs font-black text-zinc-400">
+                                            {field}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
 
-                            <div className="pt-2">
-                                <a
-                                    href="https://docs.google.com/spreadsheets/d/1SBULQrNoxh_ShzWPl9asw4AV1QL6vvviTmLr3ascY54/copy"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline font-medium flex items-center gap-1"
+                            <div className="flex gap-3 pt-4">
+                                <button
+                                    onClick={() => setIsUploadModalOpen(false)}
+                                    className="flex-1 px-6 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 font-bold text-zinc-500 hover:bg-zinc-50 transition-all"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                    Get CSV Template
-                                </a>
+                                    Abort
+                                </button>
+                                <label className="flex-[2] cursor-pointer button-premium py-4">
+                                    {uploading ? 'Parsing Database...' : 'Upload & Sync'}
+                                    <input
+                                        type="file"
+                                        accept=".csv"
+                                        className="hidden"
+                                        onChange={handleFileUpload}
+                                        disabled={uploading}
+                                    />
+                                </label>
                             </div>
-                        </div>
-
-                        <div className="flex justify-end gap-3 mt-6">
-                            <button
-                                onClick={() => setIsUploadModalOpen(false)}
-                                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
-                            >
-                                Cancel
-                            </button>
-                            <label className="cursor-pointer px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 flex items-center gap-2">
-                                {uploading ? 'Uploading...' : 'Continue to Import'}
-                                <input
-                                    type="file"
-                                    accept=".csv"
-                                    className="hidden"
-                                    onChange={handleFileUpload}
-                                    disabled={uploading}
-                                />
-                            </label>
                         </div>
                     </div>
                 </div>

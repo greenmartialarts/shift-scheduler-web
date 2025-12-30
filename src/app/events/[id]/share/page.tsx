@@ -36,17 +36,12 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
     // The 'removeAdmin' action prevents removing the *last* admin.
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8 transition-colors duration-200">
-            <div className="mx-auto max-w-4xl">
-                <div className="mb-8">
-                    <Link href={`/events/${eventId}`} className="text-indigo-600 dark:text-indigo-400 hover:underline mb-2 block">
-                        &larr; Back to Event
-                    </Link>
-                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-                        Share & Manage Access
-                    </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-1">
-                        {event.name}
+        <div className="p-8">
+            <div className="mx-auto max-w-6xl">
+                <div className="mb-12">
+                    <h1 className="text-5xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">Settings</h1>
+                    <p className="text-zinc-500 dark:text-zinc-400 mt-2 font-medium italic">
+                        Access control and configurations for {event.name}
                     </p>
                 </div>
 
@@ -84,13 +79,13 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                         </div>
 
                         {/* Pending Invitations */}
-                        {pending && pending.length > 0 && (
+                        {(pending || []).length > 0 && (
                             <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition-colors duration-200">
                                 <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
                                     Pending Invitations
                                 </h2>
                                 <div className="space-y-4">
-                                    {pending.map((invite: any) => (
+                                    {pending?.map((invite: any) => (
                                         <div key={invite.id} className="flex items-center justify-between border-b dark:border-gray-700 pb-3 last:border-0 last:pb-0">
                                             <div>
                                                 <p className="text-sm font-medium text-gray-900 dark:text-white">{invite.email}</p>
@@ -118,7 +113,7 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                         </h2>
                         <div className="space-y-4">
                             {admins?.map((admin: any) => {
-                                const isMe = admin.user_id === user.id
+                                const isMe = admin.user_id === user?.id
                                 return (
                                     <div key={admin.user_id} className="flex items-center justify-between border-b dark:border-gray-700 pb-3 last:border-0 last:pb-0">
                                         <div className="flex items-center gap-3">
