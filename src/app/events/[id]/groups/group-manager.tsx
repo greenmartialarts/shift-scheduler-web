@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { addGroup, deleteGroup, updateGroup } from './actions'
 import { useRouter } from 'next/navigation'
+import { useNotification } from '@/components/ui/NotificationProvider'
 
 type Group = {
     id: string
@@ -46,6 +47,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
     const [isAdding, setIsAdding] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const router = useRouter()
+    const { showAlert, showConfirm } = useNotification()
 
     // Form state
     const [formData, setFormData] = useState({
@@ -93,19 +95,27 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
         }
 
         if (res?.error) {
-            alert('Error saving group: ' + res.error)
+            showAlert('Error saving group: ' + res.error, 'error')
         } else {
+            showAlert(`Group ${editingId ? 'updated' : 'created'} successfully`, 'success')
             resetForm()
             router.refresh()
         }
     }
 
     async function handleDelete(id: string) {
-        if (!confirm('Are you sure? This might fail if volunteers are assigned to this group.')) return
+        const confirmed = await showConfirm({
+            title: 'Delete Group',
+            message: 'Are you sure? This might fail if volunteers are assigned to this group.',
+            confirmText: 'Delete',
+            type: 'danger'
+        })
+        if (!confirmed) return
         const res = await deleteGroup(eventId, id)
         if (res?.error) {
-            alert('Error deleting group: ' + res.error)
+            showAlert('Error deleting group: ' + res.error, 'error')
         } else {
+            showAlert('Group deleted successfully', 'success')
             router.refresh()
         }
     }

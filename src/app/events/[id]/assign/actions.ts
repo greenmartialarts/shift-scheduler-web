@@ -33,7 +33,7 @@ export async function unassignVolunteer(assignmentId: string) {
     return { success: true }
 }
 
-export async function autoAssign(eventId: string, strategy: string = 'greedy') {
+export async function autoAssign(eventId: string) {
     const supabase = await createClient()
 
     // 1. Fetch all data
@@ -51,6 +51,14 @@ export async function autoAssign(eventId: string, strategy: string = 'greedy') {
         return { error: 'No data found' }
     }
 
+    const shiftIds = shifts.map(s => s.id)
+
+    // Fetch existing assignments to "lock in"
+    const { data: existingAssignments } = await supabase
+        .from('assignments')
+        .select('shift_id, volunteer_id')
+        .in('shift_id', shiftIds)
+
     // 2. Transform to API format
     const apiPayload = {
         volunteers: volunteers.map((v) => ({
@@ -60,75 +68,54 @@ export async function autoAssign(eventId: string, strategy: string = 'greedy') {
             // API requires a number, not null. Use a high number for unlimited volunteers
             max_hours: v.max_hours ?? 999,
         })),
-        shifts: shifts.map((s) => ({
+        unassigned_shifts: shifts.map((s) => ({
             id: s.id,
-            start: new Date(s.start_time).toISOString().slice(0, 16), // YYYY-MM-DDTHH:MM
+            start: new Date(s.start_time).toISOString().slice(0, 16),
             end: new Date(s.end_time).toISOString().slice(0, 16),
             required_groups: s.required_groups,
-            allowed_groups: s.allowed_groups,
-            excluded_groups: s.excluded_groups,
         })),
-        // Strategy is no longer part of the payload, it determines the endpoint
+        current_assignments: (existingAssignments || []).map(a => ({
+            shift_id: a.shift_id,
+            volunteer_id: a.volunteer_id
+        }))
     }
 
-    // Determine Endpoint
-    let endpoint = 'https://shift-scheduler-api.up.railway.app/schedule/json'
-    if (strategy === 'optimal') {
-        endpoint = 'https://shift-scheduler-api.up.railway.app/schedule/json_optimal?timeout=30'
-    } else if (strategy === 'cpsat') {
-        endpoint = 'https://shift-scheduler-api.up.railway.app/schedule/json_cpsat?timeout=30'
-    }
-
+    const endpoint = 'https://shift-scheduler-api-xi.vercel.app/schedule/json'
     // Debug logging
     console.log('=== AUTO-ASSIGN DEBUG ===')
-    console.log('Strategy:', strategy)
     console.log('Endpoint:', endpoint)
     console.log('Volunteers:', volunteers.length)
     console.log('Shifts:', shifts.length)
-    // console.log('API Payload:', JSON.stringify(apiPayload, null, 2))
+    console.log('Current Assignments:', apiPayload.current_assignments.length)
 
     // 3. Call API
     try {
+        const apiKey = process.env.SCHEDULER_API_KEY
         const response = await fetch(endpoint, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
             },
-            body: JSON.stringify(apiPayload), // Payload without strategy
+            body: JSON.stringify(apiPayload),
         })
 
-        let result
-        let assignedShifts
-        let unfilledShifts = []
-
-        if (response.status === 422) {
-            // Scheduling was impossible/incomplete - API returns detailed error info
-            const errorData = await response.json()
-            console.log('=== 422 ERROR RESPONSE ===')
-            console.log('Full error data:', JSON.stringify(errorData, null, 2))
-
-            const detail = errorData.detail
-
-            // Extract partial assignments and unfilled shift info
-            assignedShifts = detail.assigned_shifts || {}
-            unfilledShifts = detail.unfilled_shifts || []
-
-            console.log('Partial scheduling result:', { assignedShifts, unfilledShifts })
-        } else if (!response.ok) {
-            // Other API errors
-            const text = await response.text()
-            throw new Error(`API Error: ${text}`)
-        } else {
-            // Success - all shifts filled
-            result = await response.json()
-            assignedShifts = result.assigned_shifts
-            unfilledShifts = result.unfilled_shifts || []
-
-            console.log('=== API RESPONSE ===')
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}))
+            console.log('=== API ERROR RESPONSE ===')
             console.log('Status:', response.status)
-            console.log('Result:', result)
-            console.log('Assigned shifts count:', Object.keys(assignedShifts).length)
+            console.log('Error data:', JSON.stringify(errorData, null, 2))
+            throw new Error(`API Error: ${errorData.detail || response.statusText}`)
         }
+
+        const result = await response.json()
+        const assignedShifts = result.assigned_shifts || {}
+        const unfilledShifts = result.unfilled_shifts || []
+
+        console.log('=== API RESPONSE ===')
+        console.log('Status:', response.status)
+        console.log('Assigned shifts count:', Object.keys(assignedShifts).length)
+        console.log('Unfilled shifts count:', unfilledShifts.length)
 
         // 4. Update Database
         // Delete existing assignments for this event

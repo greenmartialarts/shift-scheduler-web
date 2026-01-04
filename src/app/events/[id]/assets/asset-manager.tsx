@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { addAsset, deleteAsset, updateAsset } from './actions'
 import { useRouter } from 'next/navigation'
+import { useNotification } from '@/components/ui/NotificationProvider'
 
 type Asset = {
     id: string
@@ -16,6 +17,7 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
     const [isAdding, setIsAdding] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const router = useRouter()
+    const { showAlert, showConfirm } = useNotification()
 
     const [formData, setFormData] = useState({
         name: '',
@@ -62,19 +64,27 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
         }
 
         if (res?.error) {
-            alert('Error saving asset: ' + res.error)
+            showAlert('Error saving asset: ' + res.error, 'error')
         } else {
+            showAlert(`Asset ${editingId ? 'updated' : 'created'} successfully`, 'success')
             resetForm()
             router.refresh()
         }
     }
 
     async function handleDelete(id: string) {
-        if (!confirm('Are you sure?')) return
+        const confirmed = await showConfirm({
+            title: 'Delete Asset',
+            message: 'Are you sure you want to delete this asset?',
+            confirmText: 'Delete',
+            type: 'danger'
+        })
+        if (!confirmed) return
         const res = await deleteAsset(eventId, id)
         if (res?.error) {
-            alert('Error deleting asset: ' + res.error)
+            showAlert('Error deleting asset: ' + res.error, 'error')
         } else {
+            showAlert('Asset deleted successfully', 'success')
             router.refresh()
         }
     }

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
 import { addVolunteer, bulkAddVolunteers, deleteVolunteer, deleteAllVolunteers, updateVolunteer } from './actions'
 import { useRouter } from 'next/navigation'
+import { useNotification } from '@/components/ui/NotificationProvider'
 import { Search, UserPlus, Trash2, Upload, FileText, X, Check, Edit2, Download, AlertCircle } from 'lucide-react'
 
 type Volunteer = {
@@ -58,6 +59,7 @@ export default function VolunteerManager({
     const [editingId, setEditingId] = useState<string | null>(null)
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
     const router = useRouter()
+    const { showAlert, showConfirm } = useNotification()
 
     useEffect(() => {
         setVolunteers(initialVolunteers)
@@ -71,7 +73,7 @@ export default function VolunteerManager({
     async function handleAdd(formData: FormData) {
         const res = await addVolunteer(eventId, formData)
         if (res?.error) {
-            alert('Error adding volunteer: ' + res.error)
+            showAlert('Error adding volunteer: ' + res.error, 'error')
         } else {
             setIsAdding(false)
             router.refresh()
@@ -105,7 +107,7 @@ export default function VolunteerManager({
 
                 if (parsedVolunteers.length === 0) {
                     setUploading(false)
-                    alert('No valid volunteers found in CSV')
+                    showAlert('No valid volunteers found in CSV', 'warning')
                     return
                 }
 
@@ -113,24 +115,31 @@ export default function VolunteerManager({
                 setUploading(false)
                 setIsUploadModalOpen(false)
                 if (res?.error) {
-                    alert('Error uploading volunteers: ' + res.error)
+                    showAlert('Error uploading volunteers: ' + res.error, 'error')
                 } else {
                     router.refresh()
                 }
             },
             error: (error) => {
                 setUploading(false)
-                alert('Error parsing CSV: ' + error.message)
+                showAlert('Error parsing CSV: ' + error.message, 'error')
             },
         })
     }
 
     async function handleDelete(id: string) {
-        if (!confirm('Are you sure?')) return
+        const confirmed = await showConfirm({
+            title: 'Delete Volunteer',
+            message: 'Are you sure you want to delete this volunteer?',
+            confirmText: 'Delete',
+            type: 'danger'
+        })
+        if (!confirmed) return
         const res = await deleteVolunteer(eventId, id)
         if (res?.error) {
-            alert('Error deleting volunteer: ' + res.error)
+            showAlert('Error deleting volunteer: ' + res.error, 'error')
         } else {
+            showAlert('Volunteer deleted successfully', 'success')
             router.refresh()
         }
     }
@@ -138,19 +147,27 @@ export default function VolunteerManager({
     async function handleUpdate(volunteerId: string, formData: FormData) {
         const res = await updateVolunteer(eventId, volunteerId, formData)
         if (res?.error) {
-            alert('Error updating volunteer: ' + res.error)
+            showAlert('Error updating volunteer: ' + res.error, 'error')
         } else {
+            showAlert('Volunteer updated successfully', 'success')
             setEditingId(null)
             router.refresh()
         }
     }
 
     async function handleDeleteAll() {
-        if (!confirm('Are you sure you want to delete ALL volunteers? This cannot be undone.')) return
+        const confirmed = await showConfirm({
+            title: 'Delete All Volunteers',
+            message: 'Are you sure you want to delete ALL volunteers? This cannot be undone.',
+            confirmText: 'Delete All',
+            type: 'danger'
+        })
+        if (!confirmed) return
         const res = await deleteAllVolunteers(eventId)
         if (res?.error) {
-            alert('Error deleting all volunteers: ' + res.error)
+            showAlert('Error deleting all volunteers: ' + res.error, 'error')
         } else {
+            showAlert('All volunteers deleted successfully', 'success')
             router.refresh()
         }
     }
@@ -421,6 +438,16 @@ export default function VolunteerManager({
                         <div className="space-y-6">
                             <p className="text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed italic">
                                 Prepare your CSV file for global distribution. The system will automatically detect headers and map fields.
+                                <br />
+                                <a
+                                    href="https://docs.google.com/spreadsheets/d/1SBULQrNoxh_ShzWPl9asw4AV1QL6vvviTmLr3ascY54/copy"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold hover:underline mt-2 not-italic"
+                                >
+                                    <FileText className="w-4 h-4" />
+                                    Download CSV Template
+                                </a>
                             </p>
 
                             <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">

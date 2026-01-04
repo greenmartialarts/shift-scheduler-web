@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { CookieConsent } from "@/components/CookieConsent";
+import { NotificationProvider } from "@/components/ui/NotificationProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -52,10 +54,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <div className="fixed bottom-4 right-4 z-50">
-            <ThemeToggle />
-          </div>
-          {children}
+          <NotificationProvider>
+            <div className="fixed bottom-4 right-4 z-50">
+              <ThemeToggle />
+            </div>
+            {children}
+            <CookieConsent />
+          </NotificationProvider>
         </ThemeProvider>
       </body>
     </html>

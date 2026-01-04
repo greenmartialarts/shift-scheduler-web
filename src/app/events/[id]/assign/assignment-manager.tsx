@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { assignVolunteer, unassignVolunteer, autoAssign, swapAssignments, clearAssignments } from './actions'
 import { useRouter } from 'next/navigation'
+import { useNotification } from '@/components/ui/NotificationProvider'
 
 type Volunteer = {
     id: string
@@ -36,9 +37,9 @@ export default function AssignmentManager({
 }) {
     const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(false)
-    const [strategy, setStrategy] = useState('greedy')
     const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null) // For swapping
     const router = useRouter()
+    const { showAlert, showConfirm } = useNotification()
 
     // --- Conflict Detection Logic ---
     const conflicts = new Map<string, string[]>() // shiftId -> messages
@@ -134,11 +135,11 @@ export default function AssignmentManager({
 
     async function handleAutoAssign() {
         setLoading(true)
-        const res = await autoAssign(eventId, strategy)
+        const res = await autoAssign(eventId)
         setLoading(false)
 
         if (res?.error) {
-            alert('Error: ' + res.error)
+            showAlert('Error: ' + res.error, 'error')
         } else if (res?.partial && res?.unfilled) {
             // Partial assignment - some shifts couldn't be filled
             const unfilledDetails = res.unfilled
@@ -151,27 +152,31 @@ export default function AssignmentManager({
                 })
                 .join('\n')
 
-            alert(
-                `⚠️ Partial Assignment Complete\n\n` +
-                `Some shifts were filled, but the following positions remain unfilled:\n\n` +
-                `${unfilledDetails}\n\n` +
-                `These shifts are highlighted in orange.`
+            showAlert(
+                `Partial Assignment Complete. Some shifts were filled, but some positions remain unfilled. These are highlighted in orange.`,
+                'warning'
             )
             router.refresh()
         } else {
-            alert('✅ Auto-assignment complete! All shifts filled successfully.')
+            showAlert('Auto-assignment complete! All shifts filled successfully.', 'success')
             router.refresh()
         }
     }
 
     async function handleClearAssignments() {
-        if (!confirm('Are you sure you want to remove ALL assignments? This cannot be undone.')) return
+        const confirmed = await showConfirm({
+            title: 'Clear All Assignments',
+            message: 'Are you sure you want to remove ALL assignments? This cannot be undone.',
+            confirmText: 'Clear All',
+            type: 'danger'
+        })
+        if (!confirmed) return
         setLoading(true)
         const res = await clearAssignments(eventId)
         setLoading(false)
-        if (res?.error) alert(res.error)
+        if (res?.error) showAlert(res.error, 'error')
         else {
-            alert('All assignments cleared.')
+            showAlert('All assignments cleared.', 'success')
             router.refresh()
         }
     }
@@ -179,14 +184,20 @@ export default function AssignmentManager({
     async function handleAssign(shiftId: string, volunteerId: string) {
         if (!volunteerId) return
         const res = await assignVolunteer(shiftId, volunteerId)
-        if (res?.error) alert(res.error)
+        if (res?.error) showAlert(res.error, 'error')
         else router.refresh()
     }
 
     async function handleUnassign(assignmentId: string) {
-        if (!confirm('Unassign?')) return
+        const confirmed = await showConfirm({
+            title: 'Unassign Volunteer',
+            message: 'Are you sure you want to unassign this volunteer?',
+            confirmText: 'Unassign',
+            type: 'danger'
+        })
+        if (!confirmed) return
         const res = await unassignVolunteer(assignmentId)
-        if (res?.error) alert(res.error)
+        if (res?.error) showAlert(res.error, 'error')
         else router.refresh()
     }
 
@@ -200,9 +211,10 @@ export default function AssignmentManager({
             }
             // Swap
             const res = await swapAssignments(selectedAssignment, assignmentId)
-            if (res?.error) alert(res.error)
+            if (res?.error) showAlert(res.error, 'error')
             else {
                 setSelectedAssignment(null)
+                showAlert('Assignments swapped successfully', 'success')
                 router.refresh()
             }
         }
@@ -219,15 +231,6 @@ export default function AssignmentManager({
                     className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 px-4 py-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500 transition-all duration-200"
                 />
                 <div className="flex gap-2">
-                    <select
-                        value={strategy}
-                        onChange={(e) => setStrategy(e.target.value)}
-                        className="rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200"
-                    >
-                        <option value="greedy">Standard (Fast, Worse)</option>
-                        <option value="cpsat">Advanced (Slower, Better)</option>
-                        <option value="optimal">Optimal (Slowest, Average)</option>
-                    </select>
                     <button
                         onClick={handleAutoAssign}
                         disabled={loading}

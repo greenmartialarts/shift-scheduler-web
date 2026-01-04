@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { PremiumInput } from '@/components/ui/PremiumInput'
 import { PremiumButton } from '@/components/ui/PremiumButton'
 import { useActionState } from 'react'
+import { PrivacyPolicyModal } from '@/components/PrivacyPolicyModal'
 
 export default function SignupPage() {
     const [errorMessage, formAction, isPending] = useActionState(signup, undefined)
@@ -51,6 +52,14 @@ export default function SignupPage() {
                             required
                         />
 
+                        <div className="text-xs text-zinc-500 dark:text-zinc-400 space-y-1 -mt-2">
+                            <p>Password requirements:</p>
+                            <ul className="list-disc list-inside ml-2 space-y-0.5">
+                                <li>At least 12 characters</li>
+                                <li>Include uppercase, lowercase, number, and special character</li>
+                            </ul>
+                        </div>
+
                         <PremiumButton
                             type="submit"
                             disabled={isPending}
@@ -65,6 +74,10 @@ export default function SignupPage() {
                                 Sign In
                             </Link>
                         </p>
+
+                        <div className="text-center text-xs text-zinc-400 dark:text-zinc-500 pt-4">
+                            By creating an account, you agree to our <PrivacyPolicyModal />
+                        </div>
                     </form>
                 </div>
             </div>

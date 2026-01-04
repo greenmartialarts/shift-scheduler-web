@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { addTemplate, deleteTemplate } from './actions'
 import { useRouter } from 'next/navigation'
+import { useNotification } from '@/components/ui/NotificationProvider'
 
 type Template = {
     id: string
@@ -16,23 +17,32 @@ type Template = {
 export default function TemplateManager({ templates }: { templates: Template[] }) {
     const [isAdding, setIsAdding] = useState(false)
     const router = useRouter()
+    const { showAlert, showConfirm } = useNotification()
 
     async function handleAdd(formData: FormData) {
         const res = await addTemplate(formData)
         if (res?.error) {
-            alert('Error adding template: ' + res.error)
+            showAlert('Error adding template: ' + res.error, 'error')
         } else {
+            showAlert('Template created successfully', 'success')
             setIsAdding(false)
             router.refresh()
         }
     }
 
     async function handleDelete(id: string) {
-        if (!confirm('Are you sure?')) return
+        const confirmed = await showConfirm({
+            title: 'Delete Template',
+            message: 'Are you sure you want to delete this template?',
+            confirmText: 'Delete',
+            type: 'danger'
+        })
+        if (!confirmed) return
         const res = await deleteTemplate(id)
         if (res?.error) {
-            alert('Error deleting template: ' + res.error)
+            showAlert('Error deleting template: ' + res.error, 'error')
         } else {
+            showAlert('Template deleted successfully', 'success')
             router.refresh()
         }
     }

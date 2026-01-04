@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
 import { addShift, bulkAddShifts, deleteShift, deleteAllShifts, updateShift } from './actions'
 import { useRouter } from 'next/navigation'
+import { useNotification } from '@/components/ui/NotificationProvider'
 
 import {
     Search,
@@ -71,6 +72,7 @@ export default function ShiftManager({
     const [editingId, setEditingId] = useState<string | null>(null)
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
     const router = useRouter()
+    const { showAlert, showConfirm } = useNotification()
 
     // Form states
     const [selectedTemplate, setSelectedTemplate] = useState<string>('')
@@ -151,7 +153,7 @@ export default function ShiftManager({
 
         const res = await addShift(eventId, data)
         if (res?.error) {
-            alert('Error adding shift: ' + res.error)
+            showAlert('Error adding shift: ' + res.error, 'error')
         } else {
             setIsAdding(false)
             setFormData({ name: '', start: '', end: '', required_groups: '', allowed_groups: '' })
@@ -172,7 +174,7 @@ export default function ShiftManager({
         const selectedDays = formData.getAll('days') as string[]
 
         if (!startDate || !endDate || !startTime || !endTime || selectedDays.length === 0) {
-            alert('Please fill in all recurring fields')
+            showAlert('Please fill in all recurring fields', 'warning')
             return
         }
 
@@ -195,13 +197,13 @@ export default function ShiftManager({
         }
 
         if (generatedShifts.length === 0) {
-            alert('No shifts generated for the selected criteria')
+            showAlert('No shifts generated for the selected criteria', 'warning')
             return
         }
 
         const res = await bulkAddShifts(eventId, generatedShifts)
         if (res?.error) {
-            alert('Error generating shifts: ' + res.error)
+            showAlert('Error generating shifts: ' + res.error, 'error')
         } else {
             setIsRecurring(false)
             router.refresh()
@@ -240,7 +242,7 @@ export default function ShiftManager({
 
                 if (parsedShifts.length === 0) {
                     setUploading(false)
-                    alert('No valid shifts found in CSV')
+                    showAlert('No valid shifts found in CSV', 'warning')
                     return
                 }
 
@@ -248,24 +250,31 @@ export default function ShiftManager({
                 setUploading(false)
                 setIsUploadModalOpen(false)
                 if (res?.error) {
-                    alert('Error uploading shifts: ' + res.error)
+                    showAlert('Error uploading shifts: ' + res.error, 'error')
                 } else {
                     router.refresh()
                 }
             },
             error: (error) => {
                 setUploading(false)
-                alert('Error parsing CSV: ' + error.message)
+                showAlert('Error parsing CSV: ' + error.message, 'error')
             },
         })
     }
 
     async function handleDelete(id: string) {
-        if (!confirm('Are you sure you want to delete this shift?')) return
+        const confirmed = await showConfirm({
+            title: 'Delete Shift',
+            message: 'Are you sure you want to delete this shift?',
+            confirmText: 'Delete',
+            type: 'danger'
+        })
+        if (!confirmed) return
         const res = await deleteShift(eventId, id)
         if (res?.error) {
-            alert('Error deleting shift: ' + res.error)
+            showAlert('Error deleting shift: ' + res.error, 'error')
         } else {
+            showAlert('Shift deleted successfully', 'success')
             router.refresh()
         }
     }
@@ -273,19 +282,27 @@ export default function ShiftManager({
     async function handleUpdate(shiftId: string, formData: FormData) {
         const res = await updateShift(eventId, shiftId, formData)
         if (res?.error) {
-            alert('Error updating shift: ' + res.error)
+            showAlert('Error updating shift: ' + res.error, 'error')
         } else {
+            showAlert('Shift updated successfully', 'success')
             setEditingId(null)
             router.refresh()
         }
     }
 
     async function handleDeleteAll() {
-        if (!confirm('Are you sure you want to delete ALL shifts? This cannot be undone.')) return
+        const confirmed = await showConfirm({
+            title: 'Delete All Shifts',
+            message: 'Are you sure you want to delete ALL shifts? This cannot be undone.',
+            confirmText: 'Delete All',
+            type: 'danger'
+        })
+        if (!confirmed) return
         const res = await deleteAllShifts(eventId)
         if (res?.error) {
-            alert('Error deleting all shifts: ' + res.error)
+            showAlert('Error deleting all shifts: ' + res.error, 'error')
         } else {
+            showAlert('All shifts deleted successfully', 'success')
             router.refresh()
         }
     }
@@ -670,6 +687,16 @@ export default function ShiftManager({
                         <div className="space-y-6">
                             <p className="text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed italic">
                                 Inject multi-dimensional shift data into the event core. Ensure timestamps align with the local timezone.
+                                <br />
+                                <a
+                                    href="https://docs.google.com/spreadsheets/d/1O6-0rN1hEIsU0Y8_id87Vf5N4lU7C79_lWf8X8pIDwE/copy"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold hover:underline mt-2 not-italic"
+                                >
+                                    <FileText className="w-4 h-4" />
+                                    Download Schedule Template
+                                </a>
                             </p>
 
                             <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">

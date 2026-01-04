@@ -5,6 +5,7 @@ import { login } from './actions'
 import Link from 'next/link'
 import { PremiumInput } from '@/components/ui/PremiumInput'
 import { PremiumButton } from '@/components/ui/PremiumButton'
+import { PrivacyPolicyModal } from '@/components/PrivacyPolicyModal'
 
 export default function LoginPage() {
     const [errorMessage, formAction, isPending] = useActionState(login, undefined)
@@ -76,17 +77,23 @@ export default function LoginPage() {
                             </Link>
                         </p>
 
-                        <div className="pt-6 border-t border-zinc-200/50 dark:border-zinc-800/50">
-                            <div className="rounded-2xl bg-indigo-50/50 p-4 dark:bg-indigo-900/10 border border-indigo-100/50 dark:border-indigo-800/20">
-                                <h3 className="text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider mb-2">
-                                    Demo Credentials
-                                </h3>
-                                <div className="space-y-1 text-sm text-indigo-700 dark:text-indigo-400/80">
-                                    <p className="flex justify-between"><span>Email:</span> <span className="font-mono font-medium">test@example.com</span></p>
-                                    <p className="flex justify-between"><span>Pass:</span> <span className="font-mono font-medium">test123</span></p>
+                        <div className="text-center text-xs text-zinc-400 dark:text-zinc-500 pt-4">
+                            By signing in, you agree to our <PrivacyPolicyModal />
+                        </div>
+
+                        {process.env.NODE_ENV === 'development' && (
+                            <div className="pt-6 border-t border-zinc-200/50 dark:border-zinc-800/50">
+                                <div className="rounded-2xl bg-indigo-50/50 p-4 dark:bg-indigo-900/10 border border-indigo-100/50 dark:border-indigo-800/20">
+                                    <h3 className="text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider mb-2">
+                                        Demo Credentials
+                                    </h3>
+                                    <div className="space-y-1 text-sm text-indigo-700 dark:text-indigo-400/80">
+                                        <p className="flex justify-between"><span>Email:</span> <span className="font-mono font-medium">test@example.com</span></p>
+                                        <p className="flex justify-between"><span>Pass:</span> <span className="font-mono font-medium">test123</span></p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </form>
                 </div>
             </div>

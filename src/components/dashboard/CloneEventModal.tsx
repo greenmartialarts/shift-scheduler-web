@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { cloneEvent } from '@/app/events/[id]/actions'
 import { useRouter } from 'next/navigation'
 import { Copy } from 'lucide-react'
+import { useNotification } from '@/components/ui/NotificationProvider'
 
 export function CloneEventModal({ eventId, eventName, eventDate }: { eventId: string, eventName: string, eventDate: string }) {
     const [isOpen, setIsOpen] = useState(false)
     const [isCloning, setIsCloning] = useState(false)
     const router = useRouter()
+    const { showAlert } = useNotification()
 
     async function handleSubmit(formData: FormData) {
         setIsCloning(true)
@@ -16,7 +18,7 @@ export function CloneEventModal({ eventId, eventName, eventDate }: { eventId: st
         setIsCloning(false)
 
         if (res?.error) {
-            alert('Error cloning event: ' + res.error)
+            showAlert('Error cloning event: ' + res.error, 'error')
         } else if (res?.newEventId) {
             setIsOpen(false)
             router.push(`/events/${res.newEventId}`)
