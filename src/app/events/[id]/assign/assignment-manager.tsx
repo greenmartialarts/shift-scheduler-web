@@ -4,6 +4,30 @@ import { useState } from 'react'
 import { assignVolunteer, unassignVolunteer, autoAssign, swapAssignments, clearAssignments } from './actions'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
+import { User, Shield, Briefcase, Users, Clock } from 'lucide-react'
+
+function GroupBadge({ name, count }: { name: string; count?: number | string }) {
+    const config: Record<string, { color: string; icon: any }> = {
+        Adults: { color: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20', icon: User },
+        Delegates: { color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20', icon: Users },
+        Staff: { color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: Shield },
+        Security: { color: 'text-red-600 dark:text-red-400 bg-red-500/20 border-red-500/20', icon: Shield },
+        Medical: { color: 'text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20', icon: Briefcase },
+        Coordinator: { color: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20', icon: Shield },
+        default: { color: 'text-zinc-600 dark:text-zinc-400 bg-zinc-500/10 border-zinc-500/20', icon: Users }
+    }
+
+    const { color, icon: Icon } = config[name] || config.default
+
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border ${color} text-[10px] font-black uppercase tracking-wider transition-all cursor-default group/badge`}>
+            <Icon className="w-3 h-3 transition-transform" />
+            <span>
+                {name}{count !== undefined ? `: ${count}` : ''}
+            </span>
+        </span>
+    )
+}
 
 type Volunteer = {
     id: string
@@ -23,6 +47,7 @@ type Shift = {
     name: string | null
     start_time: string
     end_time: string
+    required_groups?: Record<string, any> | string[] | null
     assignments?: Assignment[] // Joined
 }
 
@@ -86,21 +111,40 @@ export default function AssignmentManager({
     })
 
     // --- Unfilled Detection Logic ---
-    // We check if assignments count matches required count
+    // Helper to normalize required_groups to dictionary format
+    const normalizeGroups = (groups: any): Record<string, number> => {
+        if (!groups) return {}
+        if (typeof groups === 'object' && !Array.isArray(groups)) return groups
+
+        const normalized: Record<string, number> = {}
+        const items = Array.isArray(groups) ? groups : [groups.toString()]
+
+        items.forEach((item: string) => {
+            if (item.includes(':')) {
+                const [group, count] = item.split(':')
+                if (group && count) normalized[group.trim()] = parseInt(count) || 0
+            } else {
+                normalized[item.trim()] = 1
+            }
+        })
+        return normalized
+    }
+
     const unfilledShiftIds = new Set<string>()
+    const emptyShiftIds = new Set<string>()
     shifts.forEach(shift => {
         // @ts-ignore
-        const requiredGroups = shift.required_groups || {}
+        const requiredGroups = normalizeGroups(shift.required_groups)
         let totalRequired = 0
         for (const count of Object.values(requiredGroups)) {
             totalRequired += Number(count)
         }
 
-        // If no requirements specified, assume 1 per shift if allowed_groups is set, or just skip?
-        // Let's assume if totalRequired > 0, we check.
         if (totalRequired > 0) {
             const currentAssignments = shift.assignments?.length || 0
-            if (currentAssignments < totalRequired) {
+            if (currentAssignments === 0) {
+                emptyShiftIds.add(shift.id)
+            } else if (currentAssignments < totalRequired) {
                 unfilledShiftIds.add(shift.id)
             }
         }
@@ -124,6 +168,11 @@ export default function AssignmentManager({
         const bHasConflict = conflicts.has(b.id)
         if (aHasConflict && !bHasConflict) return -1
         if (!aHasConflict && bHasConflict) return 1
+
+        const aEmpty = emptyShiftIds.has(a.id)
+        const bEmpty = emptyShiftIds.has(b.id)
+        if (aEmpty && !bEmpty) return -1
+        if (!aEmpty && bEmpty) return 1
 
         const aUnfilled = unfilledShiftIds.has(a.id)
         const bUnfilled = unfilledShiftIds.has(b.id)
@@ -234,7 +283,7 @@ export default function AssignmentManager({
                     <button
                         onClick={handleAutoAssign}
                         disabled={loading}
-                        className="rounded-2xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 hover:scale-[1.02]"
+                        className="rounded-2xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
                     >
                         {loading ? 'Assigning...' : 'Auto Assign'}
                     </button>
@@ -262,7 +311,7 @@ export default function AssignmentManager({
                     return (
                         <div key={shift.id} className={`rounded-3xl p-6 transition-all duration-300 ${shiftConflicts ? 'bg-yellow-50/50 border border-yellow-200 dark:bg-yellow-900/10 dark:border-yellow-800 shadow-lg shadow-yellow-500/5' :
                             isUnfilled ? 'bg-orange-50/50 border border-orange-200 dark:bg-orange-900/10 dark:border-orange-800 shadow-lg shadow-orange-500/5' :
-                                'glass-panel hover:shadow-2xl hover:shadow-indigo-500/5'
+                                'glass-panel hover:shadow-2xl hover:shadow-purple-500/15 dark:hover:shadow-purple-500/20'
                             }`}>
                             {shiftConflicts && (
                                 <div className="mb-4 rounded-md bg-yellow-100 p-3 text-sm text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">
@@ -275,18 +324,43 @@ export default function AssignmentManager({
                                 </div>
                             )}
 
-                            {isUnfilled && !shiftConflicts && (
+                            {emptyShiftIds.has(shift.id) && !shiftConflicts && (
                                 <div className="mb-4 rounded-md bg-orange-100 p-3 text-sm text-orange-800 dark:bg-orange-900/50 dark:text-orange-200">
-                                    <p className="font-bold">⚠️ Auto-Assign Incomplete:</p>
-                                    <p>This shift could not be fully filled.</p>
+                                    <p className="font-bold">⚠️ Shift has not been filled, try auto assigning</p>
                                 </div>
                             )}
 
-                            <div className="mb-4 flex items-center justify-between">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                                    {shift.name && <span className="font-bold mr-2">{shift.name}:</span>}
-                                    {new Date(shift.start_time).toLocaleString()} - {new Date(shift.end_time).toLocaleTimeString()}
-                                </h3>
+                            {unfilledShiftIds.has(shift.id) && !shiftConflicts && (
+                                <div className="mb-4 rounded-md bg-orange-100 p-3 text-sm text-orange-800 dark:bg-orange-900/50 dark:text-orange-200">
+                                    <p className="font-bold">⚠️ Needs More Volunteers:</p>
+                                    <p>This shift is currently under-staffed.</p>
+                                </div>
+                            )}
+
+                            <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h3 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+                                        {shift.name && <span className="text-zinc-400 uppercase tracking-tighter text-xs">{shift.name}</span>}
+                                        <span className="text-indigo-600 dark:text-indigo-400">
+                                            {new Date(shift.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(shift.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </span>
+                                    </h3>
+                                    <p className="text-xs font-bold text-zinc-400 mt-1 uppercase tracking-widest italic">
+                                        {new Date(shift.start_time).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
+                                    </p>
+
+                                    <div className="flex flex-wrap gap-2 mt-3">
+                                        {(() => {
+                                            const reqs = normalizeGroups(shift.required_groups)
+                                            if (Object.keys(reqs).length === 0) {
+                                                return <span className="text-[10px] font-black uppercase text-zinc-400 tracking-widest bg-zinc-100 dark:bg-zinc-800 px-2 py-1 rounded-md">Global Access</span>
+                                            }
+                                            return Object.entries(reqs).map(([name, count]) => (
+                                                <GroupBadge key={name} name={name} count={count} />
+                                            ))
+                                        })()}
+                                    </div>
+                                </div>
                                 <div className="flex items-center gap-2">
                                     <select
                                         className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200"
@@ -336,6 +410,21 @@ export default function AssignmentManager({
                         </div>
                     )
                 })}
+                {filteredShifts.length === 0 && (
+                    <div className="premium-card p-12 text-center">
+                        <div className="flex flex-col items-center gap-4 text-zinc-500 dark:text-zinc-400">
+                            <div className="h-16 w-16 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center">
+                                <svg className="w-8 h-8 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 italic">No Shifts Found</h3>
+                                <p className="text-sm font-medium mt-1">Please create shifts first to manage assignments.</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

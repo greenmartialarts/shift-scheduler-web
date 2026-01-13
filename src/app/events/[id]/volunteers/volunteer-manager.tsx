@@ -5,7 +5,28 @@ import Papa from 'papaparse'
 import { addVolunteer, bulkAddVolunteers, deleteVolunteer, deleteAllVolunteers, updateVolunteer } from './actions'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
-import { Search, UserPlus, Trash2, Upload, FileText, X, Check, Edit2, Download, AlertCircle } from 'lucide-react'
+import { Search, UserPlus, Trash2, Upload, FileText, X, Check, Edit2, Download, AlertCircle, User, Shield, Briefcase, Users } from 'lucide-react'
+
+function GroupBadge({ name }: { name: string }) {
+    const config: Record<string, { color: string; icon: any }> = {
+        Adults: { color: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20', icon: User },
+        Delegates: { color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20', icon: Users },
+        Staff: { color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: Shield },
+        Security: { color: 'text-red-600 dark:text-red-400 bg-red-500/20 border-red-500/20', icon: Shield },
+        Medical: { color: 'text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20', icon: Briefcase },
+        Coordinator: { color: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20', icon: Shield },
+        default: { color: 'text-zinc-600 dark:text-zinc-400 bg-zinc-500/10 border-zinc-500/20', icon: Users }
+    }
+
+    const { color, icon: Icon } = config[name] || config.default
+
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border ${color} text-[10px] font-black uppercase tracking-wider transition-all cursor-default group/badge`}>
+            <Icon className="w-3 h-3 transition-transform" />
+            <span>{name}</span>
+        </span>
+    )
+}
 
 type Volunteer = {
     id: string
@@ -290,7 +311,7 @@ export default function VolunteerManager({
                                 return (
                                     <tr
                                         key={volunteer.id}
-                                        className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-colors"
+                                        className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-all border-l-2 border-l-transparent hover:border-l-indigo-500"
                                     >
                                         {isEditing ? (
                                             <td colSpan={4} className="px-8 py-6">
@@ -350,14 +371,9 @@ export default function VolunteerManager({
                                                 </td>
                                                 <td className="px-8 py-5 text-sm">
                                                     {volunteer.group ? (
-                                                        <span
-                                                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-black text-white shadow-sm"
-                                                            style={{ backgroundColor: getGroupColor(volunteer.group) }}
-                                                        >
-                                                            {volunteer.group}
-                                                        </span>
+                                                        <GroupBadge name={volunteer.group} />
                                                     ) : (
-                                                        <span className="text-zinc-400 italic">None</span>
+                                                        <span className="text-zinc-400 italic text-xs font-medium">No Group</span>
                                                     )}
                                                 </td>
                                                 <td className="px-8 py-5 text-sm font-bold text-zinc-500">

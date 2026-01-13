@@ -120,12 +120,14 @@ export default function EventsPage() {
                                 return (
                                     <div
                                         key={event.id}
-                                        className="premium-card p-6 flex items-center justify-between group"
+                                        onClick={() => router.push(`/events/${event.id}`)}
+                                        className="premium-card p-6 flex items-center justify-between group cursor-pointer hover:border-indigo-500/30 transition-all active:scale-[0.99]"
                                     >
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3">
                                                 <Link
                                                     href={`/events/${event.id}`}
+                                                    onClick={(e) => e.stopPropagation()}
                                                     className="text-2xl font-black text-zinc-900 dark:text-zinc-50 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
                                                 >
                                                     {event.name}
@@ -139,7 +141,11 @@ export default function EventsPage() {
                                             <div className="mt-2 flex items-center gap-4 text-sm font-medium text-zinc-400">
                                                 <span>Created {new Date(event.created_at).toLocaleDateString()}</span>
                                                 <div className="h-1 w-1 rounded-full bg-zinc-700" />
-                                                <Link href={`/events/${event.id}/share`} className="hover:text-indigo-600 transition-colors">
+                                                <Link
+                                                    href={`/events/${event.id}/share`}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="hover:text-indigo-600 transition-colors"
+                                                >
                                                     Manage Access
                                                 </Link>
                                             </div>
@@ -149,7 +155,7 @@ export default function EventsPage() {
                                                 <form action={async (formData) => {
                                                     await deleteEvent(formData)
                                                     window.location.reload()
-                                                }}>
+                                                }} onClick={(e) => e.stopPropagation()}>
                                                     <input type="hidden" name="id" value={event.id} />
                                                     <button
                                                         type="submit"

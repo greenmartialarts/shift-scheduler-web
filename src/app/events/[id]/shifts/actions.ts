@@ -93,8 +93,8 @@ export async function bulkAddShifts(eventId: string, shifts: any[]) {
         return {
             event_id: eventId,
             name: s.name,
-            start_time: s.start,
-            end_time: s.end,
+            start_time: s.start_time || s.start,
+            end_time: s.end_time || s.end,
             required_groups: requiredGroups,
             allowed_groups: allowedGroups,
             excluded_groups: excludedGroups,

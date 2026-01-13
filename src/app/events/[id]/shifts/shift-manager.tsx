@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import Papa from 'papaparse'
 import { addShift, bulkAddShifts, deleteShift, deleteAllShifts, updateShift } from './actions'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
+import ShiftTimeline from './shift-timeline'
 
 import {
     Search,
@@ -20,7 +22,12 @@ import {
     Edit2,
     Download,
     AlertCircle,
-    FileText
+    FileText,
+    LayoutList,
+    TrendingUp as TimelineIcon,
+    User,
+    Shield,
+    Briefcase
 } from 'lucide-react'
 
 type Shift = {
@@ -52,7 +59,28 @@ const DAYS_OF_WEEK = [
     { label: 'Sat', value: '6' },
     { label: 'Sun', value: '0' },
 ]
+function GroupBadge({ name, count }: { name: string; count?: number | string }) {
+    const config: Record<string, { color: string; icon: any }> = {
+        Adults: { color: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20', icon: User },
+        Delegates: { color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20', icon: Users },
+        Staff: { color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: Shield },
+        Security: { color: 'text-red-600 dark:text-red-400 bg-red-500/20 border-red-500/20', icon: Shield },
+        Medical: { color: 'text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20', icon: Briefcase },
+        Coordinator: { color: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20', icon: Shield },
+        default: { color: 'text-zinc-600 dark:text-zinc-400 bg-zinc-500/10 border-zinc-500/20', icon: Users }
+    }
 
+    const { color, icon: Icon } = config[name] || config.default
+
+    return (
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border ${color} text-[10px] font-black uppercase tracking-wider transition-all cursor-default group/badge`}>
+            <Icon className="w-3 h-3 transition-transform" />
+            <span>
+                {name}{count !== undefined ? `: ${count}` : ''}
+            </span>
+        </span>
+    )
+}
 
 
 export default function ShiftManager({
@@ -70,6 +98,7 @@ export default function ShiftManager({
     const [isRecurring, setIsRecurring] = useState(false)
     const [uploading, setUploading] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
+    const [view, setView] = useState<'list' | 'timeline'>('list')
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
     const router = useRouter()
     const { showAlert, showConfirm } = useNotification()
@@ -311,15 +340,41 @@ export default function ShiftManager({
         <div className="space-y-8">
             {/* Header / Search Controls */}
             <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-                <div className="relative w-full md:max-w-md">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5 pointer-events-none" />
-                    <input
-                        type="text"
-                        placeholder="Search shifts by name..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-zinc-50 outline-none transition-all placeholder:text-zinc-400 font-medium"
-                    />
+                <div className="flex items-center gap-4 w-full md:max-w-2xl">
+                    <div className="relative flex-grow">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-5 h-5 pointer-events-none" />
+                        <input
+                            type="text"
+                            placeholder="Search shifts by name..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-zinc-50 outline-none transition-all placeholder:text-zinc-400 font-medium"
+                        />
+                    </div>
+
+                    {/* View Toggle */}
+                    <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800">
+                        <button
+                            onClick={() => setView('list')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-tighter transition-all ${view === 'list'
+                                ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
+                                }`}
+                        >
+                            <LayoutList className="w-4 h-4" />
+                            <span>List</span>
+                        </button>
+                        <button
+                            onClick={() => setView('timeline')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-tighter transition-all ${view === 'timeline'
+                                ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
+                                }`}
+                        >
+                            <Calendar className="w-4 h-4" />
+                            <span>Timeline</span>
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex flex-wrap gap-3 w-full md:w-auto justify-end">
@@ -511,144 +566,114 @@ export default function ShiftManager({
                 </div>
             )}
 
-            {/* Table Section */}
-            <div className="premium-card overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-                            <tr>
-                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Shift Name</th>
-                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Timeframe</th>
-                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Required Groups</th>
-                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                            {filteredShifts.map((shift) => {
-                                const isEditing = editingId === shift.id
-                                const start = new Date(shift.start_time)
-                                const end = new Date(shift.end_time)
-
-                                return (
-                                    <tr
-                                        key={shift.id}
-                                        className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-colors"
-                                    >
-                                        {isEditing ? (
-                                            <td colSpan={4} className="px-8 py-6">
-                                                <form
-                                                    action={(formData) => handleUpdate(shift.id, formData)}
-                                                    className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end"
-                                                >
-                                                    <div className="md:col-span-1">
-                                                        <input
-                                                            type="text"
-                                                            name="name"
-                                                            defaultValue={shift.name ?? ''}
-                                                            required
-                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
-                                                        />
-                                                    </div>
-                                                    <div className="md:col-span-1">
-                                                        <input
-                                                            type="datetime-local"
-                                                            name="start_time"
-                                                            defaultValue={shift.start_time.slice(0, 16)}
-                                                            required
-                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
-                                                        />
-                                                    </div>
-                                                    <div className="md:col-span-1">
-                                                        <input
-                                                            type="datetime-local"
-                                                            name="end_time"
-                                                            defaultValue={shift.end_time.slice(0, 16)}
-                                                            required
-                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
-                                                        />
-                                                    </div>
-                                                    <div className="flex justify-end gap-2">
-                                                        <button type="submit" className="p-2 rounded-lg bg-green-500 text-white shadow-lg hover:scale-105 transition-transform">
-                                                            <Check className="w-5 h-5" />
-                                                        </button>
-                                                        <button type="button" onClick={() => setEditingId(null)} className="p-2 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-500 hover:scale-105 transition-transform">
-                                                            <X className="w-5 h-5" />
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </td>
-                                        ) : (
-                                            <>
-                                                <td className="px-8 py-5">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center border border-indigo-500/10 text-indigo-600 dark:text-indigo-400">
-                                                            <Calendar className="w-4 h-4" />
-                                                        </div>
-                                                        <span className="font-bold text-zinc-900 dark:text-zinc-50">{shift.name}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-5 text-sm">
-                                                    <div className="flex flex-col">
-                                                        <span className="font-black text-zinc-900 dark:text-zinc-50">
-                                                            {start.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
-                                                        </span>
-                                                        <span className="text-zinc-500 italic">
-                                                            {start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                            {' - '}
-                                                            {end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-5 text-sm">
-                                                    <div className="flex flex-wrap gap-1">
-                                                        {shift.required_groups?.length ? (
-                                                            shift.required_groups.map(g => (
-                                                                <span key={g} className="inline-flex items-center px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-[10px] font-black uppercase text-zinc-500">
-                                                                    {g}
-                                                                </span>
-                                                            ))
-                                                        ) : (
-                                                            <span className="text-zinc-400 italic">Global Access</span>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className="px-8 py-5 text-right">
-                                                    <div className="flex justify-end items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <button
-                                                            onClick={() => setEditingId(shift.id)}
-                                                            className="p-2 rounded-lg text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all"
-                                                            title="Edit Shift"
-                                                        >
-                                                            <Edit2 className="w-4 h-4" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(shift.id)}
-                                                            className="p-2 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-500/10 transition-all"
-                                                            title="Delete Shift"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </>
-                                        )}
-                                    </tr>
-                                )
-                            })}
-                            {filteredShifts.length === 0 && (
+            {/* Content Section */}
+            {view === 'list' ? (
+                <div className="premium-card overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
                                 <tr>
-                                    <td colSpan={4} className="px-8 py-12 text-center">
-                                        <div className="flex flex-col items-center gap-3 text-zinc-400">
-                                            <Search className="w-10 h-10 opacity-20" />
-                                            <p className="font-bold italic">No matching shifts located.</p>
-                                        </div>
-                                    </td>
+                                    <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Shift Name</th>
+                                    <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Timeframe</th>
+                                    <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Required Groups</th>
+                                    <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400 text-right">Actions</th>
                                 </tr>
-                            )}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                                {filteredShifts.map((shift) => {
+                                    const start = new Date(shift.start_time)
+                                    const end = new Date(shift.end_time)
+
+                                    return (
+                                        <tr
+                                            key={shift.id}
+                                            className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-all border-l-2 border-l-transparent hover:border-l-indigo-500"
+                                        >
+                                            <td className="px-8 py-5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center border border-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                                                        <Calendar className="w-4 h-4" />
+                                                    </div>
+                                                    <span className="font-bold text-zinc-900 dark:text-zinc-50">{shift.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-5 text-sm">
+                                                <div className="flex flex-col">
+                                                    <span className="font-black text-zinc-900 dark:text-zinc-50">
+                                                        {start.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                                                    </span>
+                                                    <span className="text-zinc-500 italic">
+                                                        {start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        {' - '}
+                                                        {end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-5 text-sm">
+                                                <div className="flex flex-wrap gap-2">
+                                                    {(() => {
+                                                        const reqs = shift.required_groups as any
+
+                                                        if (!reqs || (Array.isArray(reqs) && reqs.length === 0)) {
+                                                            return <span className="text-zinc-400 italic text-xs font-medium">No requirements specified</span>
+                                                        }
+
+                                                        if (Array.isArray(reqs)) {
+                                                            return reqs.map(g => <GroupBadge key={g} name={g} />)
+                                                        }
+
+                                                        if (typeof reqs === 'object') {
+                                                            return Object.entries(reqs).map(([name, count]) => (
+                                                                <GroupBadge key={name} name={name} count={count as number} />
+                                                            ))
+                                                        }
+
+                                                        return null
+                                                    })()}
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-5 text-right">
+                                                <div className="flex justify-end items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => setEditingId(shift.id)}
+                                                        className="p-2 rounded-lg text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all"
+                                                        title="Edit Shift"
+                                                    >
+                                                        <Edit2 className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(shift.id)}
+                                                        className="p-2 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-500/10 transition-all"
+                                                        title="Delete Shift"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                                {filteredShifts.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} className="px-8 py-12 text-center">
+                                            <div className="flex flex-col items-center gap-3 text-zinc-400">
+                                                <Search className="w-10 h-10 opacity-20" />
+                                                <p className="font-bold italic">No matching shifts located.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+            ) : (
+                <ShiftTimeline
+                    shifts={filteredShifts}
+                    onEdit={setEditingId}
+                    onDelete={handleDelete}
+                />
+            )}
 
             {/* CSV Template / Instructions */}
             <div className="grid md:grid-cols-2 gap-8">
@@ -735,6 +760,126 @@ export default function ShiftManager({
                     </div>
                 </div>
             )}
+            {/* Edit Modal */}
+            <AnimatePresence>
+                {editingId && (
+                    <EditShiftModal
+                        shift={shifts.find(s => s.id === editingId)!}
+                        onClose={() => setEditingId(null)}
+                        onUpdate={(formData) => handleUpdate(editingId, formData)}
+                    />
+                )}
+            </AnimatePresence>
+        </div>
+    )
+}
+
+function EditShiftModal({
+    shift,
+    onClose,
+    onUpdate
+}: {
+    shift: Shift,
+    onClose: () => void,
+    onUpdate: (data: FormData) => Promise<void>
+}) {
+    const requiredGroupsStr = useMemo(() => {
+        if (!shift.required_groups) return ''
+        if (Array.isArray(shift.required_groups)) return shift.required_groups.join(', ')
+        return JSON.stringify(shift.required_groups)
+    }, [shift.required_groups])
+
+    const allowedGroupsStr = useMemo(() => {
+        if (!shift.allowed_groups) return ''
+        return shift.allowed_groups.join(', ')
+    }, [shift.allowed_groups])
+
+    return (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={onClose}
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                className="relative w-full max-w-lg rounded-3xl border border-zinc-200 bg-white p-8 shadow-2xl dark:border-zinc-800 dark:bg-zinc-950"
+            >
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter italic">
+                        Edit Shift Details
+                    </h3>
+                    <button onClick={onClose} className="p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
+                        <X className="w-5 h-5 text-zinc-400" />
+                    </button>
+                </div>
+
+                <form action={(fd) => { onUpdate(fd); onClose(); }} className="space-y-6">
+                    <div>
+                        <label className="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-2">Display Name</label>
+                        <input
+                            type="text"
+                            name="name"
+                            defaultValue={shift.name ?? ''}
+                            required
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-2">Start Time</label>
+                            <input
+                                type="datetime-local"
+                                name="start_time"
+                                defaultValue={shift.start_time.slice(0, 16)}
+                                required
+                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-2">End Time</label>
+                            <input
+                                type="datetime-local"
+                                name="end_time"
+                                defaultValue={shift.end_time.slice(0, 16)}
+                                required
+                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-2">Required Groups (JSON)</label>
+                        <textarea
+                            name="required_groups"
+                            defaultValue={requiredGroupsStr}
+                            placeholder='{"Medical": 1}'
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-mono text-xs h-24"
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-6 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-all"
+                        >
+                            Discard
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-8 py-3 rounded-xl bg-indigo-600 text-white font-black uppercase tracking-widest shadow-lg shadow-indigo-500/30 hover:bg-indigo-700 hover:scale-[1.02] transition-all"
+                        >
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </motion.div>
         </div>
     )
 }

@@ -59,6 +59,25 @@ export async function autoAssign(eventId: string) {
         .select('shift_id, volunteer_id')
         .in('shift_id', shiftIds)
 
+    // Helper to normalize required_groups to dictionary format
+    const normalizeGroups = (groups: any): Record<string, number> => {
+        if (!groups) return {}
+        if (typeof groups === 'object' && !Array.isArray(groups)) return groups
+
+        const normalized: Record<string, number> = {}
+        const items = Array.isArray(groups) ? groups : [groups.toString()]
+
+        items.forEach((item: string) => {
+            if (item.includes(':')) {
+                const [group, count] = item.split(':')
+                if (group && count) normalized[group.trim()] = parseInt(count) || 0
+            } else {
+                normalized[item.trim()] = 1
+            }
+        })
+        return normalized
+    }
+
     // 2. Transform to API format
     const apiPayload = {
         volunteers: volunteers.map((v) => ({
@@ -72,7 +91,7 @@ export async function autoAssign(eventId: string) {
             id: s.id,
             start: new Date(s.start_time).toISOString().slice(0, 16),
             end: new Date(s.end_time).toISOString().slice(0, 16),
-            required_groups: s.required_groups,
+            required_groups: normalizeGroups(s.required_groups),
         })),
         current_assignments: (existingAssignments || []).map(a => ({
             shift_id: a.shift_id,
@@ -80,7 +99,7 @@ export async function autoAssign(eventId: string) {
         }))
     }
 
-    const endpoint = 'https://shift-scheduler-api-xi.vercel.app/schedule/json'
+    const endpoint = 'https://shift-scheduler-api-3nxm.vercel.app/schedule/json'
     // Debug logging
     console.log('=== AUTO-ASSIGN DEBUG ===')
     console.log('Endpoint:', endpoint)

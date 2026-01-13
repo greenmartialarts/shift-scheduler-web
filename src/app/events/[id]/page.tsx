@@ -72,10 +72,29 @@ export default function EventDashboard({
                 eventAssignments = data || [];
             }
 
+            // Helper to normalize required_groups to dictionary format
+            const normalizeGroups = (groups: any): Record<string, number> => {
+                if (!groups) return {}
+                if (typeof groups === 'object' && !Array.isArray(groups)) return groups
+
+                const normalized: Record<string, number> = {}
+                const items = Array.isArray(groups) ? groups : [groups.toString()]
+
+                items.forEach((item: string) => {
+                    if (item.includes(':')) {
+                        const [group, count] = item.split(':')
+                        if (group && count) normalized[group.trim()] = parseInt(count) || 0
+                    } else {
+                        normalized[item.trim()] = 1
+                    }
+                })
+                return normalized
+            }
+
             // Calculate Metrics
             let totalSlots = 0;
             shifts?.forEach(shift => {
-                const required = shift.required_groups as Record<string, number>;
+                const required = normalizeGroups(shift.required_groups);
                 if (required) {
                     Object.values(required).forEach(count => {
                         totalSlots += Number(count) || 0;
@@ -166,13 +185,21 @@ export default function EventDashboard({
                         { label: 'Fill Rate', value: `${Math.round(stats.fillRate)}%`, sub: `${stats.filledSlotsCount} / ${stats.totalSlots}`, color: stats.fillRate >= 80 ? 'text-green-500' : stats.fillRate >= 50 ? 'text-yellow-500' : 'text-red-500' },
                         { label: 'Volunteers', value: stats.totalVolunteersCount, sub: 'Registered members' },
                         { label: 'Hours Tracked', value: Math.round(stats.totalHours), sub: 'Projected demand' },
-                        { label: 'Active Personnel', value: stats.activeCurrentlyCount, sub: 'Currently on-site', color: 'text-green-500' },
+                        { label: 'Active Personnel', value: stats.activeCurrentlyCount, sub: 'Currently on-site', color: 'text-green-500', href: `/events/${id}/active` },
                     ].map((stat) => (
-                        <div key={stat.label} className="premium-card p-6">
-                            <p className="text-xs font-black uppercase tracking-wider text-zinc-400 mb-1">{stat.label}</p>
-                            <p className={`text-4xl font-black tracking-tighter ${stat.color || 'text-zinc-900 dark:text-zinc-50'}`}>{stat.value}</p>
-                            <p className="text-xs font-bold text-zinc-500 mt-1">{stat.sub}</p>
-                        </div>
+                        stat.href ? (
+                            <Link key={stat.label} href={stat.href} className="premium-card p-6 block hover:border-indigo-500/30 transition-all">
+                                <p className="text-xs font-black uppercase tracking-wider text-zinc-400 mb-1">{stat.label}</p>
+                                <p className={`text-4xl font-black tracking-tighter ${stat.color || 'text-zinc-900 dark:text-zinc-50'}`}>{stat.value}</p>
+                                <p className="text-xs font-bold text-zinc-500 mt-1">{stat.sub}</p>
+                            </Link>
+                        ) : (
+                            <div key={stat.label} className="premium-card p-6">
+                                <p className="text-xs font-black uppercase tracking-wider text-zinc-400 mb-1">{stat.label}</p>
+                                <p className={`text-4xl font-black tracking-tighter ${stat.color || 'text-zinc-900 dark:text-zinc-50'}`}>{stat.value}</p>
+                                <p className="text-xs font-bold text-zinc-500 mt-1">{stat.sub}</p>
+                            </div>
+                        )
                     ))}
                 </div>
 
