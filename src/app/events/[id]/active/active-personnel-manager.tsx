@@ -3,8 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-import { LucideIcon } from 'lucide-react'
-import { Users, User, Shield, Briefcase, Activity, Box, LogIn, LogOut } from 'lucide-react'
+import { LucideIcon, Users, User, Shield, Briefcase, Activity, Box, LogIn, LogOut } from 'lucide-react'
 import { checkInVolunteer, checkOutVolunteer, assignAsset, returnAsset, logActivity } from './actions'
 import { useNotification } from '@/components/ui/NotificationProvider'
 

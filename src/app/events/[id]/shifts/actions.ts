@@ -67,9 +67,9 @@ export async function bulkAddShifts(eventId: string, shifts: Array<Record<string
 
         const rs = s as Record<string, unknown>
         // Get field values - support both formats (capitalized and lowercase)
-        const name = rs.Name || rs.name
-        const startRaw = rs.Start || rs.start_time || rs.start
-        const endRaw = rs.End || rs.end_time || rs.end
+        const name = rs.Name || rs.name || rs.Shift || rs.shift
+        const startRaw = rs.Start || rs.start_time || rs.start || rs.Begin || rs.begin
+        const endRaw = rs.End || rs.end_time || rs.end || rs.Finish || rs.finish
         const groupsRaw = rs.Groups || rs.required_groups
 
         // Parse dates

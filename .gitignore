@@ -41,3 +41,16 @@ yarn-error.log*
 next-env.d.ts
 
 debug.log
+
+# Python files (development scripts)
+*.py
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# CSV sample files
+*.csv
+
+# Additional log files
+*.log

@@ -7,10 +7,11 @@ interface ShiftFileUploadZoneProps {
     isOpen: boolean
     onClose: () => void
     onUpload: (data: Array<Record<string, unknown>>) => Promise<void>
+    onError?: (message: string) => void
     uploading: boolean
 }
 
-export default function ShiftFileUploadZone({ isOpen, onClose, onUpload, uploading }: ShiftFileUploadZoneProps) {
+export default function ShiftFileUploadZone({ isOpen, onClose, onUpload, onError, uploading }: ShiftFileUploadZoneProps) {
     if (!isOpen) return null
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,10 +22,50 @@ export default function ShiftFileUploadZone({ isOpen, onClose, onUpload, uploadi
             header: true,
             skipEmptyLines: true,
             complete: (results) => {
+                const headers = results.meta.fields || []
+
+                const nameAliases = ['Name', 'name', 'Shift', 'shift']
+                const startAliases = ['Start', 'start_time', 'start', 'Begin', 'begin']
+                const endAliases = ['End', 'end_time', 'end', 'Finish', 'finish']
+                const groupAliases = ['Groups', 'required_groups']
+                const allowedAliases = ['allowed_groups']
+                const excludedAliases = ['excluded_groups']
+
+                const allRecognized = [...nameAliases, ...startAliases, ...endAliases, ...groupAliases, ...allowedAliases, ...excludedAliases]
+                const unrecognized = headers.filter(h => !allRecognized.includes(h))
+
+                // Explicitly check for Volunteer headers to prevent cross-import errors
+                const volunteerHeaders = ['Email', 'email', 'Phone', 'phone', 'Max Hours', 'max_hours']
+                const hasVolunteerHeaders = headers.some(h => volunteerHeaders.includes(h))
+
+                if (hasVolunteerHeaders) {
+                    onError?.('It looks like you are trying to upload a Volunteer CSV. Please use the Volunteer Import feature in the "Volunteers" tab.')
+                    return
+                }
+
+                if (unrecognized.length > 0) {
+                    onError?.(`Invalid file format: Unrecognized columns found: ${unrecognized.join(', ')}. Please use the template.`)
+                    return
+                }
+
+                const hasName = headers.some(h => nameAliases.includes(h))
+                const hasStart = headers.some(h => startAliases.includes(h))
+                const hasEnd = headers.some(h => endAliases.includes(h))
+
+                if (!hasName || !hasStart || !hasEnd) {
+                    const missing = []
+                    if (!hasName) missing.push('Name')
+                    if (!hasStart) missing.push('Start Time')
+                    if (!hasEnd) missing.push('End Time')
+                    onError?.(`Invalid file format: Missing columns: ${missing.join(', ')}`)
+                    return
+                }
+
                 onUpload(results.data as Array<Record<string, unknown>>)
             },
             error: (error: Error) => {
                 console.error('CSV Parsing Error:', error)
+                onError?.(`Error parsing CSV: ${error.message}`)
             }
         })
     }
@@ -56,7 +97,7 @@ export default function ShiftFileUploadZone({ isOpen, onClose, onUpload, uploadi
                     <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
                         <div className="flex items-center gap-3 text-purple-600 dark:text-purple-400">
                             <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                            <span className="font-bold uppercase tracking-tighter text-sm">Schema Validation</span>
+                            <span className="font-bold uppercase tracking-tighter text-sm">CSV Validation</span>
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             {['Name', 'Start (ISO)', 'End (ISO)', 'Groups (CSV)'].map(field => (
@@ -72,10 +113,10 @@ export default function ShiftFileUploadZone({ isOpen, onClose, onUpload, uploadi
                             onClick={onClose}
                             className="flex-1 px-6 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 font-bold text-zinc-500 hover:bg-zinc-50 transition-all"
                         >
-                            Abort
+                            Cancel
                         </button>
                         <label className="flex-[2] cursor-pointer button-premium py-4">
-                            {uploading ? 'Parsing Database...' : 'Upload & Sync'}
+                            {uploading ? 'Parsing Database...' : 'Import'}
                             <input
                                 type="file"
                                 accept=".csv"

@@ -270,6 +270,7 @@ export default function ShiftManager({
                 isOpen={isUploadModalOpen}
                 onClose={() => setIsUploadModalOpen(false)}
                 onUpload={handleFileUpload}
+                onError={(msg) => showAlert(msg, 'error')}
                 uploading={uploading}
             />
 

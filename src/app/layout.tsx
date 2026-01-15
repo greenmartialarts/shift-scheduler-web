@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CookieConsent } from "@/components/CookieConsent";
 import { NotificationProvider } from "@/components/ui/NotificationProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,11 +58,14 @@ export default function RootLayout({
       >
         <ThemeProvider>
           <NotificationProvider>
-            <div className="fixed bottom-4 right-4 z-50">
-              <ThemeToggle />
-            </div>
-            {children}
-            <CookieConsent />
+            <ErrorBoundary>
+              <AnalyticsTracker />
+              <div className="fixed bottom-4 right-4 z-50">
+                <ThemeToggle />
+              </div>
+              {children}
+              <CookieConsent />
+            </ErrorBoundary>
           </NotificationProvider>
         </ThemeProvider>
       </body>

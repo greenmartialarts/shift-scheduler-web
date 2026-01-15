@@ -139,6 +139,11 @@ export async function autoAssign(eventId: string) {
         const apiKey = process.env.SCHEDULER_API_KEY
         const endpoint = 'https://shift-scheduler-api-3nxm.vercel.app/schedule/json'
 
+        // FIX: Bypass SSL verification in development to resolve "unable to get local issuer certificate" errors
+        if (process.env.NODE_ENV === 'development') {
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+        }
+
         // 3. Call API
         const response = await fetch(endpoint, {
             method: 'POST',

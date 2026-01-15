@@ -91,9 +91,42 @@ export default function VolunteerManager({
             header: true,
             skipEmptyLines: true,
             complete: async (results) => {
+                const headers = results.meta.fields || []
+                const nameHeaders = ['Name', 'name', 'Volunteer', 'volunteer', 'Full Name', 'full name']
+                const groupHeaders = ['Group', 'group', 'Role', 'role']
+                const hoursHeaders = ['Max Hours', 'max_hours', 'Hours', 'hours', 'Limit', 'limit']
+                const phoneHeaders = ['Phone', 'phone', 'Mobile', 'mobile', 'Tel', 'tel']
+                const emailHeaders = ['Email', 'email', 'Mail', 'mail']
+
+                const allRecognized = [...nameHeaders, ...groupHeaders, ...hoursHeaders, ...phoneHeaders, ...emailHeaders]
+                const unrecognized = headers.filter(h => !allRecognized.includes(h))
+
+                // Explicitly check for Shift headers to prevent cross-import errors
+                const shiftHeaders = ['Start', 'start_time', 'start', 'Begin', 'begin', 'End', 'end_time', 'end', 'Finish', 'finish']
+                const hasShiftHeaders = headers.some(h => shiftHeaders.includes(h))
+
+                if (hasShiftHeaders) {
+                    setUploading(false)
+                    showAlert('It looks like you are trying to upload a Shift CSV. Please use the Shift Import feature in the "Shifts" tab.', 'error')
+                    return
+                }
+
+                if (unrecognized.length > 0) {
+                    setUploading(false)
+                    showAlert(`Invalid file format: Unrecognized columns found: ${unrecognized.join(', ')}. Please use the template.`, 'error')
+                    return
+                }
+
+                const hasNameHeader = headers.some(h => nameHeaders.includes(h))
+                if (!hasNameHeader) {
+                    setUploading(false)
+                    showAlert('Invalid file format: Missing "Name" or "Volunteer" column.', 'error')
+                    return
+                }
+
                 const parsedVolunteers = results.data.map((row: unknown) => {
                     const rowData = row as Record<string, string | undefined>
-                    const name = rowData['Name'] || rowData['name'] || rowData['Volunteer'] || rowData['volunteer'] || ''
+                    const name = rowData['Name'] || rowData['name'] || rowData['Volunteer'] || rowData['volunteer'] || rowData['Full Name'] || rowData['full name'] || ''
                     const group = rowData['Group'] || rowData['group'] || rowData['Role'] || rowData['role'] || null
                     const maxHoursRaw = rowData['Max Hours'] || rowData['max_hours'] || rowData['Hours'] || rowData['hours'] || rowData['Limit'] || rowData['limit']
                     const phone = rowData['Phone'] || rowData['phone'] || rowData['Mobile'] || rowData['mobile'] || rowData['Tel'] || rowData['tel'] || null
@@ -511,7 +544,7 @@ export default function VolunteerManager({
                             <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
                                 <div className="flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
                                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                                    <span className="font-bold uppercase tracking-tighter text-sm">Mapping Protocol</span>
+                                    <span className="font-bold uppercase tracking-tighter text-sm">CSV Validation</span>
                                 </div>
                                 <div className="grid grid-cols-3 gap-3">
                                     {['Name', 'Group', 'Hours'].map(field => (
@@ -527,10 +560,10 @@ export default function VolunteerManager({
                                     onClick={() => setIsUploadModalOpen(false)}
                                     className="flex-1 px-6 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 font-bold text-zinc-500 hover:bg-zinc-50 transition-all"
                                 >
-                                    Abort
+                                    Cancel
                                 </button>
                                 <label className="flex-[2] cursor-pointer button-premium py-4">
-                                    {uploading ? 'Processing Architecture...' : 'Upload & Distribute'}
+                                    {uploading ? 'Processing Architecture...' : 'Import'}
                                     <input
                                         type="file"
                                         accept=".csv"
