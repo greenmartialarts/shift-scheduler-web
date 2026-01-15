@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, use } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -9,24 +9,45 @@ import { StatCard } from '@/components/dashboard/StatCard'
 import { AnalyticsCharts } from '@/components/dashboard/AnalyticsCharts'
 import { CloneEventModal } from '@/components/dashboard/CloneEventModal'
 
+interface Event {
+    id: string
+    name: string
+    date: string
+}
+
+interface Stats {
+    totalVolunteersCount: number
+    totalShiftsCount: number
+    totalSlots: number
+    filledSlotsCount: number
+    fillRate: number
+    totalHours: number
+    checkedInCount: number
+    activeCurrentlyCount: number
+    lateCount: number
+    volunteersByGroupData: { name: string; value: number }[]
+    shiftFillStatusData: { name: string; value: number }[]
+}
+
+interface ShiftAssignment {
+    id: string
+    checked_in: boolean
+    checked_out_at: string | null
+    late_dismissed: boolean
+    shift_id: string
+}
+
 export default function EventDashboard({
     params,
 }: {
-    params: any
+    params: Promise<{ id: string }>
 }) {
     const router = useRouter()
-    const [id, setId] = useState<string | null>(null)
-    const [event, setEvent] = useState<any>(null)
-    const [stats, setStats] = useState<any>(null)
+    const resolvedParams = use(params)
+    const id = resolvedParams.id
+    const [event, setEvent] = useState<Event | null>(null)
+    const [stats, setStats] = useState<Stats | null>(null)
     const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        async function loadParams() {
-            const resolvedParams = await params
-            setId(resolvedParams.id)
-        }
-        loadParams()
-    }, [params])
 
     useEffect(() => {
         if (!id) return;
@@ -63,19 +84,19 @@ export default function EventDashboard({
 
             // Re-fetch assignments properly
             const shiftIds = shifts?.map(s => s.id) || [];
-            let eventAssignments: any[] = [];
+            let eventAssignments: ShiftAssignment[] = [];
             if (shiftIds.length > 0) {
                 const { data } = await supabase
                     .from('assignments')
                     .select('id, checked_in, checked_out_at, late_dismissed, shift_id')
                     .in('shift_id', shiftIds);
-                eventAssignments = data || [];
+                eventAssignments = (data || []) as ShiftAssignment[];
             }
 
             // Helper to normalize required_groups to dictionary format
-            const normalizeGroups = (groups: any): Record<string, number> => {
+            const normalizeGroups = (groups: unknown): Record<string, number> => {
                 if (!groups) return {}
-                if (typeof groups === 'object' && !Array.isArray(groups)) return groups
+                if (typeof groups === 'object' && !Array.isArray(groups)) return groups as Record<string, number>
 
                 const normalized: Record<string, number> = {}
                 const items = Array.isArray(groups) ? groups : [groups.toString()]
@@ -175,7 +196,10 @@ export default function EventDashboard({
                             <Zap className="w-4 h-4 mr-2" />
                             Launch Kiosk
                         </Link>
-                        <CloneEventModal eventId={id!} eventName={event.name} eventDate={event.date} />
+                        <CloneEventModal
+                            eventId={id}
+                            eventName={event.name}
+                        />
                     </div>
                 </header>
 

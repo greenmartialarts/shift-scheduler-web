@@ -1,14 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import TemplateManager from './template-manager'
-import Link from 'next/link'
+// import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
-export default async function TemplatesPage({
-    params,
-}: {
-    params: Promise<{ id: string }>
-}) {
-    const { id } = await params
+export default async function TemplatesPage() {
     const supabase = await createClient()
 
     const {
@@ -19,11 +14,11 @@ export default async function TemplatesPage({
         redirect('/login')
     }
 
-    const { data: event } = await supabase
-        .from('events')
-        .select('name')
-        .eq('id', id)
-        .single()
+    // const { data: event } = await supabase
+    //     .from('events')
+    //     .select('name')
+    //     .eq('id', id)
+    //     .single()
 
     const { data: templates } = await supabase
         .from('shift_templates')

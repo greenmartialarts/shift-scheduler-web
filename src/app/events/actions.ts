@@ -75,10 +75,7 @@ export async function getUserInvitations() {
     }
 
     // Map to expected format for frontend (shim to match previous structure if needed, or just return)
-    // The previous structure was { ..., events: { name: '...' } }
-    // The new structure is { ..., event_name: '...' }
-    // We can map it here to minimize frontend changes
-    return data?.map((invite: any) => ({
+    return (data as Array<Record<string, unknown>>)?.map((invite) => ({
         ...invite,
         events: { name: invite.event_name }
     })) || []
@@ -117,4 +114,3 @@ export async function declineInvitation(invitationId: string) {
     revalidatePath('/events')
     return { success: true }
 }
-

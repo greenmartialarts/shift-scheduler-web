@@ -8,7 +8,7 @@ type Shift = {
     name: string | null
     start_time: string
     end_time: string
-    required_groups: Record<string, any> | string[] | null
+    required_groups: Record<string, unknown> | string[] | null
     allowed_groups: string[] | null
     excluded_groups: string[] | null
 }

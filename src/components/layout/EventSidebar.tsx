@@ -8,7 +8,6 @@ import {
     LayoutDashboard,
     Settings,
     UserCheck,
-    ShieldCheck,
     FileBarChart,
     Zap,
     ChevronLeft,

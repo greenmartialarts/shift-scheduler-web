@@ -19,9 +19,19 @@ type Shift = {
     name: string | null
     start_time: string
     end_time: string
-    required_groups: Record<string, any> | string[] | null
+    required_groups: Record<string, string | number | boolean> | string[] | null
     allowed_groups: string[] | null
     excluded_groups: string[] | null
+}
+
+type Template = {
+    id: string
+    name: string
+    duration_hours: number
+    required_groups: unknown
+    allowed_groups: string[] | null
+    default_start: string
+    default_end: string
 }
 
 export default function ShiftManager({
@@ -31,7 +41,7 @@ export default function ShiftManager({
 }: {
     eventId: string
     shifts: Shift[]
-    templates: any[]
+    templates: Template[]
 }) {
     const [isAdding, setIsAdding] = useState(false)
     const [isRecurring, setIsRecurring] = useState(false)
@@ -74,7 +84,7 @@ export default function ShiftManager({
         }
     }
 
-    async function handleFileUpload(data: any[]) {
+    async function handleFileUpload(data: Array<Record<string, unknown>>) {
         setUploading(true)
         const res = await bulkAddShifts(eventId, data)
         if (res?.error) {
@@ -263,7 +273,7 @@ export default function ShiftManager({
                 uploading={uploading}
             />
 
-            {editingId && (
+            {editingId && shifts.find(s => s.id === editingId) && (
                 <EditShiftModal
                     shift={shifts.find(s => s.id === editingId)!}
                     onClose={() => setEditingId(null)}

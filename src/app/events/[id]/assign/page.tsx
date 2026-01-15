@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import AssignmentManager from './assignment-manager'
-import Link from 'next/link'
+import AssignmentManager, { Volunteer, Shift } from './assignment-manager'
+// import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 export default async function AssignPage({
@@ -19,31 +19,26 @@ export default async function AssignPage({
         redirect('/login')
     }
 
-    const { data: event } = await supabase
-        .from('events')
-        .select('name')
-        .eq('id', id)
-        .single()
-
     // Fetch shifts with assignments and volunteers
-    const { data: shifts } = await supabase
+    const { data: shiftsData } = await supabase
         .from('shifts')
         .select(`
-      *,
-      name,
-      assignments (
-        id,
-        shift_id,
-        volunteer_id,
-        volunteer:volunteers (
-          id,
-          name,
-          group
-        )
-      )
-    `)
+            *,
+            assignments(
+                id,
+                shift_id,
+                volunteer_id,
+                volunteer: volunteers(
+                    id,
+                    name,
+                    group
+                )
+            )
+        `)
         .eq('event_id', id)
         .order('start_time', { ascending: true })
+
+    const shifts = (shiftsData || []) as unknown as Shift[]
 
     const { data: volunteers } = await supabase
         .from('volunteers')
@@ -63,9 +58,8 @@ export default async function AssignPage({
 
                 <AssignmentManager
                     eventId={id}
-                    // @ts-ignore
-                    shifts={shifts || []}
-                    volunteers={volunteers || []}
+                    shifts={shifts as unknown as Shift[]}
+                    volunteers={volunteers as unknown as Volunteer[] || []}
                 />
             </div>
         </div>

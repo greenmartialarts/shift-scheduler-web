@@ -1,12 +1,12 @@
 'use client'
 
-import { Upload, FileText, AlertCircle, X, Download } from 'lucide-react'
+import { FileText, AlertCircle } from 'lucide-react'
 import Papa from 'papaparse'
 
 interface ShiftFileUploadZoneProps {
     isOpen: boolean
     onClose: () => void
-    onUpload: (data: any[]) => Promise<void>
+    onUpload: (data: Array<Record<string, unknown>>) => Promise<void>
     uploading: boolean
 }
 
@@ -21,9 +21,9 @@ export default function ShiftFileUploadZone({ isOpen, onClose, onUpload, uploadi
             header: true,
             skipEmptyLines: true,
             complete: (results) => {
-                onUpload(results.data)
+                onUpload(results.data as Array<Record<string, unknown>>)
             },
-            error: (error) => {
+            error: (error: Error) => {
                 console.error('CSV Parsing Error:', error)
             }
         })

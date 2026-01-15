@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
+// import Link from 'next/link'
 import CheckinManager from './checkin-manager'
 
 export default async function CheckinPage({ params }: { params: Promise<{ id: string }> }) {
@@ -39,7 +39,7 @@ export default async function CheckinPage({ params }: { params: Promise<{ id: st
                         Real-time attendance tracking and personnel management
                     </p>
                 </div>
-                <CheckinManager eventId={id} shifts={shifts || []} />
+                <CheckinManager shifts={shifts || []} />
             </div>
         </div>
     )

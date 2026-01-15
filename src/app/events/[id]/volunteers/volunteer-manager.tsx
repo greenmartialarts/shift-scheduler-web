@@ -8,7 +8,7 @@ import { useNotification } from '@/components/ui/NotificationProvider'
 import { Search, UserPlus, Trash2, Upload, FileText, X, Check, Edit2, Download, AlertCircle, User, Shield, Briefcase, Users } from 'lucide-react'
 
 function GroupBadge({ name }: { name: string }) {
-    const config: Record<string, { color: string; icon: any }> = {
+    const config: Record<string, { color: string; icon: React.ElementType }> = {
         Adults: { color: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20', icon: User },
         Delegates: { color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20', icon: Users },
         Staff: { color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: Shield },
@@ -43,28 +43,7 @@ type Group = {
     color: string | null
 }
 
-const COLORS = [
-    '#6366f1', // indigo-500
-    '#8b5cf6', // violet-500
-    '#d946ef', // fuchsia-500
-    '#f43f5e', // rose-500
-    '#ef4444', // red-500
-    '#f97316', // orange-500
-    '#f59e0b', // amber-500
-    '#84cc16', // lime-500
-    '#10b981', // emerald-500
-    '#06b6d4', // cyan-500
-    '#3b82f6', // blue-500
-]
 
-const stringToColor = (str: string) => {
-    let hash = 0
-    for (let i = 0; i < str.length; i++) {
-        hash = str.charCodeAt(i) + ((hash << 5) - hash)
-    }
-    const index = Math.abs(hash) % COLORS.length
-    return COLORS[index]
-}
 
 export default function VolunteerManager({
     eventId,
@@ -112,12 +91,13 @@ export default function VolunteerManager({
             header: true,
             skipEmptyLines: true,
             complete: async (results) => {
-                const parsedVolunteers = results.data.map((row: any) => {
-                    const name = row['Name'] || row['name'] || row['Volunteer'] || row['volunteer'] || ''
-                    const group = row['Group'] || row['group'] || row['Role'] || row['role'] || null
-                    const maxHoursRaw = row['Max Hours'] || row['max_hours'] || row['Hours'] || row['hours'] || row['Limit'] || row['limit']
-                    const phone = row['Phone'] || row['phone'] || row['Mobile'] || row['mobile'] || row['Tel'] || row['tel'] || null
-                    const email = row['Email'] || row['email'] || row['Mail'] || row['mail'] || null
+                const parsedVolunteers = results.data.map((row: unknown) => {
+                    const rowData = row as Record<string, string | undefined>
+                    const name = rowData['Name'] || rowData['name'] || rowData['Volunteer'] || rowData['volunteer'] || ''
+                    const group = rowData['Group'] || rowData['group'] || rowData['Role'] || rowData['role'] || null
+                    const maxHoursRaw = rowData['Max Hours'] || rowData['max_hours'] || rowData['Hours'] || rowData['hours'] || rowData['Limit'] || rowData['limit']
+                    const phone = rowData['Phone'] || rowData['phone'] || rowData['Mobile'] || rowData['mobile'] || rowData['Tel'] || rowData['tel'] || null
+                    const email = rowData['Email'] || rowData['email'] || rowData['Mail'] || rowData['mail'] || null
 
                     const max_hours = maxHoursRaw ? parseFloat(maxHoursRaw) : null
 
@@ -138,11 +118,11 @@ export default function VolunteerManager({
                     return
                 }
 
-                const res = await bulkAddVolunteers(eventId, parsedVolunteers)
+                const { error } = await bulkAddVolunteers(eventId, parsedVolunteers.filter((v): v is NonNullable<typeof v> => v !== null) as Array<Record<string, unknown>>)
                 setUploading(false)
                 setIsUploadModalOpen(false)
-                if (res?.error) {
-                    showAlert('Error uploading volunteers: ' + res.error, 'error')
+                if (error) {
+                    showAlert('Error uploading volunteers: ' + error, 'error')
                 } else {
                     router.refresh()
                 }
@@ -205,12 +185,12 @@ export default function VolunteerManager({
         ...discoveredGroups
     ])).sort()
 
-    const getGroupColor = (groupName: string | null) => {
-        if (!groupName) return '#9ca3af'
-        const explicitGroup = groups.find(g => g.name === groupName)
-        if (explicitGroup?.color) return explicitGroup.color
-        return stringToColor(groupName)
-    }
+    // const getGroupColor = (groupName: string | null) => {
+    //     if (!groupName) return '#9ca3af'
+    //     const explicitGroup = groups.find(g => g.name === groupName)
+    //     if (explicitGroup?.color) return explicitGroup.color
+    //     return stringToColor(groupName)
+    // }
 
     return (
         <div className="space-y-8">

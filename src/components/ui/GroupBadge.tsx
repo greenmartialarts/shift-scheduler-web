@@ -1,7 +1,7 @@
 import { User, Shield, Briefcase, Users } from 'lucide-react'
 
 export function GroupBadge({ name, count }: { name: string; count?: number | string }) {
-    const config: Record<string, { color: string; icon: any }> = {
+    const config: Record<string, { color: string; icon: React.ElementType }> = {
         Adults: { color: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20', icon: User },
         Delegates: { color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20', icon: Users },
         Staff: { color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: Shield },

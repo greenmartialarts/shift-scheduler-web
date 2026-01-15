@@ -130,7 +130,7 @@ export async function returnAsset(assetId: string, eventId: string, assetName: s
     return { success: true }
 }
 
-export async function logActivity(eventId: string, type: string, description: string, volunteerId?: string, metadata: any = {}) {
+export async function logActivity(eventId: string, type: string, description: string, volunteerId?: string, metadata: Record<string, unknown> = {}) {
     const supabase = await createClient()
     await supabase.from('activity_logs').insert({
         event_id: eventId,

@@ -17,21 +17,22 @@ export async function searchVolunteers(eventId: string, query: string) {
             id,
             name,
             group,
-            assignments (
+            assignments(
                 id,
                 checked_in,
                 checked_out_at,
-                shift:shifts (
+                required_groups,
+                shift: shifts(
                     id,
                     start_time,
                     end_time,
                     name
                 )
             ),
-            active_assets:asset_assignments (
+            active_assets: asset_assignments(
                 id,
                 checked_in_at,
-                asset:assets (
+                asset: assets(
                     id,
                     name,
                     identifier
@@ -47,10 +48,20 @@ export async function searchVolunteers(eventId: string, query: string) {
         return { volunteers: [] }
     }
 
-    const processedVolunteers = volunteers.map((v: any) => ({
-        ...v,
-        active_assets: v.active_assets?.filter((aa: any) => aa.checked_in_at === null) || []
-    }))
+    const processedVolunteers = volunteers.map((v) => {
+        const rv = v as Record<string, unknown>
+        const assignments = (rv.assignments as Array<Record<string, unknown>> || []).map(a => ({
+            ...a,
+            shift: Array.isArray(a.shift) ? a.shift[0] : a.shift
+        }))
+        const active_assets = (rv.active_assets as Array<Record<string, unknown>> || [])
+            .filter(aa => aa.checked_in_at === null)
+        return {
+            ...v,
+            assignments,
+            active_assets
+        }
+    })
 
     return { volunteers: processedVolunteers }
 }
@@ -94,7 +105,7 @@ export async function kioskCheckIn(
 
             if (activeAssets && activeAssets.length > 0) {
                 const assetIdsToReturn = activeAssets.map(a => a.asset_id)
-                const assetNames = activeAssets.map(a => (a.asset as any)?.name || 'Unknown Asset').join(', ')
+                const assetNames = activeAssets.map(a => (a.asset as { name?: string } | null)?.name || 'Unknown Asset').join(', ')
 
                 // Return assets
                 await supabase
@@ -112,8 +123,6 @@ export async function kioskCheckIn(
                 await logActivity(eventId, 'asset_in', `Assets returned during checkout: ${assetNames}`, volunteerId)
             }
         }
-        // If transferring, we just leave them assigned (checked_in_at = null)
-        // and they will "carry over".
     }
 
     // 2. Check In to New Assignment
@@ -228,7 +237,8 @@ export async function kioskCheckOut(
         // Log asset return
         const { data: assets } = await supabase.from('assets').select('name').in('id', assetIdsToReturn)
         const assetNames = assets?.map(a => a.name).join(', ')
-        const { data: volunteer } = await supabase.from('volunteers').select('name').eq('id', volunteerId).single()
+        // Get volunteer name for log
+        await supabase.from('volunteers').select('name').eq('id', volunteerId).single()
         await logActivity(eventId, 'asset_in', `Assets returned via Kiosk: ${assetNames}`, volunteerId)
     }
 

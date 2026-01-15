@@ -6,8 +6,10 @@ import { useState, useEffect } from 'react'
 import { UserCircle, Trash2, Mail, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
+import { type User } from '@supabase/supabase-js'
+
 export default function AccountSettingsPage() {
-    const [user, setUser] = useState<any>(null)
+    const [user, setUser] = useState<User | null>(null)
     const [loading, setLoading] = useState(true)
     const router = useRouter()
 
@@ -76,7 +78,7 @@ export default function AccountSettingsPage() {
                                 </span>
                             </div>
                             <div className="pt-3 text-xs text-zinc-500 dark:text-zinc-400">
-                                <p>Joined: {new Date(user?.created_at).toLocaleDateString()}</p>
+                                <p>Joined: {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}</p>
                             </div>
                         </div>
                     </div>

@@ -4,31 +4,30 @@ import { useState } from 'react'
 import { assignVolunteer, unassignVolunteer, autoAssign, swapAssignments, clearAssignments } from './actions'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
-import { User, Shield, Briefcase, Users, Clock } from 'lucide-react'
 import { useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 import { GroupBadge } from '@/components/ui/GroupBadge'
 
-type Volunteer = {
+export type Volunteer = {
     id: string
     name: string
     group: string | null
 }
 
-type Assignment = {
+export type Assignment = {
     id: string
     shift_id: string
     volunteer_id: string
     volunteer?: Volunteer // Joined
 }
 
-type Shift = {
+export type Shift = {
     id: string
     name: string | null
     start_time: string
     end_time: string
-    required_groups?: Record<string, any> | string[] | null
+    required_groups?: Record<string, unknown> | string[] | null
     assignments?: Assignment[] // Joined
 }
 
@@ -115,9 +114,9 @@ export default function AssignmentManager({
 
     // --- Unfilled Detection Logic ---
     // Helper to normalize required_groups to dictionary format
-    const normalizeGroups = (groups: any): Record<string, number> => {
+    const normalizeGroups = (groups: unknown): Record<string, number> => {
         if (!groups) return {}
-        if (typeof groups === 'object' && !Array.isArray(groups)) return groups
+        if (typeof groups === 'object' && !Array.isArray(groups)) return groups as Record<string, number>
 
         const normalized: Record<string, number> = {}
         const items = Array.isArray(groups) ? groups : [groups.toString()]
@@ -136,7 +135,6 @@ export default function AssignmentManager({
     const unfilledShiftIds = new Set<string>()
     const emptyShiftIds = new Set<string>()
     shifts.forEach(shift => {
-        // @ts-ignore
         const requiredGroups = normalizeGroups(shift.required_groups)
         let totalRequired = 0
         for (const count of Object.values(requiredGroups)) {
@@ -195,6 +193,7 @@ export default function AssignmentManager({
             showAlert('Error: ' + res.error, 'error')
         } else if (res?.partial && res?.unfilled) {
             // Partial assignment - some shifts couldn't be filled
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const unfilledDetails = res.unfilled
                 .map(([shiftId, group, count]: [string, string, number]) => {
                     const shift = shifts.find(s => s.id === shiftId)
@@ -436,6 +435,6 @@ export default function AssignmentManager({
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     )
 }

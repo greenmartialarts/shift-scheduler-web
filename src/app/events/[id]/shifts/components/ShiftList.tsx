@@ -8,7 +8,7 @@ type Shift = {
     name: string | null
     start_time: string
     end_time: string
-    required_groups: Record<string, any> | string[] | null
+    required_groups: Record<string, unknown> | string[] | null
     allowed_groups: string[] | null
     excluded_groups: string[] | null
 }
@@ -65,7 +65,7 @@ export default function ShiftList({ shifts, onEdit, onDelete }: ShiftListProps) 
                                     <td className="px-8 py-5 text-sm">
                                         <div className="flex flex-wrap gap-2">
                                             {(() => {
-                                                const reqs = shift.required_groups as any
+                                                const reqs = shift.required_groups
 
                                                 if (!reqs || (Array.isArray(reqs) && reqs.length === 0)) {
                                                     return <span className="text-zinc-400 italic text-xs font-medium">No requirements specified</span>

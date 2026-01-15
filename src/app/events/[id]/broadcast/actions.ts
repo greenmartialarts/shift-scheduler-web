@@ -1,7 +1,6 @@
 'use server'
 
 import nodemailer from 'nodemailer'
-import { createClient } from '@/lib/supabase/server'
 
 type BroadcastOptions = {
     emails: string[]
@@ -65,8 +64,8 @@ export async function sendBroadcastEmail(eventId: string, options: BroadcastOpti
 
         await Promise.all(sendPromises)
         return { success: true }
-    } catch (error: any) {
+    } catch (error) {
         console.error('Broadcast Error:', error)
-        return { error: error.message || 'An unexpected error occurred during broadcast.' }
+        return { error: (error as Error).message || 'An unexpected error occurred during broadcast.' }
     }
 }

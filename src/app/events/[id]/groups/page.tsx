@@ -18,12 +18,6 @@ export default async function GroupsPage({
         redirect('/login')
     }
 
-    await supabase
-        .from('events')
-        .select('name')
-        .eq('id', id)
-        .single()
-
     const { data: groups } = await supabase
         .from('volunteer_groups')
         .select('*, volunteers(count)')
@@ -31,9 +25,9 @@ export default async function GroupsPage({
         .order('name', { ascending: true })
 
     // Transform data to include volunteer count
-    const groupsWithCount = groups?.map((g: any) => ({
+    const groupsWithCount = groups?.map((g) => ({
         ...g,
-        volunteer_count: g.volunteers?.[0]?.count || 0
+        volunteer_count: (g.volunteers as unknown as Array<{ count: number }>)?.[0]?.count || 0
     })) || []
 
     const { data: volunteers } = await supabase

@@ -35,8 +35,8 @@ export async function deleteAccount() {
 
         revalidatePath('/', 'layout')
         redirect('/login')
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Account deletion error:', error)
-        return { error: error.message || 'Failed to delete account' }
+        return { error: error instanceof Error ? error.message : 'Failed to delete account' }
     }
 }

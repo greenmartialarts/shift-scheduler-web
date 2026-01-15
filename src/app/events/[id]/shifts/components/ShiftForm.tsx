@@ -6,7 +6,7 @@ type Template = {
     id: string
     name: string
     duration_hours: number
-    required_groups: any
+    required_groups: unknown
     allowed_groups: string[] | null
 }
 

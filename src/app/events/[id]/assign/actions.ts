@@ -7,7 +7,7 @@ export async function assignVolunteer(shiftId: string, volunteerId: string) {
     const supabase = await createClient()
 
     // Check if this volunteer is already assigned to this shift
-    const { data: existing, error: checkError } = await supabase
+    const { data: existing } = await supabase
         .from('assignments')
         .select('id')
         .eq('shift_id', shiftId)
@@ -88,9 +88,9 @@ export async function clearAssignments(eventId: string) {
 }
 
 // Helper to normalize required_groups to dictionary format
-const normalizeGroups = (groups: any): Record<string, number> => {
+const normalizeGroups = (groups: unknown): Record<string, number> => {
     if (!groups) return {}
-    if (typeof groups === 'object' && !Array.isArray(groups)) return groups
+    if (typeof groups === 'object' && !Array.isArray(groups)) return groups as Record<string, number>
 
     const normalized: Record<string, number> = {}
     const items = Array.isArray(groups) ? groups : [groups.toString()]
@@ -130,7 +130,7 @@ export async function autoAssign(eventId: string) {
                 end: new Date(s.end_time).toISOString(),
                 required_groups: normalizeGroups(s.required_groups),
             })),
-            current_assignments: ([] as any[]).map(a => ({
+            current_assignments: ([] as Array<{ shift_id: string, volunteer_id: string }>).map(a => ({
                 shift_id: a.shift_id,
                 volunteer_id: a.volunteer_id
             }))
@@ -150,7 +150,7 @@ export async function autoAssign(eventId: string) {
         })
 
         if (!response.ok) {
-            const errorData = await response.json()
+            await response.json()
             throw new Error(`API Error: ${response.statusText}`)
         }
 
@@ -216,9 +216,9 @@ export async function autoAssign(eventId: string) {
 
         return { success: true, unfilled: [], partiallyFilled: [] }
 
-    } catch (error: any) {
+    } catch (error) {
         console.error('Auto-assign error:', error)
-        return { error: error.message }
+        return { error: error instanceof Error ? error.message : String(error) }
     }
 }
 

@@ -22,14 +22,14 @@ export async function addTemplate(formData: FormData) {
     let required_groups = {}
     try {
         if (required_groups_str) required_groups = JSON.parse(required_groups_str)
-    } catch (e) {
+    } catch {
         return { error: 'Invalid JSON for required groups' }
     }
 
     let allowed_groups = []
     try {
         if (allowed_groups_str) allowed_groups = JSON.parse(allowed_groups_str)
-    } catch (e) {
+    } catch {
         return { error: 'Invalid JSON for allowed groups' }
     }
 

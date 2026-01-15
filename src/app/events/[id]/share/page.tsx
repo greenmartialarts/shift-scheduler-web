@@ -1,7 +1,19 @@
 import { createClient } from '@/lib/supabase/server'
 import { inviteAdmin, removeAdmin, revokeInvitation, getEventAdmins, getPendingInvitations } from './actions'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
+
+interface Admin {
+    user_id: string;
+    role: string;
+    email: string | null;
+    created_at: string;
+}
+
+interface Invitation {
+    id: string;
+    email: string;
+    expires_at: string;
+}
 
 export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
     const { id: eventId } = await params
@@ -23,17 +35,14 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
         .single()
 
     if (eventError || !event) {
-        // If RLS works, this might return null/error if not admin.
         redirect('/events')
     }
 
-    const { data: admins } = await getEventAdmins(eventId)
-    const { data: pending } = await getPendingInvitations(eventId)
+    const { data: adminsData } = await getEventAdmins(eventId)
+    const { data: pendingData } = await getPendingInvitations(eventId)
 
-    // Helper to check if current user is the "Owner" (creator)
-    // The creator is just another admin now, but historically user_id on event.
-    // We might want to prevent removing the creator? Or just let it happen?
-    // The 'removeAdmin' action prevents removing the *last* admin.
+    const admins = (adminsData as unknown as Admin[]) || []
+    const pending = (pendingData as unknown as Invitation[]) || []
 
     return (
         <div className="p-8">
@@ -48,12 +57,12 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                 <div className="grid gap-8 md:grid-cols-2">
                     {/* Invite Section */}
                     <div className="space-y-6">
-                        <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition-colors duration-200">
-                            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+                        <div className="rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-xl shadow-zinc-200/50 dark:shadow-none border border-zinc-200 dark:border-zinc-800">
+                            <h2 className="mb-4 text-xl font-bold text-zinc-900 dark:text-zinc-50">
                                 Invite Admin
                             </h2>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                Invite another user to manage this event. They will have full access.
+                            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+                                Invite another user to manage this event. They will have full administrative access.
                             </p>
                             <form action={async (formData) => {
                                 'use server'
@@ -64,13 +73,13 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                                     <input
                                         type="email"
                                         name="email"
-                                        placeholder="user@example.com"
+                                        placeholder="colleague@example.com"
                                         required
-                                        className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                                        className="flex-1 rounded-xl border border-zinc-200 dark:border-zinc-800 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder-zinc-600 transition-all font-medium"
                                     />
                                     <button
                                         type="submit"
-                                        className="rounded-md bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                        className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all shadow-lg shadow-indigo-600/20"
                                     >
                                         Invite
                                     </button>
@@ -79,23 +88,23 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                         </div>
 
                         {/* Pending Invitations */}
-                        {(pending || []).length > 0 && (
-                            <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition-colors duration-200">
-                                <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+                        {pending.length > 0 && (
+                            <div className="rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-xl shadow-zinc-200/50 dark:shadow-none border border-zinc-200 dark:border-zinc-800">
+                                <h2 className="mb-6 text-xl font-bold text-zinc-900 dark:text-zinc-50">
                                     Pending Invitations
                                 </h2>
                                 <div className="space-y-4">
-                                    {pending?.map((invite: any) => (
-                                        <div key={invite.id} className="flex items-center justify-between border-b dark:border-gray-700 pb-3 last:border-0 last:pb-0">
+                                    {pending.map((invite) => (
+                                        <div key={invite.id} className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4 last:border-0 last:pb-0">
                                             <div>
-                                                <p className="text-sm font-medium text-gray-900 dark:text-white">{invite.email}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">Expires: {new Date(invite.expires_at).toLocaleDateString()}</p>
+                                                <p className="text-sm font-bold text-zinc-900 dark:text-zinc-50">{invite.email}</p>
+                                                <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mt-1">Expires: {new Date(invite.expires_at).toLocaleDateString()}</p>
                                             </div>
                                             <form action={async () => {
                                                 'use server'
                                                 await revokeInvitation(invite.id, eventId)
                                             }}>
-                                                <button type="submit" className="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300">
+                                                <button type="submit" className="text-xs font-black uppercase tracking-widest text-red-600 hover:text-red-500 transition-colors">
                                                     Revoke
                                                 </button>
                                             </form>
@@ -107,26 +116,25 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                     </div>
 
                     {/* Current Admins List */}
-                    <div className="rounded-lg bg-white dark:bg-gray-800 p-6 shadow transition-colors duration-200 h-fit">
-                        <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+                    <div className="rounded-2xl bg-white dark:bg-zinc-900 p-6 shadow-xl shadow-zinc-200/50 dark:shadow-none border border-zinc-200 dark:border-zinc-800 h-fit">
+                        <h2 className="mb-6 text-xl font-bold text-zinc-900 dark:text-zinc-50">
                             Current Admins
                         </h2>
                         <div className="space-y-4">
-                            {admins?.map((admin: any) => {
+                            {admins.map((admin) => {
                                 const isMe = admin.user_id === user?.id
                                 return (
-                                    <div key={admin.user_id} className="flex items-center justify-between border-b dark:border-gray-700 pb-3 last:border-0 last:pb-0">
-                                        <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-xs">
-                                                {/* Initials placeholder since we don't have name/email easily */}
+                                    <div key={admin.user_id} className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800 pb-4 last:border-0 last:pb-0">
+                                        <div className="flex items-center gap-4">
+                                            <div className="h-10 w-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-sm">
                                                 {admin.email ? admin.email[0].toUpperCase() : 'U'}
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                <p className="text-sm font-bold text-zinc-900 dark:text-zinc-50">
                                                     {isMe ? 'You' : (admin.email || `User ${admin.user_id.slice(0, 8)}...`)}
                                                 </p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    {admin.email ? `Role: ${admin.role}` : `Joined: ${new Date(admin.created_at).toLocaleDateString()}`}
+                                                <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400 mt-0.5">
+                                                    {admin.role === 'owner' ? 'Owner' : 'Administrator'}
                                                 </p>
                                             </div>
                                         </div>
@@ -137,10 +145,8 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                                         }}>
                                             <button
                                                 type="submit"
-                                                className={`text-sm ${isMe ? 'text-gray-400 cursor-not-allowed' : 'text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300'}`}
-                                                disabled={isMe} // Don't allow removing self from here easily? Logic supports it but safer to disable or require confirmation.
-                                            // Actually the backend action checks for "last admin", so removing self is OK if there are others. 
-                                            // The button says "Remove", if it's me maybe "Leave"?
+                                                className={`text-xs font-black uppercase tracking-widest transition-colors ${isMe ? 'text-zinc-200 dark:text-zinc-800 cursor-not-allowed' : 'text-red-600 hover:text-red-500'}`}
+                                                disabled={isMe}
                                             >
                                                 {isMe ? 'Leave' : 'Remove'}
                                             </button>

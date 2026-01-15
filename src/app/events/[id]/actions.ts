@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+// import { redirect } from 'next/navigation'
 
 export async function cloneEvent(
     sourceEventId: string,
@@ -145,7 +145,7 @@ export async function cloneEvent(
                     // But migration 20251202000000_add_name_to_shifts.sql was found in file list!
                     // I should assume 'name' exists if that migration ran.
                     // I'll include it if it's in the source object.
-                    name: (s as any).name,
+                    name: (s as { name?: string }).name || null,
                 }
             })
 

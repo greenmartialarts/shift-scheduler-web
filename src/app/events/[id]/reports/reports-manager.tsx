@@ -4,13 +4,13 @@ import { useState } from 'react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 
-type Volunteer = {
+export type Volunteer = {
     id: string
     name: string
     group: string | null
 }
 
-type Assignment = {
+export type Assignment = {
     id: string
     shift_id: string
     volunteer_id: string
@@ -19,7 +19,7 @@ type Assignment = {
     volunteer?: Volunteer
 }
 
-type Shift = {
+export type Shift = {
     id: string
     name: string | null
     start_time: string
@@ -27,17 +27,7 @@ type Shift = {
     assignments?: Assignment[]
 }
 
-export default function ReportsManager({
-    eventId,
-    eventName,
-    volunteers,
-    shifts,
-}: {
-    eventId: string
-    eventName: string
-    volunteers: Volunteer[]
-    shifts: Shift[]
-}) {
+export default function ReportsManager({ eventName, volunteers, shifts }: { eventId: string, eventName: string, volunteers: Volunteer[], shifts: Shift[] }) {
     const [activeTab, setActiveTab] = useState<'overview' | 'stats'>('overview')
 
     // --- Calculations ---
@@ -172,12 +162,10 @@ export default function ReportsManager({
                 start.toLocaleDateString(),
                 s.name || '-',
                 `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
-                // @ts-ignore
                 (end.getTime() - start.getTime()) / (1000 * 60 * 60) + ' hrs'
             ])
         })
 
-        // @ts-ignore
         autoTable(pdf, {
             head: [['Date', 'Shift Name', 'Time', 'Duration']],
             body: tableData,
@@ -215,7 +203,7 @@ export default function ReportsManager({
         doc.setFontSize(10)
         doc.text(`Generated: ${new Date().toLocaleDateString()}`, 10, 36)
 
-        const tableData: any[] = []
+        const tableData: { volunteer: string, shift: string, date: string, time: string, startObj: Date, shiftName: string }[] = []
 
         // Flatten assignments
         shifts.forEach(shift => {
@@ -243,7 +231,6 @@ export default function ReportsManager({
         })
 
         // Generate Table
-        // @ts-ignore
         autoTable(doc, {
             head: [['Volunteer Name', 'Shift', 'Date', 'Time', 'Checked In', 'Checked Out']],
             body: tableData.map(r => [r.volunteer, r.shift, r.date, r.time, '[   ]', '[   ]']),

@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import AssetManager from './asset-manager'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 export default async function AssetsPage({

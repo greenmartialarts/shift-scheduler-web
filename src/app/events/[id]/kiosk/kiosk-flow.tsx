@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { kioskCheckIn, kioskCheckOut, searchVolunteers } from './actions'
 import { Search, CheckCircle, Package, ArrowRight, LogOut, Loader2, Clock, ArrowLeftRight, ArrowLeft } from 'lucide-react'
 import { PremiumButton } from '@/components/ui/PremiumButton'
-import { PremiumInput } from '@/components/ui/PremiumInput'
+
 
 // Debounce hook
 function useDebounce<T>(value: T, delay: number): T {

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import ActivePersonnelManager from './active-personnel-manager'
+import ActivePersonnelManager, { Assignment, Asset, ActivityLog } from './active-personnel-manager'
 
 export default async function ActivePersonnelPage({
     params,
@@ -92,9 +92,10 @@ export default async function ActivePersonnelPage({
 
                 <ActivePersonnelManager
                     eventId={id}
-                    initialAssignments={assignments || []}
-                    initialAssets={assets || []}
-                    initialLogs={logs || []}
+                    eventName={event?.name || 'Event'}
+                    initialAssignments={assignments as unknown as Assignment[] || []}
+                    initialAssets={assets as unknown as Asset[] || []}
+                    initialLogs={logs as unknown as ActivityLog[] || []}
                 />
             </div>
         </div>

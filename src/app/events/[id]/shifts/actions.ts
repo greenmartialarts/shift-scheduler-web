@@ -24,9 +24,9 @@ export async function addShift(eventId: string, formData: FormData) {
     try {
         if (requiredGroupsRaw) requiredGroups = JSON.parse(requiredGroupsRaw)
         if (allowedGroupsRaw) allowedGroups = JSON.parse(allowedGroupsRaw)
-    } catch (e) {
+    } catch {
         // Fallback or error
-        console.error("Error parsing groups JSON", e)
+        console.error("Error parsing groups JSON")
     }
 
     const { error } = await supabase.from('shifts').insert({
@@ -47,7 +47,7 @@ export async function addShift(eventId: string, formData: FormData) {
     return { success: true }
 }
 
-export async function bulkAddShifts(eventId: string, shifts: any[]) {
+export async function bulkAddShifts(eventId: string, shifts: Array<Record<string, unknown>>) {
     const supabase = await createClient()
 
     const formattedShifts = shifts.map((s) => {
@@ -59,37 +59,38 @@ export async function bulkAddShifts(eventId: string, shifts: any[]) {
                 const date = new Date(dateStr)
                 if (isNaN(date.getTime())) return null
                 return date.toISOString()
-            } catch (e) {
-                console.error("Error parsing date:", dateStr, e)
+            } catch {
+                console.error("Error parsing date:", dateStr)
                 return null
             }
         }
 
+        const rs = s as Record<string, unknown>
         // Get field values - support both formats (capitalized and lowercase)
-        const name = s.Name || s.name
-        const startRaw = s.Start || s.start_time || s.start
-        const endRaw = s.End || s.end_time || s.end
-        const groupsRaw = s.Groups || s.required_groups
+        const name = rs.Name || rs.name
+        const startRaw = rs.Start || rs.start_time || rs.start
+        const endRaw = rs.End || rs.end_time || rs.end
+        const groupsRaw = rs.Groups || rs.required_groups
 
         // Parse dates
-        const startTime = parseDateTime(startRaw)
-        const endTime = parseDateTime(endRaw)
+        const startTime = parseDateTime(startRaw as string)
+        const endTime = parseDateTime(endRaw as string)
 
         // Parse required_groups: "Delegates:2, Adults:2" -> {"Delegates": 2, "Adults": 2}
         let requiredGroups = {}
         if (groupsRaw) {
-            if (typeof groupsRaw === 'object') {
+            if (typeof groupsRaw === 'object' && !Array.isArray(groupsRaw)) {
                 requiredGroups = groupsRaw
             } else {
                 try {
                     // Handle both "Delegates:2|Adults:2" and "Delegates:2, Adults:2" formats
-                    const separator = groupsRaw.includes('|') ? '|' : ','
-                    requiredGroups = groupsRaw.split(separator).reduce((acc: any, item: string) => {
+                    const separator = (groupsRaw as string).includes('|') ? '|' : ','
+                    requiredGroups = (groupsRaw as string).split(separator).reduce((acc: Record<string, number>, item: string) => {
                         const [group, count] = item.split(':')
                         if (group && count) acc[group.trim()] = parseInt(count.trim())
                         return acc
                     }, {})
-                } catch (e) {
+                } catch {
                     console.error("Error parsing required_groups", groupsRaw)
                 }
             }
@@ -97,21 +98,21 @@ export async function bulkAddShifts(eventId: string, shifts: any[]) {
 
         // Parse allowed_groups: "Delegates|Adults" -> ["Delegates", "Adults"]
         let allowedGroups: string[] = []
-        if (s.allowed_groups) {
-            if (Array.isArray(s.allowed_groups)) {
-                allowedGroups = s.allowed_groups
+        if (rs.allowed_groups) {
+            if (Array.isArray(rs.allowed_groups)) {
+                allowedGroups = rs.allowed_groups as string[]
             } else {
-                allowedGroups = s.allowed_groups.split('|').map((g: string) => g.trim())
+                allowedGroups = (rs.allowed_groups as string).split('|').map((g: string) => g.trim())
             }
         }
 
         // Parse excluded_groups
         let excludedGroups: string[] = []
-        if (s.excluded_groups) {
-            if (Array.isArray(s.excluded_groups)) {
-                excludedGroups = s.excluded_groups
+        if (rs.excluded_groups) {
+            if (Array.isArray(rs.excluded_groups)) {
+                excludedGroups = rs.excluded_groups as string[]
             } else {
-                excludedGroups = s.excluded_groups.split('|').map((g: string) => g.trim())
+                excludedGroups = (rs.excluded_groups as string).split('|').map((g: string) => g.trim())
             }
         }
 
@@ -171,8 +172,8 @@ export async function updateShift(eventId: string, shiftId: string, formData: Fo
         if (requiredGroupsRaw) requiredGroups = JSON.parse(requiredGroupsRaw)
         if (allowedGroupsRaw) allowedGroups = JSON.parse(allowedGroupsRaw)
         if (excludedGroupsRaw) excludedGroups = JSON.parse(excludedGroupsRaw)
-    } catch (e) {
-        console.error("Error parsing groups JSON", e)
+    } catch {
+        console.error("Error parsing groups JSON")
     }
 
     const { error } = await supabase

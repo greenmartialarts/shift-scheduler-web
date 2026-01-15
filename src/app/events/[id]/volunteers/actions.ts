@@ -29,18 +29,21 @@ export async function addVolunteer(eventId: string, formData: FormData) {
     return { success: true }
 }
 
-export async function bulkAddVolunteers(eventId: string, volunteers: any[]) {
+export async function bulkAddVolunteers(eventId: string, volunteers: Array<Record<string, unknown>>) {
     const supabase = await createClient()
 
     const { error } = await supabase.from('volunteers').insert(
-        volunteers.map((v) => ({
-            event_id: eventId,
-            name: v.name,
-            group: v.group,
-            max_hours: v.max_hours ? parseFloat(v.max_hours) : null,
-            phone: v.phone || null,
-            email: v.email || null,
-        }))
+        volunteers.map((v) => {
+            const rv = v as Record<string, unknown>
+            return {
+                event_id: eventId,
+                name: (rv.name || rv.Name) as string,
+                group: (rv.group || rv.Group) as string | null,
+                max_hours: (rv.max_hours || rv.MaxHours) ? parseFloat((rv.max_hours || rv.MaxHours) as string) : null,
+                phone: (rv.phone || rv.Phone || null) as string | null,
+                email: (rv.email || rv.Email || null) as string | null,
+            }
+        })
     )
 
     if (error) {

@@ -26,10 +26,8 @@ type Shift = {
 }
 
 export default function CheckinManager({
-    eventId,
     shifts,
 }: {
-    eventId: string
     shifts: Shift[]
 }) {
     const [search, setSearch] = useState('')

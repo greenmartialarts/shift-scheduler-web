@@ -1,14 +1,55 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { LucideIcon } from 'lucide-react'
 import { Users, User, Shield, Briefcase, Activity, Box, LogIn, LogOut } from 'lucide-react'
 import { checkInVolunteer, checkOutVolunteer, assignAsset, returnAsset, logActivity } from './actions'
 import { useNotification } from '@/components/ui/NotificationProvider'
 
+// Define types for better clarity and type safety
+export interface Volunteer {
+    id: string
+    name: string
+    group: string
+}
+
+export interface Shift {
+    id: string
+    name: string | null
+    start_time: string
+    end_time: string
+}
+
+export interface Assignment {
+    id: string
+    volunteer: Volunteer
+    shift: Shift
+    checked_in: boolean
+    checked_in_at: string | null
+    checked_out_at: string | null
+}
+
+export interface Asset {
+    id: string
+    name: string
+    status: 'available' | 'assigned'
+    volunteer_id: string | null
+    volunteer: Volunteer | null
+}
+
+export interface ActivityLog {
+    id: string
+    created_at: string
+    type: 'check_in' | 'check_out' | 'asset_out' | 'asset_in' | 'late_warning'
+    description: string
+    volunteer_id: string | null
+    metadata: Record<string, unknown> | null
+}
+
 function GroupBadge({ name }: { name: string }) {
-    const config: Record<string, { color: string; icon: any }> = {
+    const config: Record<string, { color: string; icon: LucideIcon }> = {
         Adults: { color: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20', icon: User },
         Delegates: { color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20', icon: Users },
         Staff: { color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: Shield },
@@ -28,35 +69,43 @@ function GroupBadge({ name }: { name: string }) {
     )
 }
 
+export interface ActivePersonnelManagerProps {
+    eventId: string
+    eventName: string
+    initialAssignments: Assignment[]
+    initialAssets: Asset[]
+    initialLogs: ActivityLog[]
+}
+
 export default function ActivePersonnelManager({
     eventId,
+    eventName,
     initialAssignments,
     initialAssets,
     initialLogs
-}: {
-    eventId: string
-    initialAssignments: any[]
-    initialAssets: any[]
-    initialLogs: any[]
-}) {
-    const [assignments, setAssignments] = useState(initialAssignments)
-    const [assets, setAssets] = useState(initialAssets)
-    const [logs, setLogs] = useState(initialLogs)
+}: ActivePersonnelManagerProps) {
+    const [assignments, setAssignments] = useState<Assignment[]>(initialAssignments)
+    const [assets, setAssets] = useState<Asset[]>(initialAssets)
+    const [logs, setLogs] = useState<ActivityLog[]>(initialLogs)
     const [activeTab, setActiveTab] = useState<'checkin' | 'checkout' | 'assets'>('checkin')
-    const [searchTerm, setSearchTerm] = useState('')
-    const { showAlert } = useNotification()
-    const router = useRouter()
+    const [searchTerm, setSearchTerm] = useState<string>('')
+
     const supabase = createClient()
+    const router = useRouter()
+    const { showAlert } = useNotification()
 
-    // Scroll logs to top when new ones arrive
-    // Actually typically logs stream down, so newest on top?
-    // "Stream of all activity" usually has newest at top.
-
+    // Sync state only if props actually change (standard way to handle "initial" props that should update state)
     useEffect(() => {
         setAssignments(initialAssignments)
+    }, [initialAssignments])
+
+    useEffect(() => {
         setAssets(initialAssets)
+    }, [initialAssets])
+
+    useEffect(() => {
         setLogs(initialLogs)
-    }, [initialAssignments, initialAssets, initialLogs])
+    }, [initialLogs])
 
     useEffect(() => {
         const channel = supabase
@@ -68,7 +117,7 @@ export default function ActivePersonnelManager({
                 router.refresh()
             })
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_logs' }, (payload) => {
-                setLogs(prev => [payload.new, ...prev].slice(0, 50))
+                setLogs(prev => [payload.new as ActivityLog, ...prev].slice(0, 50))
             })
             .subscribe()
 
@@ -126,7 +175,7 @@ export default function ActivePersonnelManager({
         if (res?.error) showAlert(res.error, 'error')
     }
 
-    const handleAssetAction = async (asset: any) => {
+    const handleAssetAction = async (asset: Asset) => {
         if (asset.status === 'assigned') {
             // Return
             const res = await returnAsset(asset.id, eventId, asset.name)
@@ -187,7 +236,7 @@ export default function ActivePersonnelManager({
                 <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex justify-between items-center">
                     <h2 className="font-bold text-lg flex items-center gap-2">
                         <Activity className="w-5 h-5 text-indigo-500" />
-                        Activity Stream
+                        Activity Stream - {eventName}
                     </h2>
                     <span className="text-xs font-mono text-zinc-400">{logs.length} events</span>
                 </div>

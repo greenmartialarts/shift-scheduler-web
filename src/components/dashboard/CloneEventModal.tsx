@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Copy } from 'lucide-react'
 import { useNotification } from '@/components/ui/NotificationProvider'
 
-export function CloneEventModal({ eventId, eventName, eventDate }: { eventId: string, eventName: string, eventDate: string }) {
+export function CloneEventModal({ eventId, eventName }: { eventId: string, eventName: string }) {
     const [isOpen, setIsOpen] = useState(false)
     const [isCloning, setIsCloning] = useState(false)
     const router = useRouter()

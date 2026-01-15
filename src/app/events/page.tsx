@@ -6,10 +6,28 @@ import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
+import { type User } from '@supabase/supabase-js'
+
+
+interface Event {
+    id: string
+    name: string
+    user_id: string
+    created_at: string
+}
+
+interface Invitation {
+    id: string
+    event_id: string
+    events?: {
+        name: string
+    }
+}
+
 export default function EventsPage() {
-    const [user, setUser] = useState<any>(null)
-    const [events, setEvents] = useState<any[]>([])
-    const [invitations, setInvitations] = useState<any[]>([])
+    const [user, setUser] = useState<User | null>(null)
+    const [events, setEvents] = useState<Event[]>([])
+    const [invitations, setInvitations] = useState<Invitation[]>([])
     const [loading, setLoading] = useState(true)
     const router = useRouter()
 
@@ -31,7 +49,7 @@ export default function EventsPage() {
             setEvents(eventsData || [])
 
             const invites = await getUserInvitations()
-            setInvitations(invites)
+            setInvitations(invites as Invitation[])
             setLoading(false)
         }
         loadData()
@@ -78,7 +96,7 @@ export default function EventsPage() {
                                     <h2 className="text-lg font-bold">Pending Invitations ({invitations.length})</h2>
                                 </div>
                                 <div className="grid gap-4">
-                                    {invitations.map((invite: any) => (
+                                    {invitations.map((invite) => (
                                         <div key={invite.id} className="flex items-center justify-between glass-panel p-4 rounded-2xl bg-white/80 dark:bg-zinc-900/50">
                                             <div>
                                                 <p className="font-bold text-zinc-900 dark:text-zinc-50">

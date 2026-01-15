@@ -10,7 +10,7 @@ type Template = {
     name: string
     description: string | null
     duration_hours: number
-    required_groups: any
+    required_groups: Record<string, unknown> | null
     allowed_groups: string[] | null
 }
 
@@ -93,7 +93,7 @@ export default function TemplateManager({ templates }: { templates: Template[] }
                         </div>
                         <div className="sm:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Required Groups (JSON: e.g. {'{"Delegates": 1}'})
+                                Required Groups (JSON: e.g. {`{"Delegates": 1}`})
                             </label>
                             <input
                                 type="text"
@@ -104,7 +104,7 @@ export default function TemplateManager({ templates }: { templates: Template[] }
                         </div>
                         <div className="sm:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Allowed Groups (JSON Array: e.g. ["Delegates"])
+                                Allowed Groups (JSON Array: e.g. {`["Delegates"]`})
                             </label>
                             <input
                                 type="text"
