@@ -8,12 +8,16 @@ export async function addVolunteer(eventId: string, formData: FormData) {
     const name = formData.get('name') as string
     const group = formData.get('group') as string
     const maxHours = parseFloat(formData.get('max_hours') as string) || null
+    const phone = formData.get('phone') as string || null
+    const email = formData.get('email') as string || null
 
     const { error } = await supabase.from('volunteers').insert({
         event_id: eventId,
         name,
         group,
         max_hours: maxHours,
+        phone,
+        email,
     })
 
     if (error) {
@@ -34,6 +38,8 @@ export async function bulkAddVolunteers(eventId: string, volunteers: any[]) {
             name: v.name,
             group: v.group,
             max_hours: v.max_hours ? parseFloat(v.max_hours) : null,
+            phone: v.phone || null,
+            email: v.email || null,
         }))
     )
 
@@ -68,6 +74,8 @@ export async function updateVolunteer(eventId: string, volunteerId: string, form
     const name = formData.get('name') as string
     const group = formData.get('group') as string
     const maxHours = parseFloat(formData.get('max_hours') as string) || null
+    const phone = formData.get('phone') as string || null
+    const email = formData.get('email') as string || null
 
     const { error } = await supabase
         .from('volunteers')
@@ -75,6 +83,8 @@ export async function updateVolunteer(eventId: string, volunteerId: string, form
             name,
             group,
             max_hours: maxHours,
+            phone,
+            email,
         })
         .eq('id', volunteerId)
 

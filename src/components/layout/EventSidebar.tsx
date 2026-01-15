@@ -23,6 +23,7 @@ export function EventSidebar() {
 
     const navItems = [
         { name: 'Overview', icon: LayoutDashboard, href: `/events/${id}` },
+        { name: 'Admin Center', icon: Zap, href: `/events/${id}/active` },
         { name: 'Volunteers', icon: Users, href: `/events/${id}/volunteers` },
         { name: 'Shifts', icon: Calendar, href: `/events/${id}/shifts` },
         { name: 'Assets', icon: Package, href: `/events/${id}/assets` },

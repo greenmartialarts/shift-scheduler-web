@@ -71,7 +71,7 @@ export default function LoginPage() {
                         </PremiumButton>
 
                         <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 pt-2">
-                            Don't have an account?{' '}
+                            Don&apos;t have an account?{' '}
                             <Link href="/signup" className="font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 transition-colors">
                                 Create one
                             </Link>

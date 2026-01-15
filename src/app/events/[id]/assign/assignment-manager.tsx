@@ -5,29 +5,10 @@ import { assignVolunteer, unassignVolunteer, autoAssign, swapAssignments, clearA
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
 import { User, Shield, Briefcase, Users, Clock } from 'lucide-react'
+import { useEffect } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
-function GroupBadge({ name, count }: { name: string; count?: number | string }) {
-    const config: Record<string, { color: string; icon: any }> = {
-        Adults: { color: 'text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20', icon: User },
-        Delegates: { color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20', icon: Users },
-        Staff: { color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20', icon: Shield },
-        Security: { color: 'text-red-600 dark:text-red-400 bg-red-500/20 border-red-500/20', icon: Shield },
-        Medical: { color: 'text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20', icon: Briefcase },
-        Coordinator: { color: 'text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20', icon: Shield },
-        default: { color: 'text-zinc-600 dark:text-zinc-400 bg-zinc-500/10 border-zinc-500/20', icon: Users }
-    }
-
-    const { color, icon: Icon } = config[name] || config.default
-
-    return (
-        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border ${color} text-[10px] font-black uppercase tracking-wider transition-all cursor-default group/badge`}>
-            <Icon className="w-3 h-3 transition-transform" />
-            <span>
-                {name}{count !== undefined ? `: ${count}` : ''}
-            </span>
-        </span>
-    )
-}
+import { GroupBadge } from '@/components/ui/GroupBadge'
 
 type Volunteer = {
     id: string
@@ -65,6 +46,28 @@ export default function AssignmentManager({
     const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null) // For swapping
     const router = useRouter()
     const { showAlert, showConfirm } = useNotification()
+
+    useEffect(() => {
+        const supabase = createClient()
+        const channel = supabase
+            .channel('assignments_changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'assignments'
+                },
+                () => {
+                    router.refresh()
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [router])
 
     // --- Conflict Detection Logic ---
     const conflicts = new Map<string, string[]>() // shiftId -> messages
@@ -161,23 +164,24 @@ export default function AssignmentManager({
     }).sort((a, b) => {
         // Sort order:
         // 1. Has conflicts (High priority)
-        // 2. Is unfilled (High priority)
-        // 3. Chronological (Standard)
+        // 2. Is partial filled (High priority)
+        // 3. Is completely unfilled (Medium priority)
+        // 4. Chronological (Standard)
 
         const aHasConflict = conflicts.has(a.id)
         const bHasConflict = conflicts.has(b.id)
         if (aHasConflict && !bHasConflict) return -1
         if (!aHasConflict && bHasConflict) return 1
 
-        const aEmpty = emptyShiftIds.has(a.id)
-        const bEmpty = emptyShiftIds.has(b.id)
-        if (aEmpty && !bEmpty) return -1
-        if (!aEmpty && bEmpty) return 1
-
-        const aUnfilled = unfilledShiftIds.has(a.id)
+        const aUnfilled = unfilledShiftIds.has(a.id) // Partial filled
         const bUnfilled = unfilledShiftIds.has(b.id)
         if (aUnfilled && !bUnfilled) return -1
         if (!aUnfilled && bUnfilled) return 1
+
+        const aEmpty = emptyShiftIds.has(a.id) // Completely empty
+        const bEmpty = emptyShiftIds.has(b.id)
+        if (aEmpty && !bEmpty) return -1
+        if (!aEmpty && bEmpty) return 1
 
         return new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
     })
@@ -233,8 +237,14 @@ export default function AssignmentManager({
     async function handleAssign(shiftId: string, volunteerId: string) {
         if (!volunteerId) return
         const res = await assignVolunteer(shiftId, volunteerId)
-        if (res?.error) showAlert(res.error, 'error')
-        else router.refresh()
+        if (res?.error) {
+            showAlert(res.error, 'error')
+        } else {
+            if (res?.warning) {
+                showAlert(res.warning, 'warning')
+            }
+            router.refresh()
+        }
     }
 
     async function handleUnassign(assignmentId: string) {

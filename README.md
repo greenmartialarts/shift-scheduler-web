@@ -40,14 +40,26 @@ A comprehensive web application for managing event volunteers, shifts, and assig
 -   **Role-Based Access**: Distinguishes between 'Admin' (full access).
 -   **Authentication**: Secure login with error feedback and basic password reset functionality.
 
-## Tech Stack
-
+-   **Assignments**: [Volunteer Scheduler API v2.0 (Go)](https://shift-scheduler-api-3nxm.vercel.app/)
 -   **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
 -   **Database & Auth**: [Supabase](https://supabase.com/)
 -   **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 -   **Icons**: [Lucide React](https://lucide.dev/)
 -   **Charts**: [Recharts](https://recharts.org/)
 -   **PDF Generation**: jsPDF
+
+## Integration & Quick Access
+
+| Resource | Description | Link |
+| :--- | :--- | :--- |
+| **Integration Guide** | Step-by-step guide for external developers | [Read Guide](./API_INTEGRATION_GUIDE.md) |
+| **Admin Dashboard** | Manage keys and view usage stats | [Open Admin](https://shift-scheduler-api-3nxm.vercel.app/admin) |
+| **Live API** | Health check and version info | [Check API](https://shift-scheduler-api-3nxm.vercel.app/) |
+
+## 🚀 API v2.0 Features (Go Edition)
+- **High Performance**: Re-engineered in Go for sub-millisecond scheduling.
+- **Stateless HMAC Keys**: Ultra-secure authentication using cryptographic signatures.
+- **JSON & CSV Parity**: Full backward compatibility with the v1.0 schema.
 
 ## Getting Started
 

@@ -57,7 +57,7 @@ export default async function ShiftsPage({
                     </div>
                 </div>
 
-                <ShiftManager eventId={id} initialShifts={shifts || []} templates={templates || []} />
+                <ShiftManager eventId={id} shifts={shifts || []} templates={templates || []} />
             </div>
         </div>
     )

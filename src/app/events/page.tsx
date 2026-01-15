@@ -176,7 +176,7 @@ export default function EventsPage() {
                             })}
                             {events?.length === 0 && (
                                 <div className="premium-card p-12 text-center">
-                                    <p className="text-zinc-500 dark:text-zinc-400 font-medium italic">No events found. Let's create your first coordination hub.</p>
+                                    <p className="text-zinc-500 dark:text-zinc-400 font-medium italic">No events found. Let&apos;s create your first coordination hub.</p>
                                 </div>
                             )}
                         </div>
@@ -210,7 +210,7 @@ export default function EventsPage() {
                             <div className="relative z-10">
                                 <h3 className="font-black text-xl mb-2 italic">Pro Tip</h3>
                                 <p className="text-sm font-medium opacity-80 leading-relaxed">
-                                    Use "Manage Access" to safely invite other coordinators to your events without sharing your login.
+                                    Use &quot;Manage Access&quot; to safely invite other coordinators to your events without sharing your login.
                                 </p>
                             </div>
                             <div className="absolute -bottom-4 -right-4 h-24 w-24 bg-indigo-500/20 rounded-full blur-2xl" />

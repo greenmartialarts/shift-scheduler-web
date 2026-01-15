@@ -51,21 +51,46 @@ export async function bulkAddShifts(eventId: string, shifts: any[]) {
     const supabase = await createClient()
 
     const formattedShifts = shifts.map((s) => {
-        // Parse required_groups: "Delegates:1|Adults:1" -> {"Delegates": 1, "Adults": 1}
-        // Parse required_groups: "Delegates:1|Adults:1" -> {"Delegates": 1, "Adults": 1}
+        // Helper function to parse MM/DD/YYYY HH:MM AM/PM format
+        const parseDateTime = (dateStr: string): string | null => {
+            if (!dateStr) return null
+            try {
+                // Parse "12/01/2025 08:00 AM" format
+                const date = new Date(dateStr)
+                if (isNaN(date.getTime())) return null
+                return date.toISOString()
+            } catch (e) {
+                console.error("Error parsing date:", dateStr, e)
+                return null
+            }
+        }
+
+        // Get field values - support both formats (capitalized and lowercase)
+        const name = s.Name || s.name
+        const startRaw = s.Start || s.start_time || s.start
+        const endRaw = s.End || s.end_time || s.end
+        const groupsRaw = s.Groups || s.required_groups
+
+        // Parse dates
+        const startTime = parseDateTime(startRaw)
+        const endTime = parseDateTime(endRaw)
+
+        // Parse required_groups: "Delegates:2, Adults:2" -> {"Delegates": 2, "Adults": 2}
         let requiredGroups = {}
-        if (s.required_groups) {
-            if (typeof s.required_groups === 'object') {
-                requiredGroups = s.required_groups
+        if (groupsRaw) {
+            if (typeof groupsRaw === 'object') {
+                requiredGroups = groupsRaw
             } else {
                 try {
-                    requiredGroups = s.required_groups.split('|').reduce((acc: any, item: string) => {
+                    // Handle both "Delegates:2|Adults:2" and "Delegates:2, Adults:2" formats
+                    const separator = groupsRaw.includes('|') ? '|' : ','
+                    requiredGroups = groupsRaw.split(separator).reduce((acc: any, item: string) => {
                         const [group, count] = item.split(':')
-                        if (group && count) acc[group.trim()] = parseInt(count)
+                        if (group && count) acc[group.trim()] = parseInt(count.trim())
                         return acc
                     }, {})
                 } catch (e) {
-                    console.error("Error parsing required_groups", s.required_groups)
+                    console.error("Error parsing required_groups", groupsRaw)
                 }
             }
         }
@@ -92,9 +117,9 @@ export async function bulkAddShifts(eventId: string, shifts: any[]) {
 
         return {
             event_id: eventId,
-            name: s.name,
-            start_time: s.start_time || s.start,
-            end_time: s.end_time || s.end,
+            name: name,
+            start_time: startTime,
+            end_time: endTime,
             required_groups: requiredGroups,
             allowed_groups: allowedGroups,
             excluded_groups: excludedGroups,
@@ -182,6 +207,72 @@ export async function deleteAllShifts(eventId: string) {
     if (error) {
         console.error('Error deleting all shifts:', error)
         return { error: error.message }
+    }
+
+    revalidatePath(`/events/${eventId}/shifts`)
+    return { success: true }
+}
+
+export async function generateRecurringShifts(eventId: string, formData: FormData) {
+    const supabase = await createClient()
+
+    const templateId = formData.get('template_id') as string
+    const startDate = formData.get('start_date') as string
+    const endDate = formData.get('end_date') as string
+    const startTime = formData.get('start_time') as string
+    const endTime = formData.get('end_time') as string
+    const days = formData.getAll('days') as string[]
+
+    // Fetch template details
+    const { data: template, error: tError } = await supabase
+        .from('shift_templates')
+        .select('*')
+        .eq('id', templateId)
+        .single()
+
+    if (tError || !template) {
+        return { error: 'Template not found' }
+    }
+
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    const shiftsToCreate = []
+
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const dayOfWeek = d.getDay().toString()
+        if (days.includes(dayOfWeek)) {
+            const shiftStart = new Date(d)
+            const [startH, startM] = startTime.split(':')
+            shiftStart.setHours(parseInt(startH), parseInt(startM), 0, 0)
+
+            const shiftEnd = new Date(d)
+            const [endH, endM] = endTime.split(':')
+            shiftEnd.setHours(parseInt(endH), parseInt(endM), 0, 0)
+
+            // Avoid timezone issues by using ISO string slices
+            const startISO = new Date(shiftStart.getTime() - shiftStart.getTimezoneOffset() * 60000).toISOString()
+            const endISO = new Date(shiftEnd.getTime() - shiftEnd.getTimezoneOffset() * 60000).toISOString()
+
+            shiftsToCreate.push({
+                event_id: eventId,
+                name: template.name,
+                start_time: startISO,
+                end_time: endISO,
+                required_groups: template.required_groups,
+                allowed_groups: template.allowed_groups || [],
+            })
+        }
+    }
+
+    if (shiftsToCreate.length === 0) {
+        return { error: 'No dates matched the selection' }
+    }
+
+    const { error: iError } = await supabase.from('shifts').insert(shiftsToCreate)
+
+    if (iError) {
+        console.error('Error generating shifts:', iError)
+        return { error: iError.message }
     }
 
     revalidatePath(`/events/${eventId}/shifts`)

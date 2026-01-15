@@ -1,61 +1,21 @@
-Name,Group,Max Hours
-Delegate 1,Delegates,10
-Delegate 2,Delegates,10
-Delegate 3,Delegates,10
-Delegate 4,Delegates,10
-Delegate 5,Delegates,10
-Delegate 6,Delegates,10
-Delegate 7,Delegates,10
-Delegate 8,Delegates,10
-Delegate 9,Delegates,10
-Delegate 10,Delegates,10
-Delegate 11,Delegates,10
-Delegate 12,Delegates,10
-Delegate 13,Delegates,10
-Delegate 14,Delegates,10
-Delegate 15,Delegates,10
-Delegate 16,Delegates,10
-Delegate 17,Delegates,10
-Delegate 18,Delegates,10
-Delegate 19,Delegates,10
-Delegate 20,Delegates,10
-Delegate 21,Delegates,10
-Delegate 22,Delegates,10
-Delegate 23,Delegates,10
-Delegate 24,Delegates,10
-Delegate 25,Delegates,10
-Delegate 26,Delegates,10
-Delegate 27,Delegates,10
-Delegate 28,Delegates,10
-Delegate 29,Delegates,10
-Delegate 30,Delegates,10
-Adult 31,Adults,12
-Adult 32,Adults,12
-Adult 33,Adults,12
-Adult 34,Adults,12
-Adult 35,Adults,12
-Adult 36,Adults,12
-Adult 37,Adults,12
-Adult 38,Adults,12
-Adult 39,Adults,12
-Adult 40,Adults,12
-Adult 41,Adults,12
-Adult 42,Adults,12
-Adult 43,Adults,12
-Adult 44,Adults,12
-Adult 45,Adults,12
-Adult 46,Adults,12
-Adult 47,Adults,12
-Adult 48,Adults,12
-Adult 49,Adults,12
-Adult 50,Adults,12
-Adult 51,Adults,12
-Adult 52,Adults,12
-Adult 53,Adults,12
-Adult 54,Adults,12
-Adult 55,Adults,12
-Adult 56,Adults,12
-Adult 57,Adults,12
-Adult 58,Adults,12
-Adult 59,Adults,12
-Adult 60,Adults,12
+Name,Group,Max Hours,Email,Phone
+Delegate 1,Delegates,5,delegate1@example.com,(555) 101-0001
+Delegate 2,Delegates,5,delegate2@example.com,(555) 101-0002
+Delegate 3,Delegates,5,delegate3@example.com,(555) 101-0003
+Delegate 4,Delegates,5,delegate4@example.com,(555) 101-0004
+Delegate 5,Delegates,5,delegate5@example.com,(555) 101-0005
+Delegate 6,Delegates,5,delegate6@example.com,(555) 101-0006
+Delegate 7,Delegates,5,delegate7@example.com,(555) 101-0007
+Delegate 8,Delegates,5,delegate8@example.com,(555) 101-0008
+Delegate 9,Delegates,5,delegate9@example.com,(555) 101-0009
+Delegate 10,Delegates,5,delegate10@example.com,(555) 101-0010
+Adult 11,Adults,6,adult11@example.com,(555) 201-0011
+Adult 12,Adults,6,adult12@example.com,(555) 201-0012
+Adult 13,Adults,6,adult13@example.com,(555) 201-0013
+Adult 14,Adults,6,adult14@example.com,(555) 201-0014
+Adult 15,Adults,6,adult15@example.com,(555) 201-0015
+Adult 16,Adults,6,adult16@example.com,(555) 201-0016
+Adult 17,Adults,6,adult17@example.com,(555) 201-0017
+Adult 18,Adults,6,adult18@example.com,(555) 201-0018
+Adult 19,Adults,6,adult19@example.com,(555) 201-0019
+Adult 20,Adults,6,adult20@example.com,(555) 201-0020

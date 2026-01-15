@@ -33,6 +33,8 @@ type Volunteer = {
     name: string
     group: string | null
     max_hours: number | null
+    phone: string | null
+    email: string | null
 }
 
 type Group = {
@@ -114,6 +116,8 @@ export default function VolunteerManager({
                     const name = row['Name'] || row['name'] || row['Volunteer'] || row['volunteer'] || ''
                     const group = row['Group'] || row['group'] || row['Role'] || row['role'] || null
                     const maxHoursRaw = row['Max Hours'] || row['max_hours'] || row['Hours'] || row['hours'] || row['Limit'] || row['limit']
+                    const phone = row['Phone'] || row['phone'] || row['Mobile'] || row['mobile'] || row['Tel'] || row['tel'] || null
+                    const email = row['Email'] || row['email'] || row['Mail'] || row['mail'] || null
 
                     const max_hours = maxHoursRaw ? parseFloat(maxHoursRaw) : null
 
@@ -122,7 +126,9 @@ export default function VolunteerManager({
                     return {
                         name,
                         group,
-                        max_hours
+                        max_hours,
+                        phone,
+                        email
                     }
                 }).filter(Boolean)
 
@@ -275,6 +281,24 @@ export default function VolunteerManager({
                                     ))}
                                 </select>
                             </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Phone Number</label>
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    placeholder="+1..."
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Email Address</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    placeholder="volunteer@example.com"
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                />
+                            </div>
                             <div>
                                 <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Max Hours (Weekly)</label>
                                 <input
@@ -300,6 +324,7 @@ export default function VolunteerManager({
                         <thead className="bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
                             <tr>
                                 <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Volunteer</th>
+                                <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Contact</th>
                                 <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Group</th>
                                 <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400">Max Hours</th>
                                 <th className="px-8 py-4 text-xs font-black uppercase tracking-wider text-zinc-400 text-right">Actions</th>
@@ -349,6 +374,24 @@ export default function VolunteerManager({
                                                             className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
                                                         />
                                                     </div>
+                                                    <div className="md:col-span-1">
+                                                        <input
+                                                            type="tel"
+                                                            name="phone"
+                                                            defaultValue={volunteer.phone || ''}
+                                                            placeholder="Phone"
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                                        />
+                                                    </div>
+                                                    <div className="md:col-span-1">
+                                                        <input
+                                                            type="email"
+                                                            name="email"
+                                                            defaultValue={volunteer.email || ''}
+                                                            placeholder="Email"
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                                        />
+                                                    </div>
                                                     <div className="flex justify-end gap-2">
                                                         <button type="submit" className="p-2 rounded-lg bg-green-500 text-white shadow-lg hover:scale-105 transition-transform">
                                                             <Check className="w-5 h-5" />
@@ -367,6 +410,25 @@ export default function VolunteerManager({
                                                             {volunteer.name.charAt(0)}
                                                         </div>
                                                         <span className="font-bold text-zinc-900 dark:text-zinc-50">{volunteer.name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-8 py-5">
+                                                    <div className="flex flex-col gap-0.5">
+                                                        {volunteer.email && (
+                                                            <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400 flex items-center gap-1">
+                                                                <FileText className="w-3 h-3 text-zinc-400" />
+                                                                {volunteer.email}
+                                                            </span>
+                                                        )}
+                                                        {volunteer.phone && (
+                                                            <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400 flex items-center gap-1">
+                                                                <Upload className="w-3 h-3 text-zinc-400" />
+                                                                {volunteer.phone}
+                                                            </span>
+                                                        )}
+                                                        {!volunteer.email && !volunteer.phone && (
+                                                            <span className="text-zinc-400 italic text-[10px]">No contact info</span>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="px-8 py-5 text-sm">

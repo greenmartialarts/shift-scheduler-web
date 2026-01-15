@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import GroupManager from './group-manager'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 export default async function GroupsPage({
@@ -19,7 +18,7 @@ export default async function GroupsPage({
         redirect('/login')
     }
 
-    const { data: event } = await supabase
+    await supabase
         .from('events')
         .select('name')
         .eq('id', id)

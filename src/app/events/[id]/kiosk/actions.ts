@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { logActivity } from '../active/actions'
 
 export async function searchVolunteers(eventId: string, query: string) {
     const supabase = await createClient()
@@ -87,12 +88,13 @@ export async function kioskCheckIn(
             // Find assets assigned to this volunteer that are currently active
             const { data: activeAssets } = await supabase
                 .from('asset_assignments')
-                .select('asset_id')
+                .select('asset_id, asset:assets(name)')
                 .eq('volunteer_id', volunteerId)
                 .is('checked_in_at', null)
 
             if (activeAssets && activeAssets.length > 0) {
                 const assetIdsToReturn = activeAssets.map(a => a.asset_id)
+                const assetNames = activeAssets.map(a => (a.asset as any)?.name || 'Unknown Asset').join(', ')
 
                 // Return assets
                 await supabase
@@ -104,8 +106,10 @@ export async function kioskCheckIn(
 
                 await supabase
                     .from('assets')
-                    .update({ status: 'available' })
+                    .update({ status: 'available', volunteer_id: null })
                     .in('id', assetIdsToReturn)
+
+                await logActivity(eventId, 'asset_in', `Assets returned during checkout: ${assetNames}`, volunteerId)
             }
         }
         // If transferring, we just leave them assigned (checked_in_at = null)
@@ -118,6 +122,7 @@ export async function kioskCheckIn(
             .from('assignments')
             .update({
                 checked_in: true,
+                checked_in_at: new Date().toISOString(),
                 checked_out_at: null // Reset checkout if re-checking in
             })
             .eq('id', assignmentId)
@@ -125,6 +130,10 @@ export async function kioskCheckIn(
         if (checkInError) {
             return { error: 'Failed to check in: ' + checkInError.message }
         }
+
+        // Get volunteer name for log
+        const { data: volunteer } = await supabase.from('volunteers').select('name').eq('id', volunteerId).single()
+        await logActivity(eventId, 'check_in', `${volunteer?.name || 'Volunteer'} checked in via Kiosk.`, volunteerId, { assignmentId })
     }
 
     // 3. Assign NEW assets (if any selected)
@@ -146,8 +155,14 @@ export async function kioskCheckIn(
 
         await supabase
             .from('assets')
-            .update({ status: 'assigned' })
+            .update({ status: 'assigned', volunteer_id: volunteerId })
             .in('id', assetIds)
+
+        // Log asset assignment
+        const { data: assets } = await supabase.from('assets').select('name').in('id', assetIds)
+        const assetNames = assets?.map(a => a.name).join(', ')
+        const { data: volunteer } = await supabase.from('volunteers').select('name').eq('id', volunteerId).single()
+        await logActivity(eventId, 'asset_out', `Assets checked out to ${volunteer?.name || 'Volunteer'}: ${assetNames}`, volunteerId)
     }
 
     revalidatePath(`/events/${eventId}/kiosk`, 'page')
@@ -173,12 +188,19 @@ export async function kioskCheckOut(
     if (assignmentId && assignmentId !== 'any') {
         const { error: checkoutError } = await supabase
             .from('assignments')
-            .update({ checked_out_at: new Date().toISOString() })
+            .update({
+                checked_out_at: new Date().toISOString(),
+                checked_in: false
+            })
             .eq('id', assignmentId)
 
         if (checkoutError) {
             return { error: 'Failed to check out: ' + checkoutError.message }
         }
+
+        // Get volunteer name for log
+        const { data: volunteer } = await supabase.from('volunteers').select('name').eq('id', volunteerId).single()
+        await logActivity(eventId, 'check_out', `${volunteer?.name || 'Volunteer'} checked out via Kiosk.`, volunteerId, { assignmentId })
     }
 
     // 2. Return Assets
@@ -196,14 +218,21 @@ export async function kioskCheckOut(
 
         const { error: statusError } = await supabase
             .from('assets')
-            .update({ status: 'available' })
+            .update({ status: 'available', volunteer_id: null })
             .in('id', assetIdsToReturn)
 
         if (statusError) {
             console.error('Error updating asset status:', statusError)
         }
+
+        // Log asset return
+        const { data: assets } = await supabase.from('assets').select('name').in('id', assetIdsToReturn)
+        const assetNames = assets?.map(a => a.name).join(', ')
+        const { data: volunteer } = await supabase.from('volunteers').select('name').eq('id', volunteerId).single()
+        await logActivity(eventId, 'asset_in', `Assets returned via Kiosk: ${assetNames}`, volunteerId)
     }
 
     revalidatePath(`/events/${eventId}/kiosk`, 'page')
+    revalidatePath(`/events/${eventId}/active`, 'page')
     return { success: true }
 }

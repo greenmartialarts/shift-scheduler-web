@@ -9,6 +9,8 @@ type Shift = {
     start_time: string
     end_time: string
     required_groups: Record<string, any> | string[] | null
+    allowed_groups: string[] | null
+    excluded_groups: string[] | null
 }
 
 interface ShiftTimelineProps {

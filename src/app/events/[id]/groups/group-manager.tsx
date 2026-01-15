@@ -242,8 +242,8 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                 <div>
                     <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">Discovered Groups</h2>
                     <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-                        These groups were found in your volunteer list but haven't been explicitly created.
-                        They are assigned a color automatically. Click "Customize" to save them as a permanent group.
+                        These groups were found in your volunteer list but haven&apos;t been explicitly created.
+                        They are assigned a color automatically. Click &quot;Customize&quot; to save them as a permanent group.
                     </p>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {discoveredGroups.map((group) => (
