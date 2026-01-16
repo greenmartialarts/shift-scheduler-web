@@ -77,13 +77,20 @@ export default function EventsPage() {
                             Manage your volunteer operations
                         </p>
                     </div>
-                    <form action="/auth/signout" method="post">
-                        <button
-                            className="text-sm font-bold text-zinc-400 hover:text-indigo-600 transition-colors"
-                        >
-                            Sign out
-                        </button>
-                    </form>
+                    <div className="flex items-center gap-4">
+                        {user?.email && (
+                            <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                                {user.email}
+                            </span>
+                        )}
+                        <form action="/auth/signout" method="post">
+                            <button
+                                className="text-sm font-bold text-zinc-400 hover:text-indigo-600 transition-colors"
+                            >
+                                Sign out
+                            </button>
+                        </form>
+                    </div>
                 </header>
 
                 <div className="grid lg:grid-cols-[1fr_300px] gap-8">
