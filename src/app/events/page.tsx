@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 import { type User } from '@supabase/supabase-js'
+import { Settings } from 'lucide-react'
 
 
 interface Event {
@@ -83,6 +84,13 @@ export default function EventsPage() {
                                 {user.email}
                             </span>
                         )}
+                        <Link
+                            href="/account"
+                            className="text-zinc-400 hover:text-indigo-600 transition-colors"
+                            title="Account Settings"
+                        >
+                            <Settings className="w-5 h-5" />
+                        </Link>
                         <form action="/auth/signout" method="post">
                             <button
                                 className="text-sm font-bold text-zinc-400 hover:text-indigo-600 transition-colors"
