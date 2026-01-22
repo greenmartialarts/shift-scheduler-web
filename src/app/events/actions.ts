@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation'
 export async function createEvent(formData: FormData) {
     const supabase = await createClient()
     const name = formData.get('name') as string
+    const timezone = formData.get('timezone') as string || 'UTC'
 
     const {
         data: { user },
@@ -23,6 +24,7 @@ export async function createEvent(formData: FormData) {
             name,
             user_id: user.id,
             date: new Date().toISOString(), // Default to today for now
+            timezone,
         })
         .select()
         .single()
@@ -48,6 +50,42 @@ export async function createEvent(formData: FormData) {
     }
 
     revalidatePath('/events')
+    return { id: event.id }
+}
+
+export async function updateEventSettings(formData: FormData) {
+    const supabase = await createClient()
+    const id = formData.get('id') as string
+    const name = formData.get('name') as string
+    const timezone = formData.get('timezone') as string
+
+    // Verify admin access
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Not authenticated' }
+
+    // Check if user is admin of this event
+    const { data: adminCheck } = await supabase
+        .from('event_admins')
+        .select('role')
+        .eq('event_id', id)
+        .eq('user_id', user.id)
+        .single()
+
+    if (!adminCheck) return { error: 'Not authorized' }
+
+    const { error } = await supabase
+        .from('events')
+        .update({ name, timezone })
+        .eq('id', id)
+
+    if (error) {
+        console.error('Error updating event:', error)
+        return { error: 'Failed to update settings' }
+    }
+
+    revalidatePath(`/events/${id}`)
+    revalidatePath(`/events/${id}/share`)
+    return { success: true }
 }
 
 export async function deleteEvent(formData: FormData) {

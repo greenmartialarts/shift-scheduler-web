@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 
 import { type User } from '@supabase/supabase-js'
 import { Settings } from 'lucide-react'
+import { useTutorial } from '@/components/tutorial/TutorialContext'
 
 
 interface Event {
@@ -31,6 +32,53 @@ export default function EventsPage() {
     const [invitations, setInvitations] = useState<Invitation[]>([])
     const [loading, setLoading] = useState(true)
     const router = useRouter()
+    const { setTutorialEventId, currentStepId, knownEventIds, setKnownEventIds, goToStep, isActive } = useTutorial()
+
+    // 1. Snapshot Logic: Capture initial state
+    useEffect(() => {
+        if (!isActive || loading) return
+        if (currentStepId === 'create-hub' && events.length > 0) {
+            // Only snapshot if we haven't already (or if list changed meaningfully, but stick to simple first)
+            // Actually, we want to ensure we have the 'before' list.
+            const currentIds = events.map(e => e.id)
+            // Simple check: if knownEventIds is empty, fill it.
+            // OR if we are explicitly in create-hub, update it.
+            // Let's rely on: if knownEventIds is DIFFERENT from current, and we haven't created one yet...
+            // Simplest: Always keep knownEventIds up to date UNTIL we are about to create.
+            // BUT user wants: "take a snapshot... when new event made compare".
+            // So: snapshot on 'create-hub'.
+
+            // Check if we need to update snapshot
+            const isSame = knownEventIds.length === currentIds.length && knownEventIds.every(id => currentIds.includes(id))
+            if (!isSame) {
+                setKnownEventIds(currentIds)
+            }
+        }
+    }, [isActive, currentStepId, events, loading, knownEventIds, setKnownEventIds])
+
+    // 2. Detection Logic: Compare new list
+    useEffect(() => {
+        if (!isActive || loading) return
+
+        // If we have known IDs (snapshot taken)
+        // And we see a new event that wasn't in known IDs
+        if (knownEventIds.length > 0) {
+            const newEvents = events.filter(e => !knownEventIds.includes(e.id))
+            if (newEvents.length > 0) {
+                // Found a new event!
+                const newest = newEvents[0] // take the first found
+
+                // If we are in create-hub or event-details (just in case)
+                if (currentStepId === 'create-hub' || currentStepId === 'event-details') {
+                    setTutorialEventId(newest.id)
+                    // Auto-navigate as requested
+                    // We skip 'open-event' manual step since we auto-nav
+                    goToStep('command-center')
+                    router.push(`/events/${newest.id}`)
+                }
+            }
+        }
+    }, [isActive, events, knownEventIds, loading, currentStepId, setTutorialEventId, goToStep, router])
 
     useEffect(() => {
         async function loadData() {
@@ -67,14 +115,14 @@ export default function EventsPage() {
     if (!user) return null
 
     return (
-        <div className="min-h-screen bg-white dark:bg-zinc-950 p-6 md:p-12 selection:bg-indigo-100 dark:selection:bg-indigo-900/40">
+        <div className="min-h-screen bg-white dark:bg-zinc-950 p-4 md:p-8 selection:bg-indigo-100 dark:selection:bg-indigo-900/40">
             <div className="mx-auto max-w-5xl">
-                <header className="mb-12 flex items-center justify-between">
+                <header className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-4xl font-black tracking-tight text-zinc-900 dark:text-zinc-50">
+                        <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
                             Dashboard
                         </h1>
-                        <p className="text-zinc-500 dark:text-zinc-400 mt-1 font-medium italic">
+                        <p className="text-zinc-500 dark:text-zinc-400 mt-1 font-medium">
                             Manage your volunteer operations
                         </p>
                     </div>
@@ -86,14 +134,14 @@ export default function EventsPage() {
                         )}
                         <Link
                             href="/account"
-                            className="text-zinc-400 hover:text-indigo-600 transition-colors"
+                            className="text-zinc-400 hover:text-blue-600 transition-colors"
                             title="Account Settings"
                         >
                             <Settings className="w-5 h-5" />
                         </Link>
                         <form action="/auth/signout" method="post">
                             <button
-                                className="text-sm font-bold text-zinc-400 hover:text-indigo-600 transition-colors"
+                                className="text-sm font-bold text-zinc-400 hover:text-blue-600 transition-colors"
                             >
                                 Sign out
                             </button>
@@ -101,18 +149,18 @@ export default function EventsPage() {
                     </div>
                 </header>
 
-                <div className="grid lg:grid-cols-[1fr_300px] gap-8">
-                    <div className="space-y-8">
+                <div className="grid lg:grid-cols-[1fr_300px] gap-6">
+                    <div className="space-y-6">
                         {/* Invitations Section */}
                         {invitations.length > 0 && (
-                            <div className="premium-card p-6 bg-indigo-50/50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-800/30">
-                                <div className="flex items-center gap-2 mb-6 text-indigo-700 dark:text-indigo-400">
-                                    <div className="h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
+                            <div className="premium-card p-6 bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-800/30">
+                                <div className="flex items-center gap-2 mb-4 text-blue-700 dark:text-blue-400">
+                                    <div className="h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
                                     <h2 className="text-lg font-bold">Pending Invitations ({invitations.length})</h2>
                                 </div>
-                                <div className="grid gap-4">
+                                <div className="grid gap-3">
                                     {invitations.map((invite) => (
-                                        <div key={invite.id} className="flex items-center justify-between glass-panel p-4 rounded-2xl bg-white/80 dark:bg-zinc-900/50">
+                                        <div key={invite.id} className="flex items-center justify-between bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 rounded-lg shadow-sm">
                                             <div>
                                                 <p className="font-bold text-zinc-900 dark:text-zinc-50">
                                                     {invite.events?.name || 'Unknown Event'}
@@ -126,7 +174,7 @@ export default function EventsPage() {
                                                     await acceptInvitation(invite.id)
                                                     window.location.reload()
                                                 }}>
-                                                    <button type="submit" className="rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:scale-105 active:scale-95 transition-all">
+                                                    <button type="submit" className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700 transition-colors">
                                                         Accept
                                                     </button>
                                                 </form>
@@ -134,7 +182,7 @@ export default function EventsPage() {
                                                     await declineInvitation(invite.id)
                                                     window.location.reload()
                                                 }}>
-                                                    <button type="submit" className="rounded-xl border border-zinc-200 dark:border-zinc-800 px-4 py-2 text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all">
+                                                    <button type="submit" className="rounded-md border border-zinc-200 dark:border-zinc-800 px-3 py-1.5 text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
                                                         Decline
                                                     </button>
                                                 </form>
@@ -146,38 +194,39 @@ export default function EventsPage() {
                         )}
 
                         {/* Events Grid */}
-                        <div className="grid gap-4">
-                            <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 ml-1">Your Events</h2>
-                            {events?.map((event) => {
+                        <div className="grid gap-3">
+                            <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 ml-1">Your Events</h2>
+                            {events?.map((event, index) => {
                                 const isOwner = event.user_id === user.id
                                 return (
                                     <div
                                         key={event.id}
+                                        id={index === 0 ? "latest-event-card" : undefined}
                                         onClick={() => router.push(`/events/${event.id}`)}
-                                        className="premium-card p-6 flex items-center justify-between group cursor-pointer hover:border-indigo-500/30 transition-all active:scale-[0.99]"
+                                        className="premium-card p-5 flex items-center justify-between group cursor-pointer hover:border-blue-500/50 transition-all hover:shadow-md"
                                     >
                                         <div className="flex-1">
                                             <div className="flex items-center gap-3">
                                                 <Link
                                                     href={`/events/${event.id}`}
                                                     onClick={(e) => e.stopPropagation()}
-                                                    className="text-2xl font-black text-zinc-900 dark:text-zinc-50 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors"
+                                                    className="text-xl font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
                                                 >
                                                     {event.name}
                                                 </Link>
                                                 {!isOwner && (
-                                                    <span className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                                                    <span className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 border border-zinc-200 dark:border-zinc-700">
                                                         Admin
                                                     </span>
                                                 )}
                                             </div>
-                                            <div className="mt-2 flex items-center gap-4 text-sm font-medium text-zinc-400">
+                                            <div className="mt-1 flex items-center gap-3 text-sm font-medium text-zinc-500">
                                                 <span>Created {new Date(event.created_at).toLocaleDateString()}</span>
-                                                <div className="h-1 w-1 rounded-full bg-zinc-700" />
+                                                <div className="h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
                                                 <Link
                                                     href={`/events/${event.id}/share`}
                                                     onClick={(e) => e.stopPropagation()}
-                                                    className="hover:text-indigo-600 transition-colors"
+                                                    className="hover:text-blue-600 transition-colors"
                                                 >
                                                     Manage Access
                                                 </Link>
@@ -192,10 +241,10 @@ export default function EventsPage() {
                                                     <input type="hidden" name="id" value={event.id} />
                                                     <button
                                                         type="submit"
-                                                        className="h-10 w-10 flex items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 hover:scale-110 active:scale-95 transition-all"
+                                                        className="h-9 w-9 flex items-center justify-center rounded-md bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors border border-transparent hover:border-red-200"
                                                         title="Delete Event"
                                                     >
-                                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                         </svg>
                                                     </button>
@@ -208,7 +257,7 @@ export default function EventsPage() {
                                 )
                             })}
                             {events?.length === 0 && (
-                                <div className="premium-card p-12 text-center">
+                                <div className="premium-card p-12 text-center border-dashed">
                                     <p className="text-zinc-500 dark:text-zinc-400 font-medium italic">No events found. Let&apos;s create your first coordination hub.</p>
                                 </div>
                             )}
@@ -217,36 +266,41 @@ export default function EventsPage() {
 
                     {/* Sidebar Area */}
                     <aside className="space-y-6">
-                        <div className="premium-card p-6">
-                            <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 mb-4">Create Event</h2>
+                        <div id="event-form" className="premium-card p-5">
+                            <h2 className="text-base font-bold text-zinc-900 dark:text-zinc-50 mb-4">Create Event</h2>
                             <form action={async (formData) => {
                                 await createEvent(formData)
                                 window.location.reload()
-                            }} className="space-y-4">
+                            }} className="space-y-3">
+                                <input
+                                    type="hidden"
+                                    name="timezone"
+                                    value={Intl.DateTimeFormat().resolvedOptions().timeZone}
+                                />
                                 <input
                                     type="text"
                                     name="name"
                                     placeholder="Conference 2024..."
                                     required
-                                    className="w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-indigo-600 focus:outline-none transition-all"
+                                    className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm font-medium focus:ring-1 focus:ring-blue-600 focus:border-blue-600 focus:outline-none transition-all placeholder:text-zinc-400"
                                 />
                                 <button
+                                    id="create-event-button"
                                     type="submit"
-                                    className="w-full button-premium"
+                                    className="w-full button-premium text-sm"
                                 >
                                     Create Hub
                                 </button>
                             </form>
                         </div>
 
-                        <div className="premium-card p-6 !bg-zinc-950 text-white dark:!bg-white dark:!text-zinc-900 overflow-hidden relative border-none">
+                        <div className="premium-card p-5 !bg-zinc-900 text-white dark:!bg-white dark:!text-zinc-900 overflow-hidden relative border-none">
                             <div className="relative z-10">
-                                <h3 className="font-black text-xl mb-2 italic">Pro Tip</h3>
-                                <p className="text-sm font-medium opacity-80 leading-relaxed">
+                                <h3 className="font-bold text-lg mb-2">Pro Tip</h3>
+                                <p className="text-sm font-medium opacity-90 leading-relaxed">
                                     Use &quot;Manage Access&quot; to safely invite other coordinators to your events without sharing your login.
                                 </p>
                             </div>
-                            <div className="absolute -bottom-4 -right-4 h-24 w-24 bg-indigo-500/20 rounded-full blur-2xl" />
                         </div>
                     </aside>
                 </div>

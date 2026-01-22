@@ -9,24 +9,26 @@ export function PremiumInput({ label, error, className = '', ...props }: Premium
     return (
         <div className="space-y-1.5">
             {label && (
-                <label className="block text-sm font-semibold text-zinc-700 dark:text-zinc-300 ml-1">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                     {label}
                 </label>
             )}
             <input
                 {...props}
                 className={`
-                    block w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 
-                    px-4 py-3 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm
-                    placeholder-zinc-400 dark:placeholder-zinc-600 
-                    focus:border-indigo-500 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 
+                    block w-full rounded-md border border-slate-300 dark:border-slate-700 
+                    px-3 py-2 bg-white dark:bg-slate-900
+                    placeholder-slate-400 dark:placeholder-slate-500
+                    text-sm
+                    focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 
                     dark:text-white
-                    ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/10' : ''}
+                    disabled:bg-slate-50 disabled:text-slate-500
+                    ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}
                     ${className}
                 `}
             />
             {error && (
-                <p className="text-xs font-medium text-red-500 ml-1 mt-1">{error}</p>
+                <p className="text-xs text-red-600 mt-1">{error}</p>
             )}
         </div>
     )

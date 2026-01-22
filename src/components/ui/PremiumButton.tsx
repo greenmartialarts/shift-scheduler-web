@@ -20,10 +20,10 @@ export function PremiumButton({
     variant = 'primary'
 }: PremiumButtonProps) {
     const variants = {
-        primary: 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 focus:ring-indigo-500',
-        secondary: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 hover:bg-zinc-200 dark:hover:bg-zinc-700 focus:ring-zinc-500',
-        danger: 'bg-red-600 text-white shadow-lg shadow-red-500/20 hover:bg-red-700 focus:ring-red-500',
-        ghost: 'bg-transparent text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 focus:ring-zinc-500'
+        primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm',
+        secondary: 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 focus:ring-slate-500 shadow-sm',
+        danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm',
+        ghost: 'bg-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 focus:ring-slate-500'
     }
 
     return (
@@ -32,10 +32,9 @@ export function PremiumButton({
             onClick={onClick}
             disabled={disabled}
             className={`
-                px-6 py-3 rounded-2xl text-sm font-bold transition-shadow duration-200
-                focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 
+                px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200
+                focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 
                 disabled:cursor-not-allowed flex items-center justify-center gap-2
-                active:scale-[0.98]
                 ${variants[variant]}
                 ${className}
             `}

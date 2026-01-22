@@ -249,18 +249,19 @@ export default function EventDashboard({
                 {/* Core Management Modules */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[
-                        { name: 'Admin Center', desc: 'Real-time activity stream and asset tracking.', href: `/events/${id}/active`, highlight: true },
-                        { name: 'Volunteers', desc: 'Manage profiles, groups, and bulk CSV imports.', href: `/events/${id}/volunteers` },
-                        { name: 'Shifts', desc: 'Configure shift timelines and group requirements.', href: `/events/${id}/shifts` },
-                        { name: 'Assets', desc: 'Track radios, vests, and other event equipment.', href: `/events/${id}/assets` },
-                        { name: 'Assignments', desc: 'Auto-optimize or manually curate the roster.', href: `/events/${id}/assign` },
+                        { id: 'admin-panel-link', name: 'Admin Center', desc: 'Real-time activity stream and asset tracking.', href: `/events/${id}/active`, highlight: true },
+                        { id: 'tab-volunteers', name: 'Volunteers', desc: 'Manage profiles, groups, and bulk CSV imports.', href: `/events/${id}/volunteers` },
+                        { id: 'tab-shifts', name: 'Shifts', desc: 'Configure shift timelines and group requirements.', href: `/events/${id}/shifts` },
+                        { id: 'tab-assets', name: 'Assets', desc: 'Track radios, vests, and other event equipment.', href: `/events/${id}/assets` },
+                        { id: 'tab-assignments', name: 'Assignments', desc: 'Auto-optimize or manually curate the roster.', href: `/events/${id}/assign` },
                         { name: 'Broadcast', desc: 'Securely message volunteers with multi-account rotation.', href: `/events/${id}/broadcast` },
                         { name: 'Attendance', desc: 'Real-time check-in/out and arrival tracking.', href: `/events/${id}/checkin` },
                         { name: 'Reports', desc: 'Export analytics, sign-in docs, and hours.', href: `/events/${id}/reports` },
-                        { name: 'Settings', desc: 'Sharing controls and event configurations.', href: `/events/${id}/share` },
+                        { id: 'tab-share', name: 'Settings', desc: 'Sharing controls and event configurations.', href: `/events/${id}/share` },
                     ].map((module) => (
                         <Link
                             key={module.name}
+                            id={module.id}
                             href={module.href}
                             className={`premium-card p-8 group hover:bg-zinc-50 dark:hover:bg-zinc-900/50 ${module.highlight ? 'ring-2 ring-indigo-500 shadow-indigo-500/20' : ''}`}
                         >

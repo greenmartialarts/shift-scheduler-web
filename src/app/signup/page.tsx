@@ -84,10 +84,14 @@ export default function SignupPage() {
                             onClick={async () => {
                                 const { createClient } = await import('@/lib/supabase/client')
                                 const supabase = createClient()
+                                const redirectTo = process.env.NODE_ENV === 'development'
+                                    ? 'http://localhost:3000/auth/callback'
+                                    : `${window.location.origin}/auth/callback`
+
                                 await supabase.auth.signInWithOAuth({
                                     provider: 'google',
                                     options: {
-                                        redirectTo: `${window.location.origin}/auth/callback`
+                                        redirectTo
                                     }
                                 })
                             }}
