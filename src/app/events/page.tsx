@@ -10,6 +10,7 @@ import { useRouter } from 'next/navigation'
 import { type User } from '@supabase/supabase-js'
 import { Settings } from 'lucide-react'
 import { useTutorial } from '@/components/tutorial/TutorialContext'
+import { useNotification } from '@/components/ui/NotificationProvider'
 
 
 interface Event {
@@ -35,6 +36,7 @@ export default function EventsPage() {
     const [actionLoading, setActionLoading] = useState<string | null>(null)
     const router = useRouter()
     const { setTutorialEventId, currentStepId, knownEventIds, setKnownEventIds, goToStep, isActive } = useTutorial()
+    const { showConfirm } = useNotification()
 
     // 1. Snapshot Logic: Capture initial state
     useEffect(() => {
@@ -262,6 +264,14 @@ export default function EventsPage() {
                                                     disabled={actionLoading === `delete-${event.id}`}
                                                     onClick={async (e) => {
                                                         e.stopPropagation()
+                                                        const confirmed = await showConfirm({
+                                                            title: 'Delete Event',
+                                                            message: `Are you sure you want to delete "${event.name}"? This action cannot be undone and will remove all associated shifts and volunteers.`,
+                                                            confirmText: 'Delete Event',
+                                                            type: 'danger'
+                                                        })
+                                                        if (!confirmed) return
+
                                                         setActionLoading(`delete-${event.id}`)
                                                         const formData = new FormData()
                                                         formData.append('id', event.id)
