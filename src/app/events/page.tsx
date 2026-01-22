@@ -187,8 +187,7 @@ export default function EventsPage() {
                                                     onClick={async () => {
                                                         setActionLoading(`accept-${invite.id}`)
                                                         await acceptInvitation(invite.id)
-                                                        router.refresh()
-                                                        setActionLoading(null)
+                                                        window.location.reload()
                                                     }}
                                                     className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
                                                 >
@@ -199,8 +198,7 @@ export default function EventsPage() {
                                                     onClick={async () => {
                                                         setActionLoading(`decline-${invite.id}`)
                                                         await declineInvitation(invite.id)
-                                                        router.refresh()
-                                                        setActionLoading(null)
+                                                        window.location.reload()
                                                     }}
                                                     className="rounded-md border border-zinc-200 dark:border-zinc-800 px-3 py-1.5 text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50"
                                                 >
@@ -268,8 +266,7 @@ export default function EventsPage() {
                                                         const formData = new FormData()
                                                         formData.append('id', event.id)
                                                         await deleteEvent(formData)
-                                                        router.refresh()
-                                                        setActionLoading(null)
+                                                        window.location.reload()
                                                     }}
                                                     className="h-9 w-9 flex items-center justify-center rounded-md bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors border border-transparent hover:border-red-200 disabled:opacity-50"
                                                     title="Delete Event"
@@ -309,10 +306,7 @@ export default function EventsPage() {
                                     setActionLoading('create-event')
                                     const formData = new FormData(form)
                                     await createEvent(formData)
-                                    router.refresh()
-                                    // Reset form
-                                    form.reset()
-                                    setActionLoading(null)
+                                    window.location.reload()
                                 }}
                                 className="space-y-3"
                             >

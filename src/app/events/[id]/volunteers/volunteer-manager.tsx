@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
 import { motion, AnimatePresence } from 'framer-motion'
 import { addVolunteer, bulkAddVolunteers, deleteVolunteer, deleteAllVolunteers, updateVolunteer } from './actions'
-import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
 import { Search, UserPlus, Trash2, Upload, FileText, X, Check, Edit2, Download, AlertCircle, User, Shield, Briefcase, Users } from 'lucide-react'
 
@@ -63,7 +62,6 @@ export default function VolunteerManager({
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
     const [previewData, setPreviewData] = useState<Array<Record<string, unknown>> | null>(null)
     const [actionLoading, setActionLoading] = useState<string | null>(null)
-    const router = useRouter()
     const { showAlert, showConfirm } = useNotification()
 
     useEffect(() => {
@@ -78,12 +76,11 @@ export default function VolunteerManager({
     async function handleAdd(formData: FormData) {
         setActionLoading('add-volunteer')
         const res = await addVolunteer(eventId, formData)
-        setActionLoading(null)
         if (res?.error) {
+            setActionLoading(null)
             showAlert('Error adding volunteer: ' + res.error, 'error')
         } else {
-            setIsAdding(false)
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -177,12 +174,11 @@ export default function VolunteerManager({
         if (!confirmed) return
         setActionLoading(`delete-${id}`)
         const res = await deleteVolunteer(eventId, id)
-        setActionLoading(null)
         if (res?.error) {
+            setActionLoading(null)
             showAlert('Error deleting volunteer: ' + res.error, 'error')
         } else {
-            showAlert('Volunteer deleted successfully', 'success')
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -191,9 +187,7 @@ export default function VolunteerManager({
         if (res?.error) {
             showAlert('Error updating volunteer: ' + res.error, 'error')
         } else {
-            showAlert('Volunteer updated successfully', 'success')
-            setEditingId(null)
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -201,14 +195,11 @@ export default function VolunteerManager({
         if (!previewData) return
         setUploading(true)
         const { error } = await bulkAddVolunteers(eventId, previewData as Array<Record<string, unknown>>)
-        setUploading(false)
         if (error) {
+            setUploading(false)
             showAlert('Error uploading volunteers: ' + error, 'error')
         } else {
-            showAlert(`Successfully imported ${previewData.length} volunteers`, 'success')
-            setIsUploadModalOpen(false)
-            setPreviewData(null)
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -224,8 +215,7 @@ export default function VolunteerManager({
         if (res?.error) {
             showAlert('Error deleting all volunteers: ' + res.error, 'error')
         } else {
-            showAlert('All volunteers deleted successfully', 'success')
-            router.refresh()
+            window.location.reload()
         }
     }
 

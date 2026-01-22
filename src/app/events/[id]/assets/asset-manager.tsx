@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from 'react'
 import { addAsset, deleteAsset, updateAsset } from './actions'
-import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
 import {
     Package,
@@ -48,7 +47,6 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
     const [isAdding, setIsAdding] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [search, setSearch] = useState('')
-    const router = useRouter()
     const { showAlert, showConfirm } = useNotification()
 
     const [formData, setFormData] = useState({
@@ -107,9 +105,7 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
         if (res?.error) {
             showAlert('Error saving asset: ' + res.error, 'error')
         } else {
-            showAlert(`Asset ${editingId ? 'updated' : 'created'} successfully`, 'success')
-            resetForm()
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -125,8 +121,7 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
         if (res?.error) {
             showAlert('Error deleting asset: ' + res.error, 'error')
         } else {
-            showAlert('Asset deleted successfully', 'success')
-            router.refresh()
+            window.location.reload()
         }
     }
 

@@ -60,7 +60,7 @@ export default function AssignmentManager({
                     table: 'assignments'
                 },
                 () => {
-                    router.refresh()
+                    window.location.reload()
                 }
             )
             .subscribe()
@@ -189,31 +189,12 @@ export default function AssignmentManager({
     async function handleAutoAssign() {
         setLoading(true)
         const res = await autoAssign(eventId)
-        setLoading(false)
 
         if (res?.error) {
+            setLoading(false)
             showAlert('Error: ' + res.error, 'error')
-        } else if (res?.partial && res?.unfilled) {
-            // Partial assignment - some shifts couldn't be filled
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const unfilledDetails = res.unfilled
-                .map(([shiftId, group, count]: [string, string, number]) => {
-                    const shift = shifts.find(s => s.id === shiftId)
-                    const timeStr = shift
-                        ? new Date(shift.start_time).toLocaleString()
-                        : shiftId
-                    return `  • ${timeStr}: Need ${count} more ${group}`
-                })
-                .join('\n')
-
-            showAlert(
-                `Partial Assignment Complete. Some shifts were filled, but some positions remain unfilled. These are highlighted in orange.`,
-                'warning'
-            )
-            router.refresh()
         } else {
-            showAlert('Auto-assignment complete! All shifts filled successfully.', 'success')
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -227,11 +208,11 @@ export default function AssignmentManager({
         if (!confirmed) return
         setLoading(true)
         const res = await clearAssignments(eventId)
-        setLoading(false)
-        if (res?.error) showAlert(res.error, 'error')
-        else {
-            showAlert('All assignments cleared.', 'success')
-            router.refresh()
+        if (res?.error) {
+            setLoading(false)
+            showAlert(res.error, 'error')
+        } else {
+            window.location.reload()
         }
     }
 
@@ -239,14 +220,11 @@ export default function AssignmentManager({
         if (!volunteerId) return
         setActionLoading(`assign-${shiftId}`)
         const res = await assignVolunteer(shiftId, volunteerId)
-        setActionLoading(null)
         if (res?.error) {
+            setActionLoading(null)
             showAlert(res.error, 'error')
         } else {
-            if (res?.warning) {
-                showAlert(res.warning, 'warning')
-            }
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -260,9 +238,12 @@ export default function AssignmentManager({
         if (!confirmed) return
         setActionLoading(`unassign-${assignmentId}`)
         const res = await unassignVolunteer(assignmentId)
-        setActionLoading(null)
-        if (res?.error) showAlert(res.error, 'error')
-        else router.refresh()
+        if (res?.error) {
+            setActionLoading(null)
+            showAlert(res.error, 'error')
+        } else {
+            window.location.reload()
+        }
     }
 
     async function handleSwap(assignmentId: string) {
@@ -277,9 +258,7 @@ export default function AssignmentManager({
             const res = await swapAssignments(selectedAssignment, assignmentId)
             if (res?.error) showAlert(res.error, 'error')
             else {
-                setSelectedAssignment(null)
-                showAlert('Assignments swapped successfully', 'success')
-                router.refresh()
+                window.location.reload()
             }
         }
     }

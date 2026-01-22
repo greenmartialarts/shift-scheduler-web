@@ -110,10 +110,10 @@ export default function ActivePersonnelManager({
         const channel = supabase
             .channel('dashboard-updates')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'assignments' }, () => {
-                router.refresh()
+                window.location.reload()
             })
             .on('postgres_changes', { event: '*', schema: 'public', table: 'assets' }, () => {
-                router.refresh()
+                window.location.reload()
             })
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_logs' }, (payload) => {
                 setLogs(prev => [payload.new as ActivityLog, ...prev].slice(0, 50))
@@ -167,11 +167,13 @@ export default function ActivePersonnelManager({
     const handleCheckIn = async (id: string, name: string) => {
         const res = await checkInVolunteer(id, eventId, name)
         if (res?.error) showAlert(res.error, 'error')
+        else window.location.reload()
     }
 
     const handleCheckOut = async (id: string, name: string) => {
         const res = await checkOutVolunteer(id, eventId, name)
         if (res?.error) showAlert(res.error, 'error')
+        else window.location.reload()
     }
 
     const handleAssetAction = async (asset: Asset) => {
@@ -179,6 +181,7 @@ export default function ActivePersonnelManager({
             // Return
             const res = await returnAsset(asset.id, eventId, asset.name)
             if (res?.error) showAlert(res.error, 'error')
+            else window.location.reload()
         } else {
             // Assign
             // Simple prompt for now, or could be a modal
@@ -215,8 +218,12 @@ export default function ActivePersonnelManager({
         if (!asset) return
 
         const res = await assignAsset(asset.id, volunteerId, eventId, asset.name, volunteerName)
-        if (res?.error) showAlert(res.error, 'error')
-        setCheckoutAssetId(null)
+        if (res?.error) {
+            showAlert(res.error, 'error')
+            setCheckoutAssetId(null)
+        } else {
+            window.location.reload()
+        }
     }
 
 
