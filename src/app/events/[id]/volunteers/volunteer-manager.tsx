@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
+import { motion, AnimatePresence } from 'framer-motion'
 import { addVolunteer, bulkAddVolunteers, deleteVolunteer, deleteAllVolunteers, updateVolunteer } from './actions'
-import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
 import { Search, UserPlus, Trash2, Upload, FileText, X, Check, Edit2, Download, AlertCircle, User, Shield, Briefcase, Users } from 'lucide-react'
 
@@ -60,7 +60,8 @@ export default function VolunteerManager({
     const [uploading, setUploading] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
-    const router = useRouter()
+    const [previewData, setPreviewData] = useState<Array<Record<string, unknown>> | null>(null)
+    const [actionLoading, setActionLoading] = useState<string | null>(null)
     const { showAlert, showConfirm } = useNotification()
 
     useEffect(() => {
@@ -73,12 +74,13 @@ export default function VolunteerManager({
     )
 
     async function handleAdd(formData: FormData) {
+        setActionLoading('add-volunteer')
         const res = await addVolunteer(eventId, formData)
         if (res?.error) {
+            setActionLoading(null)
             showAlert('Error adding volunteer: ' + res.error, 'error')
         } else {
-            setIsAdding(false)
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -145,20 +147,15 @@ export default function VolunteerManager({
                     }
                 }).filter(Boolean)
 
-                if (parsedVolunteers.length === 0) {
-                    setUploading(false)
+                setUploading(false)
+                const validVolunteers = parsedVolunteers.filter((v): v is NonNullable<typeof v> => v !== null)
+
+                if (validVolunteers.length === 0) {
                     showAlert('No valid volunteers found in CSV', 'warning')
                     return
                 }
 
-                const { error } = await bulkAddVolunteers(eventId, parsedVolunteers.filter((v): v is NonNullable<typeof v> => v !== null) as Array<Record<string, unknown>>)
-                setUploading(false)
-                setIsUploadModalOpen(false)
-                if (error) {
-                    showAlert('Error uploading volunteers: ' + error, 'error')
-                } else {
-                    router.refresh()
-                }
+                setPreviewData(validVolunteers as unknown as Array<Record<string, unknown>>)
             },
             error: (error) => {
                 setUploading(false)
@@ -175,12 +172,13 @@ export default function VolunteerManager({
             type: 'danger'
         })
         if (!confirmed) return
+        setActionLoading(`delete-${id}`)
         const res = await deleteVolunteer(eventId, id)
         if (res?.error) {
+            setActionLoading(null)
             showAlert('Error deleting volunteer: ' + res.error, 'error')
         } else {
-            showAlert('Volunteer deleted successfully', 'success')
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -189,9 +187,19 @@ export default function VolunteerManager({
         if (res?.error) {
             showAlert('Error updating volunteer: ' + res.error, 'error')
         } else {
-            showAlert('Volunteer updated successfully', 'success')
-            setEditingId(null)
-            router.refresh()
+            window.location.reload()
+        }
+    }
+
+    async function handleConfirmImport() {
+        if (!previewData) return
+        setUploading(true)
+        const { error } = await bulkAddVolunteers(eventId, previewData as Array<Record<string, unknown>>)
+        if (error) {
+            setUploading(false)
+            showAlert('Error uploading volunteers: ' + error, 'error')
+        } else {
+            window.location.reload()
         }
     }
 
@@ -207,8 +215,7 @@ export default function VolunteerManager({
         if (res?.error) {
             showAlert('Error deleting all volunteers: ' + res.error, 'error')
         } else {
-            showAlert('All volunteers deleted successfully', 'success')
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -249,6 +256,7 @@ export default function VolunteerManager({
                         <Trash2 className="w-5 h-5" />
                     </button>
                     <button
+                        id="import-volunteers-btn"
                         onClick={() => setIsUploadModalOpen(true)}
                         className="flex items-center gap-2 px-5 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-sm"
                     >
@@ -256,6 +264,7 @@ export default function VolunteerManager({
                         <span>Import</span>
                     </button>
                     <button
+                        id="add-volunteer-btn"
                         onClick={() => setIsAdding(!isAdding)}
                         className="button-premium px-6"
                     >
@@ -323,7 +332,13 @@ export default function VolunteerManager({
                                 />
                             </div>
                             <div className="md:col-span-4 flex justify-end">
-                                <button type="submit" className="button-premium px-8">Confirm Addition</button>
+                                <button
+                                    type="submit"
+                                    disabled={actionLoading === 'add-volunteer'}
+                                    className="button-premium px-8 disabled:opacity-70"
+                                >
+                                    {actionLoading === 'add-volunteer' ? 'Adding...' : 'Confirm Addition'}
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -344,13 +359,18 @@ export default function VolunteerManager({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
-                            {filteredVolunteers.map((volunteer) => {
-                                const isEditing = editingId === volunteer.id
-                                return (
-                                    <tr
-                                        key={volunteer.id}
-                                        className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-all border-l-2 border-l-transparent hover:border-l-indigo-500"
-                                    >
+                            <AnimatePresence mode="popLayout">
+                                {filteredVolunteers.map((volunteer) => {
+                                    const isEditing = editingId === volunteer.id
+                                    return (
+                                        <motion.tr
+                                            layout
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            key={volunteer.id}
+                                            className={`group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-all border-l-2 border-l-transparent hover:border-l-indigo-500 ${actionLoading === `delete-${volunteer.id}` ? 'opacity-50 grayscale' : ''}`}
+                                        >
                                         {isEditing ? (
                                             <td colSpan={4} className="px-8 py-6">
                                                 <form
@@ -474,9 +494,10 @@ export default function VolunteerManager({
                                                 </td>
                                             </>
                                         )}
-                                    </tr>
-                                )
-                            })}
+                                        </motion.tr>
+                                    )
+                                })}
+                            </AnimatePresence>
                             {filteredVolunteers.length === 0 && (
                                 <tr>
                                     <td colSpan={4} className="px-8 py-12 text-center">
@@ -518,60 +539,106 @@ export default function VolunteerManager({
             {isUploadModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
                     <div
-                        onClick={() => setIsUploadModalOpen(false)}
+                        onClick={() => {
+                            setIsUploadModalOpen(false)
+                            setPreviewData(null)
+                        }}
                         className="absolute inset-0 bg-zinc-950/80 backdrop-blur-md"
                     />
                     <div
-                        className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl max-w-lg w-full p-8 relative z-10"
+                        className={`bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl w-full p-8 relative z-10 transition-all ${previewData ? 'max-w-2xl' : 'max-w-lg'}`}
                     >
-                        <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 mb-4">Import Core Database</h3>
+                        <h3 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 mb-4">
+                            {previewData ? 'Review Import' : 'Import Core Database'}
+                        </h3>
 
                         <div className="space-y-6">
-                            <p className="text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed italic">
-                                Prepare your CSV file for global distribution. The system will automatically detect headers and map fields.
-                                <br />
-                                <a
-                                    href="https://docs.google.com/spreadsheets/d/1SBULQrNoxh_ShzWPl9asw4AV1QL6vvviTmLr3ascY54/copy"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold hover:underline mt-2 not-italic"
-                                >
-                                    <FileText className="w-4 h-4" />
-                                    Download CSV Template
-                                </a>
-                            </p>
+                            {!previewData ? (
+                                <>
+                                    <p className="text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed italic">
+                                        Prepare your CSV file for global distribution. The system will automatically detect headers and map fields.
+                                        <br />
+                                        <a
+                                            href="https://docs.google.com/spreadsheets/d/1SBULQrNoxh_ShzWPl9asw4AV1QL6vvviTmLr3ascY54/copy"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold hover:underline mt-2 not-italic"
+                                        >
+                                            <FileText className="w-4 h-4" />
+                                            Download CSV Template
+                                        </a>
+                                    </p>
 
-                            <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
-                                <div className="flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
-                                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                                    <span className="font-bold uppercase tracking-tighter text-sm">CSV Validation</span>
-                                </div>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {['Name', 'Group', 'Hours'].map(field => (
-                                        <div key={field} className="px-3 py-2 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-center text-xs font-black text-zinc-400">
-                                            {field}
+                                    <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+                                        <div className="flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
+                                            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                                            <span className="font-bold uppercase tracking-tighter text-sm">CSV Validation</span>
                                         </div>
-                                    ))}
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {['Name', 'Group', 'Hours'].map(field => (
+                                                <div key={field} className="px-3 py-2 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-center text-xs font-black text-zinc-400">
+                                                    {field}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="max-h-60 overflow-y-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="sticky top-0 bg-zinc-50 dark:bg-zinc-900">
+                                            <tr>
+                                                <th className="px-4 py-2 font-bold">Name</th>
+                                                <th className="px-4 py-2 font-bold">Group</th>
+                                                <th className="px-4 py-2 font-bold">Hours</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                                            {previewData.slice(0, 50).map((v, i) => (
+                                                <tr key={i}>
+                                                    <td className="px-4 py-2">{v.name as string}</td>
+                                                    <td className="px-4 py-2 text-zinc-500">{(v.group || '-') as string}</td>
+                                                    <td className="px-4 py-2 text-zinc-500">{(v.max_hours || '-') as string}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    {previewData.length > 50 && (
+                                        <p className="p-4 text-center text-xs text-zinc-400 italic">...and {previewData.length - 50} more</p>
+                                    )}
                                 </div>
-                            </div>
+                            )}
 
                             <div className="flex gap-3 pt-4">
                                 <button
-                                    onClick={() => setIsUploadModalOpen(false)}
+                                    onClick={() => {
+                                        setIsUploadModalOpen(false)
+                                        setPreviewData(null)
+                                    }}
                                     className="flex-1 px-6 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 font-bold text-zinc-500 hover:bg-zinc-50 transition-all"
                                 >
                                     Cancel
                                 </button>
-                                <label className="flex-[2] cursor-pointer button-premium py-4">
-                                    {uploading ? 'Processing Architecture...' : 'Import'}
-                                    <input
-                                        type="file"
-                                        accept=".csv"
-                                        className="hidden"
-                                        onChange={handleFileUpload}
+                                {!previewData ? (
+                                    <label className="flex-[2] cursor-pointer button-premium py-4 text-center">
+                                        {uploading ? 'Processing Architecture...' : 'Select File'}
+                                        <input
+                                            type="file"
+                                            accept=".csv"
+                                            className="hidden"
+                                            onChange={handleFileUpload}
+                                            disabled={uploading}
+                                        />
+                                    </label>
+                                ) : (
+                                    <button
+                                        onClick={handleConfirmImport}
                                         disabled={uploading}
-                                    />
-                                </label>
+                                        className="flex-[2] button-premium py-4"
+                                    >
+                                        {uploading ? 'Importing...' : `Confirm Import (${previewData.length})`}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

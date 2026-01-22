@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Plus, Search, Upload, LayoutList, Calendar, Trash2 } from 'lucide-react'
 import { useNotification } from '@/components/ui/NotificationProvider'
 import { addShift, deleteShift, generateRecurringShifts, updateShift, deleteAllShifts, bulkAddShifts } from './actions'
@@ -51,7 +50,6 @@ export default function ShiftManager({
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
     const [uploading, setUploading] = useState(false)
 
-    const router = useRouter()
     const { showAlert, showConfirm } = useNotification()
 
     const filteredShifts = shifts.filter(s =>
@@ -65,9 +63,7 @@ export default function ShiftManager({
         if (res?.error) {
             showAlert('Error adding shift: ' + res.error, 'error')
         } else {
-            showAlert('Shift added successfully', 'success')
-            setIsAdding(false)
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -78,9 +74,7 @@ export default function ShiftManager({
         if (res?.error) {
             showAlert('Error generating shifts: ' + res.error, 'error')
         } else {
-            showAlert('Recurring shifts generated successfully', 'success')
-            setIsRecurring(false)
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -88,13 +82,11 @@ export default function ShiftManager({
         setUploading(true)
         const res = await bulkAddShifts(eventId, data)
         if (res?.error) {
+            setUploading(false)
             showAlert('Error uploading shifts: ' + res.error, 'error')
         } else {
-            showAlert('Shifts uploaded successfully', 'success')
-            setIsUploadModalOpen(false)
-            router.refresh()
+            window.location.reload()
         }
-        setUploading(false)
     }
 
     async function handleDelete(id: string) {
@@ -108,8 +100,7 @@ export default function ShiftManager({
         if (res?.error) {
             showAlert('Error deleting shift: ' + res.error, 'error')
         } else {
-            showAlert('Shift deleted successfully', 'success')
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -118,9 +109,7 @@ export default function ShiftManager({
         if (res?.error) {
             showAlert('Error updating shift: ' + res.error, 'error')
         } else {
-            showAlert('Shift updated successfully', 'success')
-            setEditingId(null)
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -136,8 +125,7 @@ export default function ShiftManager({
         if (res?.error) {
             showAlert('Error deleting all shifts: ' + res.error, 'error')
         } else {
-            showAlert('All shifts deleted successfully', 'success')
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -191,6 +179,7 @@ export default function ShiftManager({
                         <Trash2 className="w-5 h-5" />
                     </button>
                     <button
+                        id="import-shifts-btn"
                         onClick={() => setIsUploadModalOpen(true)}
                         className="flex items-center gap-2 px-5 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-sm"
                     >
@@ -215,6 +204,7 @@ export default function ShiftManager({
                         )}
                     </button>
                     <button
+                        id="add-shift-btn"
                         onClick={() => {
                             setIsAdding(!isAdding)
                             setIsRecurring(false)

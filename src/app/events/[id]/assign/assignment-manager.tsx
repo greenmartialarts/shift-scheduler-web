@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { assignVolunteer, unassignVolunteer, autoAssign, swapAssignments, clearAssignments } from './actions'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
@@ -42,6 +43,7 @@ export default function AssignmentManager({
 }) {
     const [search, setSearch] = useState('')
     const [loading, setLoading] = useState(false)
+    const [actionLoading, setActionLoading] = useState<string | null>(null)
     const [selectedAssignment, setSelectedAssignment] = useState<string | null>(null) // For swapping
     const router = useRouter()
     const { showAlert, showConfirm } = useNotification()
@@ -58,7 +60,7 @@ export default function AssignmentManager({
                     table: 'assignments'
                 },
                 () => {
-                    router.refresh()
+                    window.location.reload()
                 }
             )
             .subscribe()
@@ -187,31 +189,12 @@ export default function AssignmentManager({
     async function handleAutoAssign() {
         setLoading(true)
         const res = await autoAssign(eventId)
-        setLoading(false)
 
         if (res?.error) {
+            setLoading(false)
             showAlert('Error: ' + res.error, 'error')
-        } else if (res?.partial && res?.unfilled) {
-            // Partial assignment - some shifts couldn't be filled
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const unfilledDetails = res.unfilled
-                .map(([shiftId, group, count]: [string, string, number]) => {
-                    const shift = shifts.find(s => s.id === shiftId)
-                    const timeStr = shift
-                        ? new Date(shift.start_time).toLocaleString()
-                        : shiftId
-                    return `  • ${timeStr}: Need ${count} more ${group}`
-                })
-                .join('\n')
-
-            showAlert(
-                `Partial Assignment Complete. Some shifts were filled, but some positions remain unfilled. These are highlighted in orange.`,
-                'warning'
-            )
-            router.refresh()
         } else {
-            showAlert('Auto-assignment complete! All shifts filled successfully.', 'success')
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -225,24 +208,23 @@ export default function AssignmentManager({
         if (!confirmed) return
         setLoading(true)
         const res = await clearAssignments(eventId)
-        setLoading(false)
-        if (res?.error) showAlert(res.error, 'error')
-        else {
-            showAlert('All assignments cleared.', 'success')
-            router.refresh()
+        if (res?.error) {
+            setLoading(false)
+            showAlert(res.error, 'error')
+        } else {
+            window.location.reload()
         }
     }
 
     async function handleAssign(shiftId: string, volunteerId: string) {
         if (!volunteerId) return
+        setActionLoading(`assign-${shiftId}`)
         const res = await assignVolunteer(shiftId, volunteerId)
         if (res?.error) {
+            setActionLoading(null)
             showAlert(res.error, 'error')
         } else {
-            if (res?.warning) {
-                showAlert(res.warning, 'warning')
-            }
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -254,9 +236,14 @@ export default function AssignmentManager({
             type: 'danger'
         })
         if (!confirmed) return
+        setActionLoading(`unassign-${assignmentId}`)
         const res = await unassignVolunteer(assignmentId)
-        if (res?.error) showAlert(res.error, 'error')
-        else router.refresh()
+        if (res?.error) {
+            setActionLoading(null)
+            showAlert(res.error, 'error')
+        } else {
+            window.location.reload()
+        }
     }
 
     async function handleSwap(assignmentId: string) {
@@ -271,9 +258,7 @@ export default function AssignmentManager({
             const res = await swapAssignments(selectedAssignment, assignmentId)
             if (res?.error) showAlert(res.error, 'error')
             else {
-                setSelectedAssignment(null)
-                showAlert('Assignments swapped successfully', 'success')
-                router.refresh()
+                window.location.reload()
             }
         }
     }
@@ -313,15 +298,22 @@ export default function AssignmentManager({
             )}
 
             <div className="grid gap-6">
+                <AnimatePresence mode="popLayout">
                 {filteredShifts.map((shift) => {
                     const shiftConflicts = conflicts.get(shift.id)
                     const isUnfilled = unfilledShiftIds.has(shift.id)
 
                     return (
-                        <div key={shift.id} className={`rounded-3xl p-6 transition-all duration-300 ${shiftConflicts ? 'bg-yellow-50/50 border border-yellow-200 dark:bg-yellow-900/10 dark:border-yellow-800 shadow-lg shadow-yellow-500/5' :
+                        <motion.div
+                            layout
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            key={shift.id}
+                            className={`rounded-3xl p-6 transition-all duration-300 ${shiftConflicts ? 'bg-yellow-50/50 border border-yellow-200 dark:bg-yellow-900/10 dark:border-yellow-800 shadow-lg shadow-yellow-500/5' :
                             isUnfilled ? 'bg-orange-50/50 border border-orange-200 dark:bg-orange-900/10 dark:border-orange-800 shadow-lg shadow-orange-500/5' :
                                 'glass-panel hover:shadow-2xl hover:shadow-purple-500/15 dark:hover:shadow-purple-500/20'
-                            }`}>
+                            }`}
+                        >
                             {shiftConflicts && (
                                 <div className="mb-4 rounded-md bg-yellow-100 p-3 text-sm text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200">
                                     <p className="font-bold">⚠️ Scheduling Conflicts:</p>
@@ -371,27 +363,37 @@ export default function AssignmentManager({
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <select
-                                        className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200"
-                                        onChange={(e) => handleAssign(shift.id, e.target.value)}
-                                        value=""
-                                    >
-                                        <option value="">+ Add Volunteer</option>
-                                        {volunteers.map((v) => (
-                                            <option key={v.id} value={v.id}>
-                                                {v.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    {actionLoading === `assign-${shift.id}` ? (
+                                        <div className="h-4 w-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <select
+                                            disabled={!!actionLoading}
+                                            className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200 disabled:opacity-50"
+                                            onChange={(e) => handleAssign(shift.id, e.target.value)}
+                                            value=""
+                                        >
+                                            <option value="">+ Add Volunteer</option>
+                                            {volunteers.map((v) => (
+                                                <option key={v.id} value={v.id}>
+                                                    {v.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
                                 </div>
                             </div>
 
                             <div className="space-y-2">
+                                <AnimatePresence mode="popLayout">
                                 {shift.assignments?.map((assignment) => (
-                                    <div
+                                    <motion.div
+                                        layout
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
                                         key={assignment.id}
                                         className={`flex items-center justify-between rounded-md border p-3 transition-colors duration-200 ${selectedAssignment === assignment.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 ring-2 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'
-                                            }`}
+                                            } ${actionLoading === `unassign-${assignment.id}` ? 'opacity-50' : ''}`}
                                     >
                                         <span className="font-medium text-gray-900 dark:text-white">
                                             {assignment.volunteer?.name || 'Unknown Volunteer'}
@@ -404,21 +406,24 @@ export default function AssignmentManager({
                                                 {selectedAssignment === assignment.id ? 'Selected' : 'Swap'}
                                             </button>
                                             <button
+                                                disabled={!!actionLoading}
                                                 onClick={() => handleUnassign(assignment.id)}
-                                                className="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                                className="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50"
                                             >
-                                                Remove
+                                                {actionLoading === `unassign-${assignment.id}` ? '...' : 'Remove'}
                                             </button>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 ))}
+                                </AnimatePresence>
                                 {(!shift.assignments || shift.assignments.length === 0) && (
                                     <p className="text-sm text-gray-500 dark:text-gray-400 italic">No volunteers assigned.</p>
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
                     )
                 })}
+                </AnimatePresence>
                 {filteredShifts.length === 0 && (
                     <div className="premium-card p-12 text-center">
                         <div className="flex flex-col items-center gap-4 text-zinc-500 dark:text-zinc-400">

@@ -76,6 +76,7 @@ export function EventSidebar() {
 
             <div className="mt-auto pt-6 border-t border-zinc-200 dark:border-zinc-800">
                 <Link
+                    id="back-to-events-link"
                     href="/events"
                     className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-zinc-400 hover:text-indigo-600 transition-colors"
                 >

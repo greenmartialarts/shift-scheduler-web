@@ -204,7 +204,7 @@ export default function EventDashboard({
                 </header>
 
                 {/* Quick Stats Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div id="stats-grid" className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                     {[
                         { label: 'Fill Rate', value: `${Math.round(stats.fillRate)}%`, sub: `${stats.filledSlotsCount} / ${stats.totalSlots}`, color: stats.fillRate >= 80 ? 'text-green-500' : stats.fillRate >= 50 ? 'text-yellow-500' : 'text-red-500' },
                         { label: 'Volunteers', value: stats.totalVolunteersCount, sub: 'Registered members' },

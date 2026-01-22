@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { addGroup, deleteGroup, updateGroup } from './actions'
-import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
 
 type Group = {
@@ -46,7 +45,6 @@ const stringToColor = (str: string) => {
 export default function GroupManager({ eventId, groups, volunteers }: { eventId: string; groups: Group[]; volunteers: Volunteer[] }) {
     const [isAdding, setIsAdding] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
-    const router = useRouter()
     const { showAlert, showConfirm } = useNotification()
 
     // Form state
@@ -97,9 +95,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
         if (res?.error) {
             showAlert('Error saving group: ' + res.error, 'error')
         } else {
-            showAlert(`Group ${editingId ? 'updated' : 'created'} successfully`, 'success')
-            resetForm()
-            router.refresh()
+            window.location.reload()
         }
     }
 
@@ -115,8 +111,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
         if (res?.error) {
             showAlert('Error deleting group: ' + res.error, 'error')
         } else {
-            showAlert('Group deleted successfully', 'success')
-            router.refresh()
+            window.location.reload()
         }
     }
 
