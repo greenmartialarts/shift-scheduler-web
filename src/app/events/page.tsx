@@ -305,12 +305,12 @@ export default function EventsPage() {
                             <form
                                 onSubmit={async (e) => {
                                     e.preventDefault()
+                                    const form = e.currentTarget
                                     setActionLoading('create-event')
-                                    const formData = new FormData(e.currentTarget)
+                                    const formData = new FormData(form)
                                     await createEvent(formData)
                                     router.refresh()
                                     // Reset form
-                                    const form = e.currentTarget as HTMLFormElement
                                     form.reset()
                                     setActionLoading(null)
                                 }}
