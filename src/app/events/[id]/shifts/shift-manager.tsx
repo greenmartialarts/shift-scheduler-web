@@ -191,6 +191,7 @@ export default function ShiftManager({
                         <Trash2 className="w-5 h-5" />
                     </button>
                     <button
+                        id="import-shifts-btn"
                         onClick={() => setIsUploadModalOpen(true)}
                         className="flex items-center gap-2 px-5 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 text-zinc-600 dark:text-zinc-300 font-bold hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all shadow-sm"
                     >
@@ -215,6 +216,7 @@ export default function ShiftManager({
                         )}
                     </button>
                     <button
+                        id="add-shift-btn"
                         onClick={() => {
                             setIsAdding(!isAdding)
                             setIsRecurring(false)

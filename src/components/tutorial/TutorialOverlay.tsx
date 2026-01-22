@@ -30,8 +30,9 @@ const STEP_CONTENT: Record<TutorialStepId, { title: string, description: string,
     },
     'command-center': {
         title: "The Command Center",
-        description: "This is your Event Dashboard. It gives you a high-level overview of your operations.",
-        position: 'center'
+        description: "This is your Event Dashboard. It gives you a high-level overview of your operations, including fill rates and active personnel.",
+        targetId: 'stats-grid',
+        position: 'bottom'
     },
     'manage-access': {
         title: "Manage Access",
@@ -161,30 +162,34 @@ export function TutorialOverlay() {
             return
         }
 
-        const updateRect = () => {
+        const updateRect = (retries = 0) => {
             if (step.targetId) {
                 const element = document.getElementById(step.targetId)
                 if (element) {
                     setTargetRect(element.getBoundingClientRect())
                     // Scroll into view if needed
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                } else if (retries < 5) {
+                    // If element not found, retry a few times as some components might still be mounting/loading
+                    setTimeout(() => updateRect(retries + 1), 200)
                 } else {
-                    // If element not found, default to center for now or retry
-                    // For robustness, maybe we retry a few times
+                    setTargetRect(null)
                 }
             }
         }
 
+        const handleUpdate = () => updateRect()
+
         updateRect()
-        window.addEventListener('resize', updateRect)
-        window.addEventListener('scroll', updateRect)
+        window.addEventListener('resize', handleUpdate)
+        window.addEventListener('scroll', handleUpdate)
 
         // Small delay to allow UI to render
-        const timeout = setTimeout(updateRect, 500)
+        const timeout = setTimeout(handleUpdate, 500)
 
         return () => {
-            window.removeEventListener('resize', updateRect)
-            window.removeEventListener('scroll', updateRect)
+            window.removeEventListener('resize', handleUpdate)
+            window.removeEventListener('scroll', handleUpdate)
             clearTimeout(timeout)
         }
     }, [isActive, currentStepId])
