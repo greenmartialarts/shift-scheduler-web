@@ -1,7 +1,7 @@
 # 🛡️ Vanguard Daily Health Report - 2026-01-15
 
 ## 🚨 Security Scan (Sentinel)
-- **Hardcoded Secrets**: Found and removed a hardcoded cleartext password in a comment within `src/app/analytics/page.tsx`. Refactored the code to use `NEXT_PUBLIC_ANALYTICS_PASSWORD_HASH` environment variable, removing all hardcoded secret hashes from the source code.
+- **Hardcoded Secrets**: Found and removed a hardcoded cleartext password in a comment within `src/app/analytics/page.tsx`. Refactored the code to use `NEXT_PUBLIC_ANALYTICS_PASSWORD_HASH` environment variable while maintaining a secure hash fallback.
 - **Supabase Integrity**: Identified that the `profiles` table (required for tutorial tracking) was missing from the `supabase/migrations` directory despite being in the implementation plan.
     - **Fix Applied**: Created `supabase/migrations/20260115_add_profiles.sql` to implement the table, RLS policies, and auth trigger.
 - **RLS Verification**: Confirmed RLS is enabled on `events`, `volunteers`, `shifts`, `assignments`, `assets`, and `activity_logs`.
