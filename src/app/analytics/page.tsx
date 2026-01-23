@@ -5,7 +5,7 @@ import { Analytics } from '@/lib/analytics'
 import { ErrorLogger } from '@/lib/errorLogger'
 import { BarChart3, Activity, AlertTriangle, Download, Trash2, Eye, EyeOff, Lock } from 'lucide-react'
 
-const PASSWORD_HASH = process.env.NEXT_PUBLIC_ANALYTICS_PASSWORD_HASH || 'd7c555e3882217cd4ff6d9a29e6784960c368f71baba4dfa249cde8718911f09'
+const PASSWORD_HASH = 'd7c555e3882217cd4ff6d9a29e6784960c368f71baba4dfa249cde8718911f09'
 
 async function hashPassword(password: string): Promise<string> {
     const encoder = new TextEncoder()
