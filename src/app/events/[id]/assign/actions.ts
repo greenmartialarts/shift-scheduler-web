@@ -137,7 +137,7 @@ export async function autoAssign(eventId: string) {
         }
 
         const apiKey = process.env.SCHEDULER_API_KEY
-        const endpoint = 'https://shift-scheduler-api-3nxm.vercel.app/schedule/json'
+        const endpoint = 'https://shift-scheduler-api-3nxm.vercel.app/api/schedule'
 
         // FIX: Bypass SSL verification in development to resolve "unable to get local issuer certificate" errors
         if (process.env.NODE_ENV === 'development') {
@@ -155,13 +155,24 @@ export async function autoAssign(eventId: string) {
         })
 
         if (!response.ok) {
-            await response.json()
-            throw new Error(`API Error: ${response.statusText}`)
+            const errorText = await response.text()
+            console.error('API Error Response:', errorText)
+            throw new Error(`API Error: ${response.status} ${response.statusText}`)
         }
 
-        const result = await response.json()
+        let result
+        const responseText = await response.text()
+        try {
+            result = JSON.parse(responseText)
+        } catch {
+            console.error('Failed to parse API response as JSON:', responseText)
+            throw new Error('API returned invalid JSON response. See console for details.')
+        }
+
         const assignedShifts = result.assigned_shifts || {}
         const unfilledShifts = result.unfilled_shifts || []
+        const fairnessScore = result.fairness_score
+        const apiConflicts = result.conflicts || []
 
         // 4. Update Database
         // Delete existing assignments for this event
@@ -209,17 +220,17 @@ export async function autoAssign(eventId: string) {
         revalidatePath(`/events/${eventId}/assign`, 'page')
 
         // Return success with unfilled shift details if any
-        if (unfilledShifts.length > 0 || partiallyFilledShifts.length > 0) {
-            return {
-                success: true,
-                partial: true,
-                unfilled: unfilledShifts,
-                partiallyFilled: partiallyFilledShifts,
-                message: 'Partial assignment completed - some shifts could not be filled'
-            }
+        return {
+            success: true,
+            partial: (unfilledShifts.length > 0 || partiallyFilledShifts.length > 0),
+            unfilled: unfilledShifts,
+            partiallyFilled: partiallyFilledShifts,
+            fairnessScore,
+            conflicts: apiConflicts,
+            message: (unfilledShifts.length > 0 || partiallyFilledShifts.length > 0)
+                ? 'Partial assignment completed - some shifts could not be filled'
+                : 'Auto-assignment completed successfully'
         }
-
-        return { success: true, unfilled: [], partiallyFilled: [] }
 
     } catch (error) {
         console.error('Auto-assign error:', error)
