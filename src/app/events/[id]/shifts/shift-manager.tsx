@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Plus, Search, Upload, LayoutList, Calendar, Trash2 } from 'lucide-react'
 import { useNotification } from '@/components/ui/NotificationProvider'
 import { addShift, deleteShift, generateRecurringShifts, updateShift, deleteAllShifts, bulkAddShifts } from './actions'
@@ -50,6 +51,7 @@ export default function ShiftManager({
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
     const [uploading, setUploading] = useState(false)
 
+    const router = useRouter()
     const { showAlert, showConfirm } = useNotification()
 
     const filteredShifts = shifts.filter(s =>
@@ -63,7 +65,8 @@ export default function ShiftManager({
         if (res?.error) {
             showAlert('Error adding shift: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setIsAdding(false)
         }
     }
 
@@ -74,7 +77,8 @@ export default function ShiftManager({
         if (res?.error) {
             showAlert('Error generating shifts: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setIsRecurring(false)
         }
     }
 
@@ -85,7 +89,9 @@ export default function ShiftManager({
             setUploading(false)
             showAlert('Error uploading shifts: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setIsUploadModalOpen(false)
+            setUploading(false)
         }
     }
 
@@ -100,7 +106,7 @@ export default function ShiftManager({
         if (res?.error) {
             showAlert('Error deleting shift: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
         }
     }
 
@@ -109,7 +115,8 @@ export default function ShiftManager({
         if (res?.error) {
             showAlert('Error updating shift: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setEditingId(null)
         }
     }
 
@@ -125,7 +132,7 @@ export default function ShiftManager({
         if (res?.error) {
             showAlert('Error deleting all shifts: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
         }
     }
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Papa from 'papaparse'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import { addVolunteer, bulkAddVolunteers, deleteVolunteer, deleteAllVolunteers, updateVolunteer } from './actions'
 import { useNotification } from '@/components/ui/NotificationProvider'
 import { GroupBadge } from '@/components/ui/GroupBadge'
@@ -42,6 +43,7 @@ export default function VolunteerManager({
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
     const [previewData, setPreviewData] = useState<Array<Record<string, unknown>> | null>(null)
     const [actionLoading, setActionLoading] = useState<string | null>(null)
+    const router = useRouter()
     const { showAlert, showConfirm } = useNotification()
 
     useEffect(() => {
@@ -60,7 +62,9 @@ export default function VolunteerManager({
             setActionLoading(null)
             showAlert('Error adding volunteer: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setActionLoading(null)
+            setIsAdding(false)
         }
     }
 
@@ -158,7 +162,8 @@ export default function VolunteerManager({
             setActionLoading(null)
             showAlert('Error deleting volunteer: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setActionLoading(null)
         }
     }
 
@@ -167,7 +172,8 @@ export default function VolunteerManager({
         if (res?.error) {
             showAlert('Error updating volunteer: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setEditingId(null)
         }
     }
 
@@ -179,7 +185,10 @@ export default function VolunteerManager({
             setUploading(false)
             showAlert('Error uploading volunteers: ' + error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setIsUploadModalOpen(false)
+            setUploading(false)
+            setPreviewData(null)
         }
     }
 
@@ -195,7 +204,7 @@ export default function VolunteerManager({
         if (res?.error) {
             showAlert('Error deleting all volunteers: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
         }
     }
 

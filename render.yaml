@@ -10,3 +10,11 @@ services:
         sync: false
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
         sync: false
+      - key: SCHEDULER_API_KEY
+        sync: false
+      - key: SCHEDULER_API_URL
+        sync: false
+      - key: NEXT_PUBLIC_ANALYTICS_PASSWORD_HASH
+        sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false

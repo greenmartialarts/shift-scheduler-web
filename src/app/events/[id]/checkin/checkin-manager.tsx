@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { toggleCheckIn, dismissLateWarning, undismissLateWarning } from './actions'
+import { useRouter } from 'next/navigation'
 
 type Volunteer = {
     id: string
@@ -30,6 +31,7 @@ export default function CheckinManager({
     shifts: Shift[]
 }) {
     const [search, setSearch] = useState('')
+    const router = useRouter()
 
     // Helper to determine shift status
     const getShiftStatus = (shift: Shift) => {
@@ -85,17 +87,17 @@ export default function CheckinManager({
 
     async function handleCheckIn(assignmentId: string, checked: boolean) {
         await toggleCheckIn(assignmentId, checked)
-        window.location.reload()
+        router.refresh()
     }
 
     async function handleDismiss(assignmentId: string) {
         await dismissLateWarning(assignmentId)
-        window.location.reload()
+        router.refresh()
     }
 
     async function handleUndismiss(assignmentId: string) {
         await undismissLateWarning(assignmentId)
-        window.location.reload()
+        router.refresh()
     }
 
     return (

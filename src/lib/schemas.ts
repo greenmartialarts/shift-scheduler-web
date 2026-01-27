@@ -36,6 +36,13 @@ export const ShiftSchema = z.object({
     end_time: z.string().datetime('Invalid end time'),
     required_groups: z.string().optional(),
     allowed_groups: z.string().optional(),
+}).refine((data) => {
+    const start = new Date(data.start_time)
+    const end = new Date(data.end_time)
+    return end > start
+}, {
+    message: "End time must be after start time",
+    path: ["end_time"]
 })
 
 export type LoginInput = z.infer<typeof LoginSchema>

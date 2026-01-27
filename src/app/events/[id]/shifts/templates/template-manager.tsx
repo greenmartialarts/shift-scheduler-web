@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { addTemplate, deleteTemplate } from './actions'
 import { useNotification } from '@/components/ui/NotificationProvider'
+import { useRouter } from 'next/navigation'
 
 type Template = {
     id: string
@@ -16,13 +17,15 @@ type Template = {
 export default function TemplateManager({ templates }: { templates: Template[] }) {
     const [isAdding, setIsAdding] = useState(false)
     const { showAlert, showConfirm } = useNotification()
+    const router = useRouter()
 
     async function handleAdd(formData: FormData) {
         const res = await addTemplate(formData)
         if (res?.error) {
             showAlert('Error adding template: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setIsAdding(false)
         }
     }
 
@@ -38,7 +41,7 @@ export default function TemplateManager({ templates }: { templates: Template[] }
         if (res?.error) {
             showAlert('Error deleting template: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
         }
     }
 

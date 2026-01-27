@@ -54,7 +54,8 @@ export default function AccountSettingsPage() {
             })
 
             if (error) throw error
-            window.location.reload()
+            router.refresh()
+            showAlert('Profile updated successfully', 'success')
         } catch (error) {
             console.error('Error updating profile:', error)
             showAlert('Failed to update profile', 'error')

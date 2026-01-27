@@ -60,7 +60,7 @@ export default function AssignmentManager({
                     table: 'assignments'
                 },
                 () => {
-                    window.location.reload()
+                    router.refresh()
                 }
             )
             .subscribe()
@@ -194,7 +194,8 @@ export default function AssignmentManager({
             setLoading(false)
             showAlert('Error: ' + res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setLoading(false)
         }
     }
 
@@ -212,7 +213,8 @@ export default function AssignmentManager({
             setLoading(false)
             showAlert(res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setLoading(false)
         }
     }
 
@@ -224,7 +226,8 @@ export default function AssignmentManager({
             setActionLoading(null)
             showAlert(res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setActionLoading(null)
         }
     }
 
@@ -242,7 +245,8 @@ export default function AssignmentManager({
             setActionLoading(null)
             showAlert(res.error, 'error')
         } else {
-            window.location.reload()
+            router.refresh()
+            setActionLoading(null)
         }
     }
 
@@ -258,7 +262,8 @@ export default function AssignmentManager({
             const res = await swapAssignments(selectedAssignment, assignmentId)
             if (res?.error) showAlert(res.error, 'error')
             else {
-                window.location.reload()
+                router.refresh()
+                setSelectedAssignment(null)
             }
         }
     }

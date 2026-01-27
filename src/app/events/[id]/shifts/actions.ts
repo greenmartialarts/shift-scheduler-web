@@ -2,12 +2,26 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { ShiftSchema } from '@/lib/schemas'
 
 export async function addShift(eventId: string, formData: FormData) {
     const supabase = await createClient()
     const name = formData.get('name') as string
     const start = formData.get('start') as string
     const end = formData.get('end') as string
+
+    // Validate with Zod
+    const validated = ShiftSchema.safeParse({
+        name,
+        start_time: start,
+        end_time: end,
+        required_groups: formData.get('required_groups') as string,
+        allowed_groups: formData.get('allowed_groups') as string,
+    })
+
+    if (!validated.success) {
+        return { error: validated.error.issues[0].message }
+    }
 
     // Parse groups from form data (assuming simple text input for now, or handled in client)
     // For simplicity in the "barebones" version, we'll accept JSON strings or handle parsing in client before sending?
@@ -50,7 +64,9 @@ export async function addShift(eventId: string, formData: FormData) {
 export async function bulkAddShifts(eventId: string, shifts: Array<Record<string, unknown>>) {
     const supabase = await createClient()
 
-    const formattedShifts = shifts.map((s) => {
+    const formattedShifts = []
+
+    for (const s of shifts) {
         // Helper function to parse MM/DD/YYYY HH:MM AM/PM format
         const parseDateTime = (dateStr: string): string | null => {
             if (!dateStr) return null
@@ -116,7 +132,7 @@ export async function bulkAddShifts(eventId: string, shifts: Array<Record<string
             }
         }
 
-        return {
+        const shiftData = {
             event_id: eventId,
             name: name,
             start_time: startTime,
@@ -125,7 +141,24 @@ export async function bulkAddShifts(eventId: string, shifts: Array<Record<string
             allowed_groups: allowedGroups,
             excluded_groups: excludedGroups,
         }
-    })
+
+        // Basic validation for bulk import
+        if (!startTime || !endTime) {
+            console.error("Missing start or end time for shift:", name)
+            continue
+        }
+
+        if (new Date(endTime) <= new Date(startTime)) {
+            console.error("End time before start time for shift:", name)
+            continue
+        }
+
+        formattedShifts.push(shiftData)
+    }
+
+    if (formattedShifts.length === 0) {
+        return { error: 'No valid shifts found to import.' }
+    }
 
     const { error } = await supabase.from('shifts').insert(formattedShifts)
 
@@ -160,6 +193,20 @@ export async function updateShift(eventId: string, shiftId: string, formData: Fo
     const name = formData.get('name') as string
     const start = formData.get('start') as string
     const end = formData.get('end') as string
+
+    // Validate with Zod
+    const validated = ShiftSchema.safeParse({
+        name,
+        start_time: start,
+        end_time: end,
+        required_groups: formData.get('required_groups') as string,
+        allowed_groups: formData.get('allowed_groups') as string,
+    })
+
+    if (!validated.success) {
+        return { error: validated.error.issues[0].message }
+    }
+
     const requiredGroupsRaw = formData.get('required_groups') as string
     const allowedGroupsRaw = formData.get('allowed_groups') as string
     const excludedGroupsRaw = formData.get('excluded_groups') as string
