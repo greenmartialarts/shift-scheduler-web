@@ -23,10 +23,18 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Web Scheduler",
-  description: "Volunteer Scheduler Web Application",
+  title: "Volunteer Scheduler | Professional Event Management",
+  description: "High-performance volunteer scheduling and coordination platform for events of any size. Automate check-ins, shift assignments, and volunteer communication.",
+  keywords: ["volunteer scheduler", "event management", "shift coordination", "automated scheduling"],
+  authors: [{ name: "Volunteer Scheduler Team" }],
+  openGraph: {
+    title: "Volunteer Scheduler | Professional Event Management",
+    description: "The modern way to coordinate your volunteer team.",
+    type: "website",
+    siteName: "Volunteer Scheduler",
+  },
   appleWebApp: {
-    title: "Web Scheduler",
+    title: "Volunteer Scheduler",
   },
 };
 

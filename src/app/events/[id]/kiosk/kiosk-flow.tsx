@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { kioskCheckIn, kioskCheckOut, searchVolunteers } from './actions'
 import { Search, CheckCircle, Package, ArrowRight, LogOut, Loader2, Clock, ArrowLeftRight, ArrowLeft } from 'lucide-react'
 import { PremiumButton } from '@/components/ui/PremiumButton'
+import { useNotification } from '@/components/ui/NotificationProvider'
 
 
 // Debounce hook
@@ -60,6 +61,7 @@ export default function KioskFlow({
     eventId: string
     availableAssets: Asset[]
 }) {
+    const { showAlert } = useNotification()
     const [step, setStep] = useState<'search' | 'confirm' | 'assets' | 'transfer' | 'success'>('search')
     const [searchQuery, setSearchQuery] = useState('')
     const [searchResults, setSearchResults] = useState<Volunteer[]>([])
@@ -134,25 +136,30 @@ export default function KioskFlow({
     const completeAction = async () => {
         if (!selectedVolunteer || !actionType || !targetAssignmentId) return
 
-        if (actionType === 'checkin') {
-            await kioskCheckIn(
-                eventId,
-                selectedVolunteer.id,
-                targetAssignmentId,
-                selectedAssets,
-                previousAssignmentId || undefined,
-                transferAssets
-            )
+        try {
+            if (actionType === 'checkin') {
+                await kioskCheckIn(
+                    eventId,
+                    selectedVolunteer.id,
+                    targetAssignmentId,
+                    selectedAssets,
+                    previousAssignmentId || undefined,
+                    transferAssets
+                )
 
-            setMessage(`Checked In!`)
-        } else {
-            const assetIdsToReturn = selectedVolunteer.active_assets.map(aa => aa.asset.id)
-            await kioskCheckOut(eventId, selectedVolunteer.id, targetAssignmentId, assetIdsToReturn)
-            setMessage(`Checked Out!`)
+                setMessage(`Checked In!`)
+            } else {
+                const assetIdsToReturn = selectedVolunteer.active_assets.map(aa => aa.asset.id)
+                await kioskCheckOut(eventId, selectedVolunteer.id, targetAssignmentId, assetIdsToReturn)
+                setMessage(`Checked Out!`)
+            }
+
+            setStep('success')
+            setTimeout(reset, 3000)
+        } catch (error) {
+            console.error('Kiosk action failed:', error)
+            showAlert('An unexpected error occurred. Please try again.', 'error')
         }
-
-        setStep('success')
-        setTimeout(reset, 3000)
     }
 
     const reset = () => {

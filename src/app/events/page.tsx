@@ -2,7 +2,7 @@
 
 import { createEvent, deleteEvent, getUserInvitations, acceptInvitation, declineInvitation } from './actions'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -84,29 +84,30 @@ export default function EventsPage() {
         }
     }, [isActive, events, knownEventIds, loading, currentStepId, setTutorialEventId, goToStep, router])
 
-    useEffect(() => {
-        async function loadData() {
-            const supabase = createClient()
-            const { data: { user } } = await supabase.auth.getUser()
+    const loadData = useCallback(async () => {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
 
-            if (!user) {
-                router.push('/login')
-                return
-            }
-
-            setUser(user)
-            const { data: eventsData } = await supabase
-                .from('events')
-                .select('*')
-                .order('created_at', { ascending: false })
-            setEvents(eventsData || [])
-
-            const invites = await getUserInvitations()
-            setInvitations(invites as Invitation[])
-            setLoading(false)
+        if (!user) {
+            router.push('/login')
+            return
         }
-        loadData()
+
+        setUser(user)
+        const { data: eventsData } = await supabase
+            .from('events')
+            .select('*')
+            .order('created_at', { ascending: false })
+        setEvents(eventsData || [])
+
+        const invites = await getUserInvitations()
+        setInvitations(invites as Invitation[])
+        setLoading(false)
     }, [router])
+
+    useEffect(() => {
+        void loadData()
+    }, [loadData])
 
     if (loading) {
         return (
@@ -188,8 +189,12 @@ export default function EventsPage() {
                                                     disabled={!!actionLoading}
                                                     onClick={async () => {
                                                         setActionLoading(`accept-${invite.id}`)
-                                                        await acceptInvitation(invite.id)
-                                                        window.location.reload()
+                                                        try {
+                                                            await acceptInvitation(invite.id)
+                                                            await loadData()
+                                                        } finally {
+                                                            setActionLoading(null)
+                                                        }
                                                     }}
                                                     className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
                                                 >
@@ -199,8 +204,12 @@ export default function EventsPage() {
                                                     disabled={!!actionLoading}
                                                     onClick={async () => {
                                                         setActionLoading(`decline-${invite.id}`)
-                                                        await declineInvitation(invite.id)
-                                                        window.location.reload()
+                                                        try {
+                                                            await declineInvitation(invite.id)
+                                                            await loadData()
+                                                        } finally {
+                                                            setActionLoading(null)
+                                                        }
                                                     }}
                                                     className="rounded-md border border-zinc-200 dark:border-zinc-800 px-3 py-1.5 text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50"
                                                 >
@@ -230,68 +239,72 @@ export default function EventsPage() {
                                             onClick={() => router.push(`/events/${event.id}`)}
                                             className="premium-card p-5 flex items-center justify-between group cursor-pointer hover:border-blue-500/50 transition-all hover:shadow-md"
                                         >
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3">
-                                                <Link
-                                                    href={`/events/${event.id}`}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    className="text-xl font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
-                                                >
-                                                    {event.name}
-                                                </Link>
-                                                {!isOwner && (
-                                                    <span className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 border border-zinc-200 dark:border-zinc-700">
-                                                        Admin
-                                                    </span>
-                                                )}
-                                            </div>
-                                            <div className="mt-1 flex items-center gap-3 text-sm font-medium text-zinc-500">
-                                                <span>Created {new Date(event.created_at).toLocaleDateString()}</span>
-                                                <div className="h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-                                                <Link
-                                                    href={`/events/${event.id}/share`}
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    className="hover:text-blue-600 transition-colors"
-                                                >
-                                                    Manage Access
-                                                </Link>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            {isOwner ? (
-                                                <button
-                                                    id={index === 0 ? "delete-event-btn" : undefined}
-                                                    disabled={actionLoading === `delete-${event.id}`}
-                                                    onClick={async (e) => {
-                                                        e.stopPropagation()
-                                                        const confirmed = await showConfirm({
-                                                            title: 'Delete Event',
-                                                            message: `Are you sure you want to delete "${event.name}"? This action cannot be undone and will remove all associated shifts and volunteers.`,
-                                                            confirmText: 'Delete Event',
-                                                            type: 'danger'
-                                                        })
-                                                        if (!confirmed) return
-
-                                                        setActionLoading(`delete-${event.id}`)
-                                                        const formData = new FormData()
-                                                        formData.append('id', event.id)
-                                                        await deleteEvent(formData)
-                                                        window.location.reload()
-                                                    }}
-                                                    className="h-9 w-9 flex items-center justify-center rounded-md bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors border border-transparent hover:border-red-200 disabled:opacity-50"
-                                                    title="Delete Event"
-                                                >
-                                                    {actionLoading === `delete-${event.id}` ? (
-                                                        <div className="h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                                                    ) : (
-                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                        </svg>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-3">
+                                                    <Link
+                                                        href={`/events/${event.id}`}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="text-xl font-bold text-zinc-900 dark:text-zinc-50 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                                                    >
+                                                        {event.name}
+                                                    </Link>
+                                                    {!isOwner && (
+                                                        <span className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 border border-zinc-200 dark:border-zinc-700">
+                                                            Admin
+                                                        </span>
                                                     )}
-                                                </button>
-                                            ) : (
-                                                <span className="text-xs text-zinc-500 italic">Shared</span>
-                                            )}
+                                                </div>
+                                                <div className="mt-1 flex items-center gap-3 text-sm font-medium text-zinc-500">
+                                                    <span>Created {new Date(event.created_at).toLocaleDateString()}</span>
+                                                    <div className="h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
+                                                    <Link
+                                                        href={`/events/${event.id}/share`}
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="hover:text-blue-600 transition-colors"
+                                                    >
+                                                        Manage Access
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {isOwner ? (
+                                                    <button
+                                                        id={index === 0 ? "delete-event-btn" : undefined}
+                                                        disabled={actionLoading === `delete-${event.id}`}
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation()
+                                                            const confirmed = await showConfirm({
+                                                                title: 'Delete Event',
+                                                                message: `Are you sure you want to delete "${event.name}"? This action cannot be undone and will remove all associated shifts and volunteers.`,
+                                                                confirmText: 'Delete Event',
+                                                                type: 'danger'
+                                                            })
+                                                            if (!confirmed) return
+
+                                                            setActionLoading(`delete-${event.id}`)
+                                                            try {
+                                                                const formData = new FormData()
+                                                                formData.append('id', event.id)
+                                                                await deleteEvent(formData)
+                                                                await loadData()
+                                                            } finally {
+                                                                setActionLoading(null)
+                                                            }
+                                                        }}
+                                                        className="h-9 w-9 flex items-center justify-center rounded-md bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 transition-colors border border-transparent hover:border-red-200 disabled:opacity-50"
+                                                        title="Delete Event"
+                                                    >
+                                                        {actionLoading === `delete-${event.id}` ? (
+                                                            <div className="h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                                                        ) : (
+                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                            </svg>
+                                                        )}
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-xs text-zinc-500 italic">Shared</span>
+                                                )}
                                             </div>
                                         </motion.div>
                                     )
@@ -314,9 +327,14 @@ export default function EventsPage() {
                                     e.preventDefault()
                                     const form = e.currentTarget
                                     setActionLoading('create-event')
-                                    const formData = new FormData(form)
-                                    await createEvent(formData)
-                                    window.location.reload()
+                                    try {
+                                        const formData = new FormData(form)
+                                        await createEvent(formData)
+                                        await loadData()
+                                        form.reset()
+                                    } finally {
+                                        setActionLoading(null)
+                                    }
                                 }}
                                 className="space-y-3"
                             >

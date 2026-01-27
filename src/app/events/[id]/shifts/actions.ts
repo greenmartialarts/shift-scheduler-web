@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { ShiftSchema } from '@/lib/schemas'
 
 export async function addShift(eventId: string, formData: FormData) {
     const supabase = await createClient()
@@ -51,14 +52,30 @@ export async function bulkAddShifts(eventId: string, shifts: Array<Record<string
     const supabase = await createClient()
 
     const formattedShifts = shifts.map((s) => {
-        // Helper function to parse MM/DD/YYYY HH:MM AM/PM format
+        // Helper function to parse MM/DD/YYYY HH:MM AM/PM format reliably
         const parseDateTime = (dateStr: string): string | null => {
             if (!dateStr) return null
             try {
-                // Parse "12/01/2025 08:00 AM" format
-                const date = new Date(dateStr)
-                if (isNaN(date.getTime())) return null
-                return date.toISOString()
+                // Try ISO first
+                const isoDate = new Date(dateStr)
+                if (!isNaN(isoDate.getTime()) && dateStr.includes('-')) return isoDate.toISOString()
+
+                // Manual parse for "12/01/2025 08:00 AM" format
+                const regex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s+(AM|PM)$/i
+                const match = dateStr.trim().match(regex)
+
+                if (match) {
+                    const [, m, d, y, h, min, ampm] = match
+                    let hour = parseInt(h)
+                    if (ampm.toUpperCase() === 'PM' && hour < 12) hour += 12
+                    if (ampm.toUpperCase() === 'AM' && hour === 12) hour = 0
+                    const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d), hour, parseInt(min))
+                    return isNaN(date.getTime()) ? null : date.toISOString()
+                }
+
+                // Fallback to native for other formats
+                const fallbackDate = new Date(dateStr)
+                return isNaN(fallbackDate.getTime()) ? null : fallbackDate.toISOString()
             } catch {
                 console.error("Error parsing date:", dateStr)
                 return null
@@ -116,16 +133,29 @@ export async function bulkAddShifts(eventId: string, shifts: Array<Record<string
             }
         }
 
-        return {
-            event_id: eventId,
-            name: name,
+        // Validate with ShiftSchema
+        const validation = ShiftSchema.safeParse({
+            name: name?.toString() || 'Shift',
             start_time: startTime,
             end_time: endTime,
+            required_groups: typeof requiredGroups === 'string' ? requiredGroups : JSON.stringify(requiredGroups),
+        })
+
+        if (!validation.success) {
+            console.error("Validation failed for shift:", name, validation.error.issues[0].message)
+            return null // Filtered out below
+        }
+
+        return {
+            event_id: eventId,
+            name: validation.data.name,
+            start_time: validation.data.start_time,
+            end_time: validation.data.end_time,
             required_groups: requiredGroups,
             allowed_groups: allowedGroups,
             excluded_groups: excludedGroups,
         }
-    })
+    }).filter((s): s is NonNullable<typeof s> => s !== null)
 
     const { error } = await supabase.from('shifts').insert(formattedShifts)
 
@@ -253,6 +283,12 @@ export async function generateRecurringShifts(eventId: string, formData: FormDat
             // Avoid timezone issues by using ISO string slices
             const startISO = new Date(shiftStart.getTime() - shiftStart.getTimezoneOffset() * 60000).toISOString()
             const endISO = new Date(shiftEnd.getTime() - shiftEnd.getTimezoneOffset() * 60000).toISOString()
+
+            // Validate time ordering
+            if (new Date(endISO) <= new Date(startISO)) {
+                console.error("End time before start time for recurring shift on date:", d.toISOString())
+                continue
+            }
 
             shiftsToCreate.push({
                 event_id: eventId,

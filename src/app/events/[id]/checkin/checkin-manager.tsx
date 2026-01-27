@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useNotification } from '@/components/ui/NotificationProvider'
 import { toggleCheckIn, dismissLateWarning, undismissLateWarning } from './actions'
 
 type Volunteer = {
@@ -29,6 +31,8 @@ export default function CheckinManager({
 }: {
     shifts: Shift[]
 }) {
+    const router = useRouter()
+    const { showAlert } = useNotification()
     const [search, setSearch] = useState('')
 
     // Helper to determine shift status
@@ -84,18 +88,30 @@ export default function CheckinManager({
     })
 
     async function handleCheckIn(assignmentId: string, checked: boolean) {
-        await toggleCheckIn(assignmentId, checked)
-        window.location.reload()
+        const res = await toggleCheckIn(assignmentId, checked)
+        if (res?.error) {
+            showAlert(res.error, 'error')
+            return
+        }
+        router.refresh()
     }
 
     async function handleDismiss(assignmentId: string) {
-        await dismissLateWarning(assignmentId)
-        window.location.reload()
+        const res = await dismissLateWarning(assignmentId)
+        if (res?.error) {
+            showAlert(res.error, 'error')
+            return
+        }
+        router.refresh()
     }
 
     async function handleUndismiss(assignmentId: string) {
-        await undismissLateWarning(assignmentId)
-        window.location.reload()
+        const res = await undismissLateWarning(assignmentId)
+        if (res?.error) {
+            showAlert(res.error, 'error')
+            return
+        }
+        router.refresh()
     }
 
     return (
