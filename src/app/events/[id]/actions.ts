@@ -159,3 +159,45 @@ export async function cloneEvent(
     revalidatePath('/events')
     return { success: true, newEventId }
 }
+
+export async function generateNextOccurrence(eventId: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Not authenticated' }
+
+    const { data: event } = await supabase
+        .from('events')
+        .select('id, name, date, recurrence_rule')
+        .eq('id', eventId)
+        .single()
+
+    if (!event || !event.recurrence_rule) {
+        return { error: 'Set a recurrence rule in Event Settings first (e.g. Weekly, Biweekly, Monthly).' }
+    }
+
+    const baseDate = event.date ? new Date(event.date) : new Date()
+    const nextDate = new Date(baseDate)
+    switch (String(event.recurrence_rule).toUpperCase()) {
+        case 'WEEKLY':
+            nextDate.setDate(nextDate.getDate() + 7)
+            break
+        case 'BIWEEKLY':
+            nextDate.setDate(nextDate.getDate() + 14)
+            break
+        case 'MONTHLY':
+            nextDate.setMonth(nextDate.getMonth() + 1)
+            break
+        default:
+            nextDate.setDate(nextDate.getDate() + 7)
+    }
+
+    const offsetDays = Math.round((nextDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24))
+    const formData = new FormData()
+    formData.set('name', `${event.name} – ${nextDate.toLocaleDateString()}`)
+    formData.set('date', nextDate.toISOString().slice(0, 10))
+    formData.set('copyShifts', 'on')
+    formData.set('copyVolunteers', 'on')
+    formData.set('offsetDays', String(offsetDays))
+
+    return cloneEvent(eventId, formData)
+}

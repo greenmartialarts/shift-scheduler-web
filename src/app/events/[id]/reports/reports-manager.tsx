@@ -107,6 +107,93 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
         document.body.removeChild(link)
     }
 
+    // iCal format: date in UTC as YYYYMMDDTHHmmssZ
+    const toIcalDate = (d: Date) => {
+        const pad = (n: number) => n.toString().padStart(2, '0')
+        const y = d.getUTCFullYear()
+        const m = pad(d.getUTCMonth() + 1)
+        const day = pad(d.getUTCDate())
+        const h = pad(d.getUTCHours())
+        const min = pad(d.getUTCMinutes())
+        const s = pad(d.getUTCSeconds())
+        return `${y}${m}${day}T${h}${min}${s}Z`
+    }
+
+    const escapeIcal = (s: string) => s.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n')
+
+    const exportEventIcal = () => {
+        const lines: string[] = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//Volunteer Scheduler//EN',
+            'CALSCALE:GREGORIAN',
+        ]
+        shifts.forEach((shift) => {
+            if (!shift.assignments?.length) return
+            shift.assignments.forEach((a, i) => {
+                const start = new Date(shift.start_time)
+                const end = new Date(shift.end_time)
+                const summary = `${shift.name || 'Shift'} - ${a.volunteer?.name || 'Volunteer'}`
+                const uid = `assign-${shift.id}-${a.volunteer_id}-${i}@scheduler`
+                lines.push(
+                    'BEGIN:VEVENT',
+                    `UID:${uid}`,
+                    `DTSTAMP:${toIcalDate(new Date())}`,
+                    `DTSTART:${toIcalDate(start)}`,
+                    `DTEND:${toIcalDate(end)}`,
+                    `SUMMARY:${escapeIcal(summary)}`,
+                    `DESCRIPTION:${escapeIcal(eventName)}`,
+                    'END:VEVENT'
+                )
+            })
+        })
+        lines.push('END:VCALENDAR')
+        const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `${eventName.replace(/\s+/g, '_')}_schedule.ics`
+        link.click()
+        URL.revokeObjectURL(url)
+    }
+
+    const exportVolunteerIcal = (volId: string) => {
+        const vol = volunteerStats.find(v => v.id === volId)
+        if (!vol) return
+        const lines: string[] = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//Volunteer Scheduler//EN',
+            'CALSCALE:GREGORIAN',
+        ]
+        shifts.forEach((shift) => {
+            const a = shift.assignments?.find(as => as.volunteer_id === volId)
+            if (!a) return
+            const start = new Date(shift.start_time)
+            const end = new Date(shift.end_time)
+            const summary = shift.name || 'Shift'
+            const uid = `assign-${shift.id}-${volId}@scheduler`
+            lines.push(
+                'BEGIN:VEVENT',
+                `UID:${uid}`,
+                `DTSTAMP:${toIcalDate(new Date())}`,
+                `DTSTART:${toIcalDate(start)}`,
+                `DTEND:${toIcalDate(end)}`,
+                `SUMMARY:${escapeIcal(summary)}`,
+                `DESCRIPTION:${escapeIcal(eventName)} - ${escapeIcal(vol.name)}`,
+                'END:VEVENT'
+            )
+        })
+        lines.push('END:VCALENDAR')
+        const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `${eventName.replace(/\s+/g, '_')}_${vol.name.replace(/\s+/g, '_')}_schedule.ics`
+        link.click()
+        URL.revokeObjectURL(url)
+    }
+
     const exportStatsCSV = () => {
         const rows = [['Name', 'Group', 'Total Hours', 'Shifts Completed', 'Late/Absent']]
 
@@ -319,6 +406,19 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
                                     Download PDF
                                 </button>
                             </div>
+
+                            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Calendar (iCal / Google Calendar)</h3>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                    Export assigned shifts as an iCal file. Open in Apple Calendar, Google Calendar, or Outlook.
+                                </p>
+                                <button
+                                    onClick={exportEventIcal}
+                                    className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                >
+                                    Download iCal
+                                </button>
+                            </div>
                         </div>
 
                         <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-700/50">
@@ -365,12 +465,18 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
                                                 <span className="text-green-600 dark:text-green-400">0</span>
                                             )}
                                         </td>
-                                        <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                        <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3">
                                             <button
                                                 onClick={() => generateVolunteerPDF(vol.id)}
                                                 className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
                                             >
-                                                Download PDF
+                                                PDF
+                                            </button>
+                                            <button
+                                                onClick={() => exportVolunteerIcal(vol.id)}
+                                                className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                            >
+                                                iCal
                                             </button>
                                         </td>
                                     </tr>

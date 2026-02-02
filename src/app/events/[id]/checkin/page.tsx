@@ -39,7 +39,7 @@ export default async function CheckinPage({ params }: { params: Promise<{ id: st
                         Real-time attendance tracking and personnel management
                     </p>
                 </div>
-                <CheckinManager shifts={shifts || []} />
+                <CheckinManager eventId={id} shifts={shifts || []} />
             </div>
         </div>
     )

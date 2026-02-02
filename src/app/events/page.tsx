@@ -18,6 +18,7 @@ interface Event {
     name: string
     user_id: string
     created_at: string
+    date?: string | null
 }
 
 interface Invitation {
@@ -34,6 +35,8 @@ export default function EventsPage() {
     const [invitations, setInvitations] = useState<Invitation[]>([])
     const [loading, setLoading] = useState(true)
     const [actionLoading, setActionLoading] = useState<string | null>(null)
+    const [dateFrom, setDateFrom] = useState<string>('')
+    const [dateTo, setDateTo] = useState<string>('')
     const router = useRouter()
     const { setTutorialEventId, currentStepId, knownEventIds, setKnownEventIds, goToStep, isActive } = useTutorial()
     const { showConfirm } = useNotification()
@@ -127,11 +130,49 @@ export default function EventsPage() {
         )
     }
 
+    const filteredEvents = events.filter((e) => {
+        if (!dateFrom && !dateTo) return true
+        const d = e.date ? new Date(e.date).getTime() : null
+        if (d == null) return true
+        if (dateFrom && d < new Date(dateFrom).getTime()) return false
+        if (dateTo && d > new Date(dateTo + 'T23:59:59').getTime()) return false
+        return true
+    })
+
     if (!user) return null
 
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 p-4 md:p-8 selection:bg-indigo-100 dark:selection:bg-indigo-900/40">
             <div className="mx-auto max-w-5xl">
+                <div className="mb-6 flex flex-wrap items-center gap-4">
+                    <label className="flex items-center gap-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                        <span>From</span>
+                        <input
+                            type="date"
+                            value={dateFrom}
+                            onChange={(e) => setDateFrom(e.target.value)}
+                            className="rounded-md border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-2 py-1.5 text-sm"
+                        />
+                    </label>
+                    <label className="flex items-center gap-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                        <span>To</span>
+                        <input
+                            type="date"
+                            value={dateTo}
+                            onChange={(e) => setDateTo(e.target.value)}
+                            className="rounded-md border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-900 px-2 py-1.5 text-sm"
+                        />
+                    </label>
+                    {(dateFrom || dateTo) && (
+                        <button
+                            type="button"
+                            onClick={() => { setDateFrom(''); setDateTo('') }}
+                            className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+                        >
+                            Clear filter
+                        </button>
+                    )}
+                </div>
                 <header className="mb-8 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
@@ -226,7 +267,7 @@ export default function EventsPage() {
                         <div className="grid gap-3">
                             <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50 ml-1">Your Events</h2>
                             <AnimatePresence mode="popLayout">
-                                {events?.map((event, index) => {
+                                {filteredEvents?.map((event, index) => {
                                     const isOwner = event.user_id === user.id
                                     return (
                                         <motion.div
@@ -310,7 +351,7 @@ export default function EventsPage() {
                                     )
                                 })}
                             </AnimatePresence>
-                            {events?.length === 0 && (
+                            {filteredEvents?.length === 0 && (
                                 <div className="premium-card p-12 text-center border-dashed">
                                     <p className="text-zinc-500 dark:text-zinc-400 font-medium italic">No events found. Let&apos;s create your first coordination hub.</p>
                                 </div>

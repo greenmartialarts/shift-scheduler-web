@@ -27,8 +27,10 @@ type Shift = {
 }
 
 export default function CheckinManager({
+    eventId,
     shifts,
 }: {
+    eventId: string
     shifts: Shift[]
 }) {
     const router = useRouter()
@@ -88,7 +90,7 @@ export default function CheckinManager({
     })
 
     async function handleCheckIn(assignmentId: string, checked: boolean) {
-        const res = await toggleCheckIn(assignmentId, checked)
+        const res = await toggleCheckIn(assignmentId, checked, eventId)
         if (res?.error) {
             showAlert(res.error, 'error')
             return
@@ -97,7 +99,7 @@ export default function CheckinManager({
     }
 
     async function handleDismiss(assignmentId: string) {
-        const res = await dismissLateWarning(assignmentId)
+        const res = await dismissLateWarning(assignmentId, eventId)
         if (res?.error) {
             showAlert(res.error, 'error')
             return
@@ -106,7 +108,7 @@ export default function CheckinManager({
     }
 
     async function handleUndismiss(assignmentId: string) {
-        const res = await undismissLateWarning(assignmentId)
+        const res = await undismissLateWarning(assignmentId, eventId)
         if (res?.error) {
             showAlert(res.error, 'error')
             return

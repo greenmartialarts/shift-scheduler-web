@@ -58,6 +58,7 @@ export async function updateEventSettings(formData: FormData) {
     const id = formData.get('id') as string
     const name = formData.get('name') as string
     const timezone = formData.get('timezone') as string
+    const recurrence_rule = (formData.get('recurrence_rule') as string) || null
 
     // Verify admin access
     const { data: { user } } = await supabase.auth.getUser()
@@ -75,7 +76,7 @@ export async function updateEventSettings(formData: FormData) {
 
     const { error } = await supabase
         .from('events')
-        .update({ name, timezone })
+        .update({ name, timezone, recurrence_rule })
         .eq('id', id)
 
     if (error) {

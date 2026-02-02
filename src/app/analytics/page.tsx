@@ -3,17 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Analytics } from '@/lib/analytics'
 import { ErrorLogger } from '@/lib/errorLogger'
+import { verifyAnalyticsPassword } from './actions'
 import { BarChart3, Activity, AlertTriangle, Download, Trash2, Eye, EyeOff, Lock } from 'lucide-react'
-
-const PASSWORD_HASH = 'd7c555e3882217cd4ff6d9a29e6784960c368f71baba4dfa249cde8718911f09'
-
-async function hashPassword(password: string): Promise<string> {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(password)
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-    const hashArray = Array.from(new Uint8Array(hashBuffer))
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-}
 
 export default function AnalyticsPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -46,13 +37,13 @@ export default function AnalyticsPage() {
         e.preventDefault()
         setError('')
 
-        const hash = await hashPassword(password)
-        if (hash === PASSWORD_HASH) {
+        const result = await verifyAnalyticsPassword(password)
+        if (result.success) {
             setIsAuthenticated(true)
             sessionStorage.setItem('analytics_auth', 'true')
             loadData()
         } else {
-            setError('Incorrect password')
+            setError(result.error || 'Incorrect password')
             setPassword('')
         }
     }

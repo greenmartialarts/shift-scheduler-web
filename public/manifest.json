@@ -1,7 +1,16 @@
 {
-  "name": "WebScheduler",
-  "short_name": "Schedule",
+  "name": "Volunteer Scheduler",
+  "short_name": "Scheduler",
+  "description": "Manage volunteer shifts, check-in, and assignments. Kiosk and tablet friendly.",
+  "start_url": "/",
+  "scope": "/",
   "icons": [
+    {
+      "src": "/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/web-app-manifest-192x192.png",
       "sizes": "192x192",
@@ -12,10 +21,26 @@
       "src": "/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#ffffff",
+  "theme_color": "#4f46e5",
   "background_color": "#ffffff",
-  "display": "standalone"
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "categories": [
+    "productivity",
+    "business"
+  ]
 }

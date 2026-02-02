@@ -1,3 +1,7 @@
+-- LEGACY SNAPSHOT: This file is a minimal/base schema for reference only.
+-- The source of truth is supabase/migrations/. Run migrations in order to set up
+-- the full schema (e.g. volunteers.email, volunteers.phone, activity_logs, assets, etc.).
+
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
 

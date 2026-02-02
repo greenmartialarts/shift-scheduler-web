@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { assignVolunteer, unassignVolunteer, autoAssign, swapAssignments, clearAssignments } from './actions'
+import { assignVolunteer, unassignVolunteer, autoAssign, swapAssignments, clearAssignments, unfillShift, fillShiftFromGroup } from './actions'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/components/ui/NotificationProvider'
 import { useEffect } from 'react'
@@ -14,6 +14,7 @@ export type Volunteer = {
     id: string
     name: string
     group: string | null
+    max_hours?: number | null
 }
 
 export type Assignment = {
@@ -114,7 +115,7 @@ export default function AssignmentManager({
                     const vol = volunteers.find(v => v.id === volunteerId)
                     const volName = vol ? vol.name : 'Volunteer'
 
-                    const msg = `Conflict: ${volName} is double-booked.`
+                    const msg = `Overlap: ${volName} is double-booked (overlapping shifts).`
 
                     const existingA = conflicts.get(a.shiftId) || []
                     if (!existingA.includes(msg)) conflicts.set(a.shiftId, [...existingA, msg])
@@ -124,6 +125,28 @@ export default function AssignmentManager({
                 }
             }
         }
+    })
+
+    // 3. Check max hours exceeded per volunteer
+    const volunteerHours = new Map<string, number>()
+    shifts.forEach(shift => {
+        const start = new Date(shift.start_time).getTime()
+        const end = new Date(shift.end_time).getTime()
+        const hours = (end - start) / (1000 * 60 * 60)
+        shift.assignments?.forEach(a => {
+            if (a.volunteer_id) {
+                volunteerHours.set(a.volunteer_id, (volunteerHours.get(a.volunteer_id) || 0) + hours)
+            }
+        })
+    })
+    volunteerHours.forEach((totalHours, volunteerId) => {
+        const vol = volunteers.find(v => v.id === volunteerId)
+        if (!vol || vol.max_hours == null || totalHours <= vol.max_hours) return
+        const msg = `Max hours: ${vol.name} exceeds limit (${totalHours.toFixed(1)} / ${vol.max_hours} hrs).`
+        volunteerAssignments.get(volunteerId)?.forEach(({ shiftId }) => {
+            const existing = conflicts.get(shiftId) || []
+            if (!existing.includes(msg)) conflicts.set(shiftId, [...existing, msg])
+        })
     })
 
     // --- Unfilled Detection Logic ---
@@ -169,6 +192,8 @@ export default function AssignmentManager({
             }
         }
     })
+
+    const groups = Array.from(new Set(volunteers.map((v) => v.group).filter(Boolean))) as string[]
 
     const filteredShifts = uniqueShifts.filter((s) => {
         const start = new Date(s.start_time).toLocaleString()
@@ -515,7 +540,49 @@ export default function AssignmentManager({
                                             })()}
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        {groups.length > 0 && (
+                                            <select
+                                                disabled={!!actionLoading}
+                                                className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200 disabled:opacity-50"
+                                                value=""
+                                                onChange={async (e) => {
+                                                    const group = e.target.value
+                                                    if (!group) return
+                                                    e.target.value = ''
+                                                    setActionLoading(`fill-${shift.id}`)
+                                                    const res = await fillShiftFromGroup(shift.id, group, eventId)
+                                                    setActionLoading(null)
+                                                    if (res?.error) showAlert(res.error, 'error')
+                                                    else if (res?.message) showAlert(res.message, res.assigned ? 'success' : 'warning')
+                                                    lastManualUpdateRef.current = Date.now()
+                                                    router.refresh()
+                                                }}
+                                            >
+                                                <option value="">Fill from group</option>
+                                                {groups.map((g) => (
+                                                    <option key={g} value={g}>{g}</option>
+                                                ))}
+                                            </select>
+                                        )}
+                                        {(shift.assignments?.length ?? 0) > 0 && (
+                                            <button
+                                                type="button"
+                                                disabled={!!actionLoading}
+                                                className="rounded-md border border-red-200 dark:border-red-800 px-2 py-1 text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
+                                                onClick={async () => {
+                                                    const ok = await showConfirm({ title: 'Unfill shift', message: 'Remove all volunteers from this shift?', confirmText: 'Unfill', type: 'danger' })
+                                                    if (!ok) return
+                                                    setActionLoading(`unfill-${shift.id}`)
+                                                    const res = await unfillShift(shift.id)
+                                                    setActionLoading(null)
+                                                    if (res?.error) showAlert(res.error, 'error')
+                                                    else { lastManualUpdateRef.current = Date.now(); router.refresh(); showAlert('Shift unfilled', 'success') }
+                                                }}
+                                            >
+                                                Unfill shift
+                                            </button>
+                                        )}
                                         {actionLoading === `assign-${shift.id}` ? (
                                             <div className="h-4 w-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                                         ) : (

@@ -11,10 +11,10 @@ import {
     FileBarChart,
     Zap,
     ChevronLeft,
-    Package
+    Package,
+    ClipboardList
 } from 'lucide-react'
 import { motion } from 'framer-motion'
-
 export function EventSidebar() {
     const params = useParams()
     const pathname = usePathname()
@@ -29,6 +29,7 @@ export function EventSidebar() {
         { name: 'Assignments', icon: Zap, href: `/events/${id}/assign` },
         { name: 'Check-in', icon: UserCheck, href: `/events/${id}/checkin` },
         { name: 'Reports', icon: FileBarChart, href: `/events/${id}/reports` },
+        { name: 'Audit Log', icon: ClipboardList, href: `/events/${id}/audit` },
         { name: 'Settings', icon: Settings, href: `/events/${id}/share` },
     ]
 

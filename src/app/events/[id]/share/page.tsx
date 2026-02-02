@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { inviteAdmin, removeAdmin, revokeInvitation, getEventAdmins, getPendingInvitations } from './actions'
 import { updateEventSettings } from '../../actions'
 import { redirect } from 'next/navigation'
+import { GenerateNextOccurrenceButton } from './GenerateNextOccurrenceButton'
 
 interface Admin {
     user_id: string;
@@ -111,6 +112,22 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                                     ))}
                                 </select>
                             </div>
+                            <div className="space-y-2">
+                                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                                    Recurrence (for series)
+                                </label>
+                                <select
+                                    name="recurrence_rule"
+                                    defaultValue={(event as { recurrence_rule?: string }).recurrence_rule || ''}
+                                    className="w-full rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all font-medium"
+                                >
+                                    <option value="">None</option>
+                                    <option value="WEEKLY">Weekly</option>
+                                    <option value="BIWEEKLY">Biweekly</option>
+                                    <option value="MONTHLY">Monthly</option>
+                                </select>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400">Use &quot;Generate next occurrence&quot; below to create the next event in the series.</p>
+                            </div>
                             <div className="md:col-span-2 flex justify-end">
                                 <button
                                     type="submit"
@@ -121,6 +138,16 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                             </div>
                         </form>
                     </div>
+
+                    {(event as { recurrence_rule?: string }).recurrence_rule && (
+                        <div className="premium-card p-6">
+                            <h2 className="mb-2 text-lg font-bold text-zinc-900 dark:text-zinc-50">Recurring series</h2>
+                            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
+                                Create the next event in the series (same shifts and volunteers, new date).
+                            </p>
+                            <GenerateNextOccurrenceButton eventId={eventId} />
+                        </div>
+                    )}
 
                     <div className="grid gap-6 md:grid-cols-2">
                         {/* Invite Section */}
