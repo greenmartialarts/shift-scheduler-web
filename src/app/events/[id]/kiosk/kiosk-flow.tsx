@@ -194,8 +194,8 @@ export default function KioskFlow({
             return (
                 <div className="flex h-full flex-col items-center justify-center p-12 text-center">
                     <div className="glass-panel p-12 rounded-[3.5rem] max-w-2xl w-full shadow-2xl">
-                        <div className="bg-indigo-500/10 p-6 rounded-full w-fit mx-auto mb-8">
-                            <ArrowLeftRight className="h-20 w-20 text-indigo-500" />
+                        <div className="bg-blue-500/10 p-6 rounded-full w-fit mx-auto mb-8">
+                            <ArrowLeftRight className="h-20 w-20 text-blue-500" />
                         </div>
                         <h2 className="text-5xl font-black text-zinc-900 dark:text-white mb-6 tracking-tight italic uppercase">
                             Switching Shifts
@@ -247,16 +247,16 @@ export default function KioskFlow({
                                             key={asset.id}
                                             onClick={() => toggleAssetSelection(asset.id)}
                                             className={`group relative p-8 rounded-3xl border-2 text-left active:scale-[0.98] transition-all duration-200 ${selectedAssets.includes(asset.id)
-                                                ? 'border-indigo-600 bg-indigo-50/50 dark:bg-indigo-900/30'
+                                                ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-900/30'
                                                 : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40'
                                                 }`}
                                         >
                                             <div className="flex justify-between items-start mb-4">
-                                                <div className={`p-3 rounded-2xl ${selectedAssets.includes(asset.id) ? 'bg-indigo-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'}`}>
+                                                <div className={`p-3 rounded-2xl ${selectedAssets.includes(asset.id) ? 'bg-blue-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500'}`}>
                                                     <Package className="h-8 w-8" />
                                                 </div>
                                                 {selectedAssets.includes(asset.id) && (
-                                                    <CheckCircle className="h-8 w-8 text-indigo-600" />
+                                                    <CheckCircle className="h-8 w-8 text-blue-600" />
                                                 )}
                                             </div>
                                             <div className="font-black text-2xl text-zinc-900 dark:text-white uppercase italic">{asset.name}</div>
@@ -329,7 +329,7 @@ export default function KioskFlow({
                 <div className="flex h-full flex-col p-6">
                     <div className="glass-panel h-full flex flex-col p-10 rounded-[3rem] shadow-2xl overflow-hidden">
                         <div className="text-center mb-10">
-                            <div className="inline-block px-6 py-2 rounded-full bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-widest text-sm mb-4">
+                            <div className="inline-block px-6 py-2 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-black uppercase tracking-widest text-sm mb-4">
                                 Identity Verified
                             </div>
                             <h2 className="text-6xl font-black text-zinc-900 dark:text-white uppercase italic tracking-tight">{selectedVolunteer?.name}</h2>
@@ -354,7 +354,7 @@ export default function KioskFlow({
                                                     {assignment.shift.name || 'Shift'}
                                                 </p>
                                                 <div className="flex items-center text-zinc-500 dark:text-zinc-400 mt-2 text-xl font-medium">
-                                                    <Clock className="h-6 w-6 mr-3 text-indigo-500" />
+                                                    <Clock className="h-6 w-6 mr-3 text-blue-500" />
                                                     {startTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} - {endTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                                                 </div>
                                             </div>
@@ -425,12 +425,12 @@ export default function KioskFlow({
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Type your name..."
-                        className="w-full px-12 py-10 text-5xl font-black rounded-full border-4 border-zinc-200 dark:border-zinc-800 shadow-2xl focus:border-indigo-500 focus:ring-[16px] focus:ring-indigo-500/10 outline-none transition-all dark:bg-zinc-900/80 dark:text-white placeholder-zinc-200 dark:placeholder-zinc-800 uppercase italic tracking-tight"
+                        className="w-full px-12 py-10 text-5xl font-black rounded-full border-4 border-zinc-200 dark:border-zinc-800 shadow-2xl focus:border-blue-500 focus:ring-[16px] focus:ring-blue-500/10 outline-none transition-all dark:bg-zinc-900/80 dark:text-white placeholder-zinc-200 dark:placeholder-zinc-800 uppercase italic tracking-tight"
                         autoFocus
                     />
                     <div className="absolute right-12 top-1/2 -translate-y-1/2 text-zinc-300 dark:text-zinc-700">
                         {isSearching ? (
-                            <Loader2 className="h-16 w-16 animate-spin text-indigo-600" />
+                            <Loader2 className="h-16 w-16 animate-spin text-blue-600" />
                         ) : (
                             <Search className="h-16 w-16" />
                         )}
@@ -448,7 +448,7 @@ export default function KioskFlow({
                                 <p className="text-4xl font-black text-zinc-900 dark:text-white uppercase italic tracking-tight">{volunteer.name}</p>
                                 <p className="text-xl text-zinc-500 dark:text-zinc-400 font-medium uppercase tracking-widest mt-1">{volunteer.group}</p>
                             </div>
-                            <div className="bg-indigo-600 p-4 rounded-2xl text-white opacity-0 group-hover:opacity-100 transition-all transform scale-90 group-hover:scale-100">
+                            <div className="bg-blue-600 p-4 rounded-2xl text-white opacity-0 group-hover:opacity-100 transition-all transform scale-90 group-hover:scale-100">
                                 <ArrowRight className="h-10 w-10" />
                             </div>
                         </button>

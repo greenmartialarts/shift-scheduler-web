@@ -223,7 +223,7 @@ export default function VolunteerManager({
                         placeholder="Search volunteers by name or group..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-zinc-50 outline-none transition-all placeholder:text-zinc-400 font-medium"
+                        className="w-full pl-12 pr-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-zinc-50 outline-none transition-all placeholder:text-zinc-400 font-medium"
                     />
                 </div>
 
@@ -256,9 +256,9 @@ export default function VolunteerManager({
 
             {isAdding && (
                 <div className="overflow-hidden">
-                    <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/10 border-indigo-500/20">
+                    <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/10 border-blue-500/20">
                         <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2">
-                            <UserPlus className="w-5 h-5 text-indigo-500" />
+                            <UserPlus className="w-5 h-5 text-blue-500" />
                             Create New Volunteer
                         </h3>
                         <form action={handleAdd} className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
@@ -268,14 +268,14 @@ export default function VolunteerManager({
                                     type="text"
                                     name="name"
                                     required
-                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                                 />
                             </div>
                             <div>
                                 <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Group Assignment</label>
                                 <select
                                     name="group"
-                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none"
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none"
                                 >
                                     <option value="">No Group</option>
                                     {allGroupNames.map(name => (
@@ -289,7 +289,7 @@ export default function VolunteerManager({
                                     type="tel"
                                     name="phone"
                                     placeholder="+1..."
-                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                                 />
                             </div>
                             <div className="md:col-span-2">
@@ -298,7 +298,7 @@ export default function VolunteerManager({
                                     type="email"
                                     name="email"
                                     placeholder="volunteer@example.com"
-                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                                 />
                             </div>
                             <div>
@@ -308,7 +308,7 @@ export default function VolunteerManager({
                                     name="max_hours"
                                     step="0.5"
                                     placeholder="Unlimited"
-                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                                 />
                             </div>
                             <div className="md:col-span-4 flex justify-end">
@@ -349,7 +349,7 @@ export default function VolunteerManager({
                                             animate={{ opacity: 1 }}
                                             exit={{ opacity: 0, x: -20 }}
                                             key={volunteer.id}
-                                            className={`group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-all border-l-2 border-l-transparent hover:border-l-indigo-500 ${actionLoading === `delete-${volunteer.id}` ? 'opacity-50 grayscale' : ''}`}
+                                            className={`group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-all border-l-2 border-l-transparent hover:border-l-blue-500 ${actionLoading === `delete-${volunteer.id}` ? 'opacity-50 grayscale' : ''}`}
                                         >
                                         {isEditing ? (
                                             <td colSpan={4} className="px-8 py-6">
@@ -363,14 +363,14 @@ export default function VolunteerManager({
                                                             name="name"
                                                             defaultValue={volunteer.name}
                                                             required
-                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none"
                                                         />
                                                     </div>
                                                     <div>
                                                         <select
                                                             name="group"
                                                             defaultValue={volunteer.group || ''}
-                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none"
                                                         >
                                                             <option value="">No Group</option>
                                                             {allGroupNames.map(name => (
@@ -384,7 +384,7 @@ export default function VolunteerManager({
                                                             name="max_hours"
                                                             defaultValue={volunteer.max_hours || ''}
                                                             step="0.5"
-                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none"
                                                         />
                                                     </div>
                                                     <div className="md:col-span-1">
@@ -393,7 +393,7 @@ export default function VolunteerManager({
                                                             name="phone"
                                                             defaultValue={volunteer.phone || ''}
                                                             placeholder="Phone"
-                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none"
                                                         />
                                                     </div>
                                                     <div className="md:col-span-1">
@@ -402,7 +402,7 @@ export default function VolunteerManager({
                                                             name="email"
                                                             defaultValue={volunteer.email || ''}
                                                             placeholder="Email"
-                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none"
+                                                            className="w-full px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none"
                                                         />
                                                     </div>
                                                     <div className="flex justify-end gap-2">
@@ -419,7 +419,7 @@ export default function VolunteerManager({
                                             <>
                                                 <td className="px-8 py-5">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center border border-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-black text-xs">
+                                                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center border border-blue-500/10 text-blue-600 dark:text-blue-400 font-black text-xs">
                                                             {volunteer.name.charAt(0)}
                                                         </div>
                                                         <span className="font-bold text-zinc-900 dark:text-zinc-50">{volunteer.name}</span>
@@ -458,7 +458,7 @@ export default function VolunteerManager({
                                                     <div className="flex justify-end items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                         <button
                                                             onClick={() => setEditingId(volunteer.id)}
-                                                            className="p-2 rounded-lg text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all"
+                                                            className="p-2 rounded-lg text-zinc-400 hover:text-blue-500 hover:bg-blue-500/10 transition-all"
                                                             title="Edit Volunteer"
                                                         >
                                                             <Edit2 className="w-4 h-4" />
@@ -495,9 +495,9 @@ export default function VolunteerManager({
 
             {/* CSV Export / Instructions / Links */}
             <div className="grid md:grid-cols-2 gap-8">
-                <div className="premium-card p-6 bg-indigo-500/5 border-indigo-500/20">
+                <div className="premium-card p-6 bg-blue-500/5 border-blue-500/20">
                     <div className="flex items-center gap-3 mb-4">
-                        <Download className="w-6 h-6 text-indigo-500" />
+                        <Download className="w-6 h-6 text-blue-500" />
                         <h4 className="text-lg font-black text-zinc-900 dark:text-zinc-50">Bulk Operations</h4>
                     </div>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed italic mb-6">
@@ -507,7 +507,7 @@ export default function VolunteerManager({
                         href="https://docs.google.com/spreadsheets/d/1SBULQrNoxh_ShzWPl9asw4AV1QL6vvviTmLr3ascY54/copy"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold hover:underline"
+                        className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold hover:underline"
                     >
                         <FileText className="w-4 h-4" />
                         Download CSV Template
@@ -542,7 +542,7 @@ export default function VolunteerManager({
                                             href="https://docs.google.com/spreadsheets/d/1SBULQrNoxh_ShzWPl9asw4AV1QL6vvviTmLr3ascY54/copy"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold hover:underline mt-2 not-italic"
+                                            className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold hover:underline mt-2 not-italic"
                                         >
                                             <FileText className="w-4 h-4" />
                                             Download CSV Template
@@ -550,7 +550,7 @@ export default function VolunteerManager({
                                     </p>
 
                                     <div className="p-6 bg-zinc-50 dark:bg-zinc-900/50 rounded-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
-                                        <div className="flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
+                                        <div className="flex items-center gap-3 text-blue-600 dark:text-blue-400">
                                             <AlertCircle className="w-5 h-5 flex-shrink-0" />
                                             <span className="font-bold uppercase tracking-tighter text-sm">CSV Validation</span>
                                         </div>

@@ -18,9 +18,9 @@ interface ShiftFormProps {
 export default function ShiftForm({ templates, onSubmit }: ShiftFormProps) {
     return (
         <div className="overflow-hidden">
-            <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/10 border-indigo-500/20">
+            <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/10 border-blue-500/20">
                 <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2">
-                    <Plus className="w-5 h-5 text-indigo-500" />
+                    <Plus className="w-5 h-5 text-blue-500" />
                     Create Single Shift
                 </h3>
                 <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -28,7 +28,7 @@ export default function ShiftForm({ templates, onSubmit }: ShiftFormProps) {
                         <label className="block text-xs font-black uppercase tracking-wider text-zinc-400 mb-2">Shift Template</label>
                         <select
                             name="template_id"
-                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none"
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none"
                             onChange={(e) => {
                                 const t = templates.find(t => t.id === e.target.value)
                                 if (t) {
@@ -60,7 +60,7 @@ export default function ShiftForm({ templates, onSubmit }: ShiftFormProps) {
                             type="text"
                             name="name"
                             required
-                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                         />
                     </div>
                     <div className="md:col-span-2">
@@ -69,7 +69,7 @@ export default function ShiftForm({ templates, onSubmit }: ShiftFormProps) {
                             type="datetime-local"
                             name="start_time"
                             required
-                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                             onChange={(e) => {
                                 const form = e.target.form as HTMLFormElement
                                 const templateId = (form.elements.namedItem('template_id') as HTMLSelectElement).value
@@ -90,7 +90,7 @@ export default function ShiftForm({ templates, onSubmit }: ShiftFormProps) {
                             type="datetime-local"
                             name="end_time"
                             required
-                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                         />
                     </div>
                     <div className="md:col-span-4 flex justify-end">

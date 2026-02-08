@@ -27,7 +27,7 @@ const COLORS = [
     '#10b981', // emerald-500
     '#06b6d4', // cyan-500
     '#3b82f6', // blue-500
-    '#6366f1', // indigo-500
+    '#6366f1', // blue-500
     '#8b5cf6', // violet-500
     '#d946ef', // fuchsia-500
     '#f43f5e', // rose-500
@@ -132,7 +132,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Volunteer Groups</h2>
                 <button
                     onClick={() => { resetForm(); setIsAdding(!isAdding); }}
-                    className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                     {isAdding ? 'Cancel' : 'Add Group'}
                 </button>
@@ -148,7 +148,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                             />
                         </div>
                         <div>
@@ -164,7 +164,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                                     type="text"
                                     value={formData.color}
                                     onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                                    className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                                    className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                                 />
                             </div>
                         </div>
@@ -174,7 +174,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={2}
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                             />
                         </div>
                         <div>
@@ -184,13 +184,13 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                                 step="0.5"
                                 value={formData.max_hours_default}
                                 onChange={(e) => setFormData({ ...formData, max_hours_default: e.target.value })}
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                             />
                         </div>
                         <div className="sm:col-span-2 flex justify-end">
                             <button
                                 type="submit"
-                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                             >
                                 {editingId ? 'Update Group' : 'Save Group'}
                             </button>
@@ -207,7 +207,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => handleEdit(group)}
-                                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm"
+                                    className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-indigo-300 text-sm"
                                 >
                                     Edit
                                 </button>
@@ -256,7 +256,7 @@ export default function GroupManager({ eventId, groups, volunteers }: { eventId:
                                             setIsAdding(true)
                                             window.scrollTo({ top: 0, behavior: 'smooth' })
                                         }}
-                                        className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm"
+                                        className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-indigo-300 text-sm"
                                     >
                                         Customize
                                     </button>

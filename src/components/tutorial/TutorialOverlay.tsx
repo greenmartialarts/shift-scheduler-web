@@ -231,7 +231,7 @@ export function TutorialOverlay() {
                 >
                     <div className="space-y-4">
                         <div>
-                            <span className="inline-block px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider mb-2">
+                            <span className="inline-block px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-indigo-300 text-xs font-bold uppercase tracking-wider mb-2">
                                 Tutorial
                             </span>
                             <h3 className="text-xl font-black text-zinc-900 dark:text-white">
@@ -251,7 +251,7 @@ export function TutorialOverlay() {
                             </button>
                             <button
                                 onClick={advanceStep}
-                                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95"
+                                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-lg shadow-blue-600/20 transition-all hover:scale-105 active:scale-95"
                             >
                                 {currentStepId === 'completion' ? 'Finish' : 'Next'}
                             </button>

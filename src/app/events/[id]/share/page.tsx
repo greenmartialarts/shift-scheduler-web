@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
-import { inviteAdmin, removeAdmin, revokeInvitation, getEventAdmins, getPendingInvitations } from './actions'
+import { inviteAdmin, revokeInvitation, getEventAdmins, getPendingInvitations } from './actions'
 import { updateEventSettings } from '../../actions'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { GenerateNextOccurrenceButton } from './GenerateNextOccurrenceButton'
+import { AdminActionButton } from './AdminActionButton'
 
 interface Admin {
     user_id: string;
@@ -79,6 +81,8 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                         <form action={async (formData) => {
                             'use server'
                             await updateEventSettings(formData)
+                            revalidatePath(`/events/${eventId}/share`)
+                            redirect(`/events/${eventId}/share`)
                         }} className="grid md:grid-cols-2 gap-4">
                             <input type="hidden" name="id" value={eventId} />
                             <div className="space-y-2">
@@ -234,18 +238,11 @@ export default async function SharePage({ params }: { params: Promise<{ id: stri
                                                 </div>
                                             </div>
 
-                                            <form action={async () => {
-                                                'use server'
-                                                await removeAdmin(eventId, admin.user_id)
-                                            }}>
-                                                <button
-                                                    type="submit"
-                                                    className={`text-xs font-bold uppercase tracking-wider transition-colors ${isMe ? 'text-zinc-400 cursor-not-allowed' : 'text-red-600 hover:text-red-700'}`}
-                                                    disabled={isMe}
-                                                >
-                                                    {isMe ? 'Leave' : 'Remove'}
-                                                </button>
-                                            </form>
+                                            <AdminActionButton
+                                                eventId={eventId}
+                                                userId={admin.user_id}
+                                                isMe={isMe}
+                                            />
                                         </div>
                                     )
                                 })}

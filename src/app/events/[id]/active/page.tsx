@@ -72,7 +72,7 @@ export default async function ActivePersonnelPage({
                 <div className="flex items-center justify-between mb-8">
                     <Link
                         href={`/events/${id}`}
-                        className="inline-flex items-center text-sm font-bold text-zinc-500 hover:text-indigo-600 transition-colors group"
+                        className="inline-flex items-center text-sm font-bold text-zinc-500 hover:text-blue-600 transition-colors group"
                     >
                         <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
                         Back to Dashboard

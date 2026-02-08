@@ -10,7 +10,7 @@ export function PrivacyPolicyModal() {
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline"
+                className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
             >
                 Privacy Policy
             </button>
@@ -138,7 +138,7 @@ export function PrivacyPolicyModal() {
                         <div className="p-6 border-t border-zinc-200 dark:border-zinc-800">
                             <button
                                 onClick={() => setIsOpen(false)}
-                                className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-colors"
+                                className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-colors"
                             >
                                 Close
                             </button>

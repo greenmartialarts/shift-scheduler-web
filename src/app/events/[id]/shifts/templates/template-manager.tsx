@@ -48,7 +48,7 @@ export default function TemplateManager({ templates }: { templates: Template[] }
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Shift Templates</h2>
                 <button
                     onClick={() => setIsAdding(!isAdding)}
-                    className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                 >
                     {isAdding ? 'Cancel' : 'Add Template'}
                 </button>
@@ -64,7 +64,7 @@ export default function TemplateManager({ templates }: { templates: Template[] }
                                 name="name"
                                 required
                                 placeholder="Template Name"
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                             />
                         </div>
                         <div>
@@ -75,7 +75,7 @@ export default function TemplateManager({ templates }: { templates: Template[] }
                                 required
                                 step="0.5"
                                 placeholder="2.5"
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                             />
                         </div>
                         <div className="sm:col-span-2">
@@ -83,7 +83,7 @@ export default function TemplateManager({ templates }: { templates: Template[] }
                             <textarea
                                 name="description"
                                 rows={2}
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white"
                             />
                         </div>
                         <div className="sm:col-span-2">
@@ -94,7 +94,7 @@ export default function TemplateManager({ templates }: { templates: Template[] }
                                 type="text"
                                 name="required_groups"
                                 placeholder='{"Delegates": 1}'
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                             />
                         </div>
                         <div className="sm:col-span-2">
@@ -105,13 +105,13 @@ export default function TemplateManager({ templates }: { templates: Template[] }
                                 type="text"
                                 name="allowed_groups"
                                 placeholder='["Delegates"]'
-                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
+                                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
                             />
                         </div>
                         <div className="sm:col-span-2 flex justify-end">
                             <button
                                 type="submit"
-                                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                             >
                                 Save Template
                             </button>

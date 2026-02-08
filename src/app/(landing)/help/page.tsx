@@ -6,16 +6,16 @@ export default function HelpPage() {
         <div className="py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <div className="mx-auto max-w-2xl text-center mb-16">
-                    <h2 className="text-base font-semibold leading-7 text-indigo-600 dark:text-indigo-400">Support Center</h2>
-                    <p className="mt-2 text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-6xl">
-                        Knowledge <span className="bg-gradient-to-r from-blue-500 to-indigo-500 bg-clip-text text-transparent">at your fingertips</span>
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-500">System Documentation</h2>
+                    <p className="mt-2 text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-6xl">
+                        Resource Center
                     </p>
                     <div className="mt-10 relative max-w-xl mx-auto">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 h-5 w-5" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 h-4 w-4" />
                         <input
                             type="text"
-                            placeholder="Search for help articles..."
-                            className="w-full pl-12 pr-4 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-lg"
+                            placeholder="Search documentation..."
+                            className="w-full pl-10 pr-4 py-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all text-sm"
                         />
                     </div>
                 </div>
@@ -24,28 +24,28 @@ export default function HelpPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24 max-w-4xl mx-auto">
                     {[
                         {
-                            title: "Getting Started",
-                            description: "New to the platform? Learn the basics of creating your first event and adding volunteers.",
-                            icon: <Book className="h-8 w-8 text-blue-500" />,
+                            title: "Operational Guide",
+                            description: "Learn the fundamentals of event setup, shift assignment, and volunteer onboarding.",
+                            icon: <Book className="h-6 w-6 text-blue-600" />,
                             link: "#"
                         },
                         {
-                            title: "Bug Report",
-                            description: "Found an issue? Let our engineering team know immediately so we can fix it.",
-                            icon: <Bug className="h-8 w-8 text-rose-500" />,
+                            title: "Bug Reporting",
+                            description: "Submit technical issues or data discrepancies directly to the operations team.",
+                            icon: <Bug className="h-6 w-6 text-zinc-600" />,
                             link: "/contact"
                         }
                     ].map((item) => (
                         <Link
                             key={item.title}
                             href={item.link}
-                            className="group p-8 rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-all hover:-translate-y-1"
+                            className="group p-8 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm transition-colors hover:border-blue-600/30"
                         >
-                            <div className="mb-6">{item.icon}</div>
-                            <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                            <p className="text-zinc-600 dark:text-zinc-400 mb-6">{item.description}</p>
-                            <div className="flex items-center gap-2 text-sm font-bold text-indigo-600 dark:text-indigo-400">
-                                Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            <div className="mb-6 h-12 w-12 flex items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30">{item.icon}</div>
+                            <h3 className="text-xl font-bold mb-3 text-zinc-900 dark:text-zinc-100">{item.title}</h3>
+                            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6 leading-relaxed">{item.description}</p>
+                            <div className="flex items-center gap-2 text-sm font-bold text-blue-600 dark:text-blue-500">
+                                View Documentation <ArrowRight className="h-4 w-4" />
                             </div>
                         </Link>
                     ))}
@@ -76,10 +76,10 @@ export default function HelpPage() {
                                 <Link
                                     key={article.slug}
                                     href={`/help/${article.slug}`}
-                                    className="w-full flex items-center justify-between py-5 group text-left hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors border-b border-zinc-100 dark:border-zinc-800 md:border-b"
+                                    className="w-full flex items-center justify-between py-4 group text-left transition-colors border-b border-zinc-100 dark:border-zinc-800"
                                 >
-                                    <span className="font-medium text-lg leading-snug">{article.title}</span>
-                                    <ChevronRight className="h-5 w-5 text-zinc-300 group-hover:text-indigo-500" />
+                                    <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 group-hover:text-blue-600 dark:group-hover:text-blue-500">{article.title}</span>
+                                    <ChevronRight className="h-4 w-4 text-zinc-400 group-hover:text-blue-600" />
                                 </Link>
                             ))}
                         </div>

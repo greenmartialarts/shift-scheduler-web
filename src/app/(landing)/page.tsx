@@ -6,79 +6,79 @@ import { ChevronRight } from "lucide-react";
 
 const features = [
   {
-    name: "Auto-Assign Scheduling",
-    description: "One-click optimization fills shifts efficiently with conflict detection and partial assignment support.",
+    name: "Shift Assignment",
+    description: "Fills open shifts based on volunteer availability. Replaces manual data entry and cross-referencing.",
     icon: (
       <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
     ),
-    gradient: "from-indigo-500 to-purple-500"
+    color: "text-blue-600 dark:text-blue-400"
   },
   {
-    name: "Bulk CSV Import",
-    description: "Import hundreds of volunteers and shifts in seconds with CSV upload and validation.",
+    name: "Data Import",
+    description: "Upload volunteer names and contact info from existing CSV files. Matches column headers automatically.",
     icon: (
       <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
     ),
-    gradient: "from-purple-500 to-pink-500"
+    color: "text-blue-600 dark:text-blue-400"
   },
   {
-    name: "Named Shifts",
-    description: "Custom shift names for easy identification across assignments, check-in, and reports.",
+    name: "Custom Labels",
+    description: "Assign names to shifts like 'Front Gate' or 'Security' for clear reporting and on-site check-in.",
     icon: (
       <>
         <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
         <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
       </>
     ),
-    gradient: "from-pink-500 to-rose-500"
+    color: "text-blue-600 dark:text-blue-400"
   },
   {
-    name: "Real-time Check-in",
-    description: "Track attendance with automatic late detection, dismissible warnings, and smart sorting.",
+    name: "Volunteer Check-In",
+    description: "Mark attendance from any device. Flag volunteers who haven't arrived 15 minutes before their shift starts.",
     icon: (
       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
     ),
-    gradient: "from-emerald-500 to-teal-500"
+    color: "text-blue-600 dark:text-blue-400"
   },
   {
-    name: "Conflict Detection",
-    description: "Automatic detection of double-booked volunteers with visual warnings and priority sorting.",
+    name: "Overlap Prevention",
+    description: "Flags if a volunteer is assigned to two locations at once. Prevents scheduling gaps on event day.",
     icon: (
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
     ),
-    gradient: "from-amber-500 to-orange-500"
+    color: "text-blue-600 dark:text-blue-400"
   },
   {
-    name: "Reports & Analytics",
-    description: "Export CSV schedules, generate individual PDFs, and track volunteer hours and attendance.",
+    name: "Shift Reporting",
+    description: "Export attendance records and volunteer hours to CSV. Generate PDF summaries for event wrap-ups.",
     icon: (
       <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
     ),
-    gradient: "from-blue-500 to-cyan-500"
+    color: "text-blue-600 dark:text-blue-400"
   },
   {
-    name: "Easy Swapping",
-    description: "Quickly swap volunteers between shifts with one-click reassignment functionality.",
+    name: "Volunteer Reassignment",
+    description: "Move volunteers between shifts instantly when someone fails to show up.",
     icon: (
       <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
     ),
-    gradient: "from-violet-500 to-purple-500"
+    color: "text-blue-600 dark:text-blue-400"
   },
   {
     name: "Advanced Search",
-    description: "Search by shift name, date, time, or volunteer name across all pages for quick access.",
+    description: "Quickly find volunteers by name or shift location from the central dashboard.",
     icon: (
       <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
     ),
-    gradient: "from-fuchsia-500 to-pink-500"
+    color: "text-blue-600 dark:text-blue-400"
   },
   {
-    name: "Dark Mode",
-    description: "Full dark mode support with persistent toggle for comfortable viewing in any environment.",
+    name: "Mobile Support",
+    description: "Interface designed for use on tablets and phones during the event.",
     icon: (
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
     ),
-    gradient: "from-slate-500 to-zinc-500"
+    color: "text-blue-600 dark:text-blue-400"
   }
 ];
 
@@ -86,57 +86,51 @@ export default function Home() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative px-6 py-20 lg:py-32 overflow-hidden">
+      <section className="relative px-6 py-20 lg:py-32 overflow-hidden border-b border-zinc-200 dark:border-zinc-800">
         <div className="mx-auto max-w-7xl relative">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100/50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm font-medium mb-8 border border-indigo-200/50 dark:border-indigo-800/50 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-sm font-medium mb-8 border border-zinc-200 dark:border-zinc-700">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
                 </span>
-                Powered by Intelligent Optimization
+                Event Staffing & Volunteer Management
               </div>
 
-              <h1 className="text-5xl font-bold tracking-tight sm:text-7xl mb-8 leading-[1.1]">
-                Streamline Your <br />
-                <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                  Volunteer Force
-                </span>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-8 leading-[1.1] text-zinc-900 dark:text-zinc-100">
+                Manage event staff and volunteer shifts.
               </h1>
 
-              <p className="text-xl leading-relaxed text-zinc-600 dark:text-zinc-400 mb-10 max-w-xl">
-                The complete solution for modern organizers. Automated scheduling, real-time check-ins, and deep analytics to make your event a success.
+              <p className="text-lg leading-relaxed text-zinc-600 dark:text-zinc-400 mb-10 max-w-xl">
+                Replace manual spreadsheets with a central system for scheduling and attendance. Automatically detect overlapping shifts and track check-ins on-site.
               </p>
 
-              <div className="flex flex-wrap items-center gap-6">
+              <div className="flex flex-wrap items-center gap-4">
                 <Link
                   href="/login"
-                  className="group relative rounded-xl bg-zinc-900 dark:bg-white px-8 py-4 text-white dark:text-zinc-900 font-bold transition-all hover:scale-105 active:scale-95 shadow-2xl"
+                  className="rounded-lg bg-blue-600 px-6 py-3 text-white font-semibold transition-colors hover:bg-blue-700 shadow-sm"
                 >
-                  <span>Get started free</span>
+                  Start now for free
                 </Link>
                 <Link
                   href="/features"
-                  className="group text-base font-semibold leading-6 text-zinc-900 dark:text-zinc-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
+                  className="rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-6 py-3 text-zinc-900 dark:text-zinc-100 font-semibold transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800 shadow-sm"
                 >
-                  Explore features <span aria-hidden="true" className="inline-block group-hover:translate-x-1 transition-transform">→</span>
+                  Explore features
                 </Link>
               </div>
             </div>
 
             <div className="relative hidden lg:block">
-              <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-3xl blur-3xl -z-10 transform translate-x-4 translate-y-4" />
-              <div className="relative rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50 p-2 backdrop-blur-2xl shadow-2xl overflow-hidden group">
+              <div className="relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 p-2 shadow-sm overflow-hidden">
                 <Image
                   src="/assets/hero-mockup.png"
                   alt="Dashboard Preview"
                   width={800}
                   height={600}
-                  className="rounded-2xl shadow-inner transition-transform duration-700 group-hover:scale-105"
+                  className="rounded-lg"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-900/20 to-transparent pointer-events-none" />
               </div>
             </div>
           </div>
@@ -144,14 +138,14 @@ export default function Home() {
       </section>
 
       {/* Features Preview Section */}
-      <section id="features" className="relative bg-zinc-50 dark:bg-zinc-900/50 py-24 sm:py-32 overflow-hidden">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 relative">
-          <div className="mx-auto max-w-2xl lg:text-center mb-16 sm:mb-20">
-            <h2 className="text-base font-semibold leading-7 text-indigo-600 dark:text-indigo-400">
-              The Full Stack
+      <section id="features" className="relative bg-white dark:bg-zinc-950 py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl mb-16">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-500 mb-3">
+              Core Functionality
             </h2>
-            <p className="text-4xl font-bold tracking-tight sm:text-5xl text-zinc-900 dark:text-zinc-50 mt-4">
-              Everything built for scale
+            <p className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Built for operational reliability
             </p>
           </div>
 
@@ -159,27 +153,27 @@ export default function Home() {
             {features.map((feature) => (
               <div
                 key={feature.name}
-                className="group relative rounded-3xl border border-zinc-200 dark:border-zinc-800/50 bg-white dark:bg-zinc-900 p-8 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-shadow duration-200"
+                className="relative rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-8 shadow-sm"
               >
-                <div className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${feature.gradient} shadow-lg mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                  <svg className="h-7 w-7 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                <div className={`inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30 ${feature.color} mb-6`}>
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                     {feature.icon}
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-zinc-900 dark:text-zinc-50 tracking-tight">
+                <h3 className="text-lg font-bold mb-3 text-zinc-900 dark:text-zinc-100">
                   {feature.name}
                 </h3>
-                <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
                   {feature.description}
                 </p>
               </div>
             ))}
           </div>
 
-          <div className="mt-16 text-center">
+          <div className="mt-16">
             <Link
               href="/features"
-              className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-semibold hover:gap-3 transition-all"
+              className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-500 font-semibold hover:underline"
             >
               See all features <ChevronRight className="h-4 w-4" />
             </Link>
@@ -188,31 +182,28 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-24 sm:py-32">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 relative">
-          <div className="relative overflow-hidden rounded-[40px] bg-zinc-900 dark:bg-indigo-600 px-8 py-20 text-center shadow-2xl sm:px-16">
-            <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 bg-indigo-500/10 dark:bg-white/5">
-            </div>
-
-            <h2 className="mx-auto max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
-              Ready to transform your <br /> event coordination?
+      <section className="relative py-24 sm:py-32 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-8 py-20 text-center shadow-sm">
+            <h2 className="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+              Set up your first event
             </h2>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-indigo-100/80">
-              Join the wave of organizers using data to build better volunteer experiences.
+            <p className="mx-auto mt-6 max-w-xl text-lg text-zinc-600 dark:text-zinc-400">
+              Start by importing your volunteer list or creating a shift schedule.
             </p>
 
-            <div className="mt-12 flex flex-wrap items-center justify-center gap-6">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/signup"
-                className="rounded-2xl bg-white px-8 py-4 text-zinc-900 font-bold shadow-xl hover:scale-105 active:scale-95 transition-all"
+                className="rounded-lg bg-blue-600 px-8 py-4 text-white font-bold transition-colors hover:bg-blue-700 shadow-sm"
               >
                 Start now for free
               </Link>
               <Link
                 href="/login"
-                className="text-white font-bold hover:text-indigo-200 transition-colors"
+                className="rounded-lg border border-zinc-200 dark:border-zinc-700 px-8 py-4 text-zinc-900 dark:text-zinc-100 font-bold transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800"
               >
-                Explore demo <span aria-hidden="true">→</span>
+                See a sample event
               </Link>
             </div>
           </div>

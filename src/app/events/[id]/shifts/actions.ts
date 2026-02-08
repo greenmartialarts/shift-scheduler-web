@@ -10,12 +10,6 @@ export async function addShift(eventId: string, formData: FormData) {
     const start = formData.get('start') as string
     const end = formData.get('end') as string
 
-    // Parse groups from form data (assuming simple text input for now, or handled in client)
-    // For simplicity in the "barebones" version, we'll accept JSON strings or handle parsing in client before sending?
-    // Actually, FormData is tricky for complex objects. Let's assume the client sends JSON strings for these fields if using FormData,
-    // or we can use a separate server action that takes an object.
-    // But to keep it consistent with the previous pattern, let's try to parse.
-
     const requiredGroupsRaw = formData.get('required_groups') as string
     const allowedGroupsRaw = formData.get('allowed_groups') as string
 
@@ -26,15 +20,27 @@ export async function addShift(eventId: string, formData: FormData) {
         if (requiredGroupsRaw) requiredGroups = JSON.parse(requiredGroupsRaw)
         if (allowedGroupsRaw) allowedGroups = JSON.parse(allowedGroupsRaw)
     } catch {
-        // Fallback or error
         console.error("Error parsing groups JSON")
+    }
+
+    // Validate input with Zod
+    const parsed = ShiftSchema.safeParse({
+        name,
+        start_time: start,
+        end_time: end,
+        required_groups: requiredGroupsRaw || undefined,
+        allowed_groups: allowedGroupsRaw || undefined,
+    })
+
+    if (!parsed.success) {
+        return { error: parsed.error.issues[0].message }
     }
 
     const { error } = await supabase.from('shifts').insert({
         event_id: eventId,
-        name: name,
-        start_time: start,
-        end_time: end,
+        name: parsed.data.name,
+        start_time: parsed.data.start_time,
+        end_time: parsed.data.end_time,
         required_groups: requiredGroups,
         allowed_groups: allowedGroups,
     })

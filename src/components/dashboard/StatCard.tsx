@@ -20,8 +20,8 @@ export function StatCard({ label, value, icon: Icon, trend, className = '' }: St
                     <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
                 </div>
                 {Icon && (
-                    <div className="rounded-full bg-indigo-100 p-3 dark:bg-indigo-900">
-                        <Icon className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                    <div className="rounded-full bg-blue-100 p-3 dark:bg-blue-900">
+                        <Icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                     </div>
                 )}
             </div>

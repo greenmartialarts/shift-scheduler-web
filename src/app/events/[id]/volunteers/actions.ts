@@ -2,20 +2,32 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { VolunteerSchema } from '@/lib/schemas'
 
 export async function addVolunteer(eventId: string, formData: FormData) {
     const supabase = await createClient()
     const name = formData.get('name') as string
     const group = formData.get('group') as string
-    const maxHours = parseFloat(formData.get('max_hours') as string) || null
+    const maxHoursRaw = formData.get('max_hours') as string
     const phone = formData.get('phone') as string || null
     const email = formData.get('email') as string || null
 
+    // Validate input with Zod
+    const parsed = VolunteerSchema.safeParse({
+        name,
+        group: group || undefined,
+        max_hours: maxHoursRaw ? parseFloat(maxHoursRaw) : undefined,
+    })
+
+    if (!parsed.success) {
+        return { error: parsed.error.issues[0].message }
+    }
+
     const { error } = await supabase.from('volunteers').insert({
         event_id: eventId,
-        name,
-        group,
-        max_hours: maxHours,
+        name: parsed.data.name,
+        group: parsed.data.group || null,
+        max_hours: parsed.data.max_hours ?? null,
         phone,
         email,
     })

@@ -171,7 +171,7 @@ export default function EventDashboard({
     if (loading || !event || !stats) {
         return (
             <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center">
-                <div className="h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                <div className="h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
             </div>
         )
     }
@@ -212,7 +212,7 @@ export default function EventDashboard({
                         { label: 'Active Personnel', value: stats.activeCurrentlyCount, sub: 'Currently on-site', color: 'text-green-500', href: `/events/${id}/active` },
                     ].map((stat) => (
                         stat.href ? (
-                            <Link key={stat.label} href={stat.href} className="premium-card p-6 block hover:border-indigo-500/30 transition-all">
+                            <Link key={stat.label} href={stat.href} className="premium-card p-6 block hover:border-blue-500/30 transition-all">
                                 <p className="text-xs font-black uppercase tracking-wider text-zinc-400 mb-1">{stat.label}</p>
                                 <p className={`text-4xl font-black tracking-tighter ${stat.color || 'text-zinc-900 dark:text-zinc-50'}`}>{stat.value}</p>
                                 <p className="text-xs font-bold text-zinc-500 mt-1">{stat.sub}</p>
@@ -237,7 +237,7 @@ export default function EventDashboard({
                 {/* Charts & Analytics */}
                 <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/30 mb-12">
                     <div className="flex items-center gap-2 mb-8">
-                        <PieChartIcon className="w-5 h-5 text-indigo-500" />
+                        <PieChartIcon className="w-5 h-5 text-blue-500" />
                         <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Operational Intelligence</h2>
                     </div>
                     <AnalyticsCharts
@@ -263,9 +263,9 @@ export default function EventDashboard({
                             key={module.name}
                             id={module.id}
                             href={module.href}
-                            className={`premium-card p-8 group hover:bg-zinc-50 dark:hover:bg-zinc-900/50 ${module.highlight ? 'ring-2 ring-indigo-500 shadow-indigo-500/20' : ''}`}
+                            className={`premium-card p-8 group hover:bg-zinc-50 dark:hover:bg-zinc-900/50 ${module.highlight ? 'ring-2 ring-blue-500 shadow-blue-500/20' : ''}`}
                         >
-                            <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 mb-3">
+                            <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 group-hover:text-blue-600 dark:group-hover:text-blue-400 mb-3">
                                 {module.name}
                             </h3>
                             <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 leading-relaxed italic">

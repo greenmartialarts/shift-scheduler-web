@@ -49,7 +49,7 @@ export function CloneEventModal({ eventId, eventName }: { eventId: string, event
                             name="name"
                             defaultValue={`Copy of ${eventName}`}
                             required
-                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                         />
                     </div>
                     <div>
@@ -58,7 +58,7 @@ export function CloneEventModal({ eventId, eventName }: { eventId: string, event
                             type="date"
                             name="date"
                             required
-                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                         />
                     </div>
                     <div className="space-y-2">
@@ -67,7 +67,7 @@ export function CloneEventModal({ eventId, eventName }: { eventId: string, event
                                 type="checkbox"
                                 name="copyVolunteers"
                                 id="copyVolunteers"
-                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                             />
                             <label htmlFor="copyVolunteers" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                                 Copy Volunteers
@@ -79,7 +79,7 @@ export function CloneEventModal({ eventId, eventName }: { eventId: string, event
                                 name="copyShifts"
                                 id="copyShifts"
                                 defaultChecked
-                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                             />
                             <label htmlFor="copyShifts" className="ml-2 block text-sm text-gray-900 dark:text-gray-300">
                                 Copy Shifts
@@ -94,7 +94,7 @@ export function CloneEventModal({ eventId, eventName }: { eventId: string, event
                             type="number"
                             name="offsetDays"
                             defaultValue="0"
-                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
+                            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-gray-700 dark:text-white transition-colors duration-200"
                         />
                         <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                             Add this many days to shift start/end times.
@@ -111,7 +111,7 @@ export function CloneEventModal({ eventId, eventName }: { eventId: string, event
                         <button
                             type="submit"
                             disabled={isCloning}
-                            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50"
+                            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 disabled:opacity-50"
                         >
                             {isCloning ? 'Cloning...' : 'Clone Event'}
                         </button>

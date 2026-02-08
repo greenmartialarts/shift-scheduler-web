@@ -45,7 +45,7 @@ export default async function AuditLogPage({
                         Who did what for {event.name} – compliance and debugging
                     </p>
                 </div>
-                <AuditLogManager eventId={eventId} eventName={event.name} logs={logs || []} />
+                <AuditLogManager eventName={event.name} logs={logs || []} />
             </div>
         </div>
     )

@@ -15,8 +15,8 @@ export default function PrivacyPolicyPage() {
 
                 <div className="premium-card p-8 md:p-12">
                     <div className="flex items-center gap-3 mb-8">
-                        <div className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-900/20">
-                            <Shield className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+                        <div className="p-3 rounded-full bg-blue-50 dark:bg-blue-900/20">
+                            <Shield className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                         </div>
                         <h1 className="text-4xl font-black text-zinc-900 dark:text-zinc-50">
                             Privacy Policy
@@ -122,7 +122,7 @@ export default function PrivacyPolicyPage() {
                         </section>
 
                         <section className="text-sm text-zinc-500 dark:text-zinc-500 pt-8 border-t border-zinc-200 dark:border-zinc-800">
-                            <p>Last updated: December 30, 2025</p>
+                            <p>Last updated: February 8, 2026</p>
                         </section>
                     </div>
                 </div>

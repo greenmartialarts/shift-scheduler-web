@@ -142,7 +142,7 @@ export default function EventsPage() {
     if (!user) return null
 
     return (
-        <div className="min-h-screen bg-white dark:bg-zinc-950 p-4 md:p-8 selection:bg-indigo-100 dark:selection:bg-indigo-900/40">
+        <div className="min-h-screen bg-white dark:bg-zinc-950 p-4 md:p-8 selection:bg-blue-100 dark:selection:bg-blue-900/40">
             <div className="mx-auto max-w-5xl">
                 <div className="mb-6 flex flex-wrap items-center gap-4">
                     <label className="flex items-center gap-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
@@ -167,7 +167,7 @@ export default function EventsPage() {
                         <button
                             type="button"
                             onClick={() => { setDateFrom(''); setDateTo('') }}
-                            className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline"
+                            className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
                         >
                             Clear filter
                         </button>
@@ -402,10 +402,10 @@ export default function EventsPage() {
                             </form>
                         </div>
 
-                        <div className="premium-card p-5 !bg-zinc-900 text-white dark:!bg-white dark:!text-zinc-900 overflow-hidden relative border-none">
+                        <div className="p-5 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden relative">
                             <div className="relative z-10">
-                                <h3 className="font-bold text-lg mb-2">Pro Tip</h3>
-                                <p className="text-sm font-medium opacity-90 leading-relaxed">
+                                <h3 className="font-bold text-base mb-2 text-zinc-900 dark:text-zinc-100">Pro Tip</h3>
+                                <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400 leading-relaxed">
                                     Use &quot;Manage Access&quot; to safely invite other coordinators to your events without sharing your login.
                                 </p>
                             </div>

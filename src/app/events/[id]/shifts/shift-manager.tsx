@@ -141,7 +141,7 @@ export default function ShiftManager({
                             placeholder="Search shifts by name..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-zinc-50 outline-none transition-all placeholder:text-zinc-400 font-medium"
+                            className="w-full pl-12 pr-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-zinc-50 outline-none transition-all placeholder:text-zinc-400 font-medium"
                         />
                     </div>
 
@@ -150,7 +150,7 @@ export default function ShiftManager({
                         <button
                             onClick={() => setView('list')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-tighter transition-all ${view === 'list'
-                                ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm'
                                 : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                 }`}
                         >
@@ -160,7 +160,7 @@ export default function ShiftManager({
                         <button
                             onClick={() => setView('timeline')}
                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-black uppercase tracking-tighter transition-all ${view === 'timeline'
-                                ? 'bg-white dark:bg-zinc-800 text-indigo-600 dark:text-indigo-400 shadow-sm'
+                                ? 'bg-white dark:bg-zinc-800 text-blue-600 dark:text-blue-400 shadow-sm'
                                 : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'
                                 }`}
                         >
@@ -209,7 +209,7 @@ export default function ShiftManager({
                             setIsAdding(!isAdding)
                             setIsRecurring(false)
                         }}
-                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-500 text-white font-black uppercase tracking-wider text-xs hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20 active:scale-95"
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-500 text-white font-black uppercase tracking-wider text-xs hover:bg-blue-600 transition-all shadow-lg shadow-blue-500/20 active:scale-95"
                     >
                         {isAdding ? 'Cancel' : (
                             <>
@@ -223,7 +223,7 @@ export default function ShiftManager({
 
             {/* Forms */}
             {isAdding && (
-                <div className="premium-card p-6 bg-indigo-500/[0.02]">
+                <div className="premium-card p-6 bg-blue-500/[0.02]">
                     <ShiftForm
                         templates={templates}
                         onSubmit={handleAddSubmit}

@@ -48,6 +48,8 @@ export async function updateSession(request: NextRequest) {
         !request.nextUrl.pathname.startsWith('/pricing') &&
         !request.nextUrl.pathname.startsWith('/contact') &&
         !request.nextUrl.pathname.startsWith('/help') &&
+        !request.nextUrl.pathname.startsWith('/privacy') &&
+        !request.nextUrl.pathname.startsWith('/terms') &&
         request.nextUrl.pathname !== '/'
     ) {
         // no user, potentially respond by redirecting the user to the login page

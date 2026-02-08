@@ -40,7 +40,23 @@ export async function cloneEvent(
 
     const newEventId = newEvent.id
 
-    // 2. Copy Volunteers
+    // 2. Add creator as Admin (same as createEvent)
+    const { error: adminError } = await supabase
+        .from('event_admins')
+        .insert({
+            event_id: newEventId,
+            user_id: user.id,
+            role: 'admin',
+        })
+
+    if (adminError) {
+        console.error('Error adding admin to cloned event:', adminError)
+        // Rollback: Delete the orphaned event
+        await supabase.from('events').delete().eq('id', newEventId)
+        return { error: 'Failed to set up event permissions. Please try again.' }
+    }
+
+    // 3. Copy Volunteers
     if (copyVolunteers) {
         const { data: volunteers } = await supabase
             .from('volunteers')

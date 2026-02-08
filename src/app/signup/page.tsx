@@ -22,7 +22,7 @@ export default function SignupPage() {
                     </p>
                 </div>
 
-                <div className="glass-panel rounded-[2.5rem] p-8 sm:p-10 shadow-2xl">
+                <div className="glass-panel rounded-xl p-8 sm:p-10 shadow-lg">
                     <form action={formAction} className="space-y-6">
                         {errorMessage && (
                             <div className="rounded-2xl bg-red-50/50 p-4 dark:bg-red-900/20 border border-red-200/50 dark:border-red-800/50">
@@ -108,7 +108,7 @@ export default function SignupPage() {
 
                         <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 pt-2">
                             Already have an account?{' '}
-                            <Link href="/login" className="font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 transition-colors">
+                            <Link href="/login" className="font-bold text-blue-600 dark:text-blue-500 hover:text-blue-700 transition-colors">
                                 Sign In
                             </Link>
                         </p>

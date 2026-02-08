@@ -7,8 +7,8 @@ export default function NotFound() {
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 flex items-center justify-center p-6">
             <div className="max-w-lg w-full text-center">
-                <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-indigo-50 dark:bg-indigo-900/20 mb-8">
-                    <FileQuestion className="w-12 h-12 text-indigo-600 dark:text-indigo-400" />
+                <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-blue-50 dark:bg-blue-900/20 mb-8">
+                    <FileQuestion className="w-12 h-12 text-blue-600 dark:text-blue-400" />
                 </div>
 
                 <h1 className="text-6xl font-black text-zinc-900 dark:text-zinc-50 mb-4">
@@ -26,7 +26,7 @@ export default function NotFound() {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                     <Link
                         href="/events"
-                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
                     >
                         <Home className="w-4 h-4" />
                         Go to Dashboard

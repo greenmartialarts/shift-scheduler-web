@@ -11,11 +11,9 @@ type Log = {
 }
 
 export default function AuditLogManager({
-    eventId,
     eventName,
     logs,
 }: {
-    eventId: string
     eventName: string
     logs: Log[]
 }) {
@@ -42,7 +40,7 @@ export default function AuditLogManager({
                 <button
                     type="button"
                     onClick={exportCSV}
-                    className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700 transition-colors shadow-sm"
+                    className="rounded-md bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-sm"
                 >
                     Export CSV
                 </button>

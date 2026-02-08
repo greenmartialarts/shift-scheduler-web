@@ -344,13 +344,13 @@ export default function AssignmentManager({
                     placeholder="Search shifts..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 px-4 py-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-xs dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500 transition-all duration-200"
+                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 px-4 py-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:max-w-xs dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500 transition-all duration-200"
                 />
                 <div className="flex gap-2">
                     <button
                         onClick={handleAutoAssign}
                         disabled={loading}
-                        className="rounded-2xl bg-indigo-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
+                        className="rounded-2xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-500/20 hover:bg-blue-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
                     >
                         {loading ? 'Assigning...' : 'Auto Assign'}
                     </button>
@@ -520,7 +520,7 @@ export default function AssignmentManager({
                                     <div>
                                         <h3 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
                                             {shift.name && <span className="text-zinc-400 uppercase tracking-tighter text-xs">{shift.name}</span>}
-                                            <span className="text-indigo-600 dark:text-indigo-400">
+                                            <span className="text-blue-600 dark:text-blue-400">
                                                 {new Date(shift.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(shift.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </span>
                                         </h3>
@@ -544,7 +544,7 @@ export default function AssignmentManager({
                                         {groups.length > 0 && (
                                             <select
                                                 disabled={!!actionLoading}
-                                                className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200 disabled:opacity-50"
+                                                className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50"
                                                 value=""
                                                 onChange={async (e) => {
                                                     const group = e.target.value
@@ -584,11 +584,11 @@ export default function AssignmentManager({
                                             </button>
                                         )}
                                         {actionLoading === `assign-${shift.id}` ? (
-                                            <div className="h-4 w-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                            <div className="h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                                         ) : (
                                             <select
                                                 disabled={!!actionLoading}
-                                                className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 transition-colors duration-200 disabled:opacity-50"
+                                                className="rounded-md border border-gray-300 dark:border-gray-600 px-2 py-1 text-sm dark:bg-gray-700 dark:text-white focus:border-blue-500 focus:outline-none focus:ring-blue-500 transition-colors duration-200 disabled:opacity-50"
                                                 onChange={(e) => handleAssign(shift.id, e.target.value)}
                                                 value=""
                                             >
@@ -612,7 +612,7 @@ export default function AssignmentManager({
                                                 animate={{ opacity: 1, x: 0 }}
                                                 exit={{ opacity: 0, scale: 0.95 }}
                                                 key={assignment.id}
-                                                className={`flex items-center justify-between rounded-md border p-3 transition-colors duration-200 ${selectedAssignment === assignment.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30 ring-2 ring-indigo-500' : 'border-gray-200 dark:border-gray-700'
+                                                className={`flex items-center justify-between rounded-md border p-3 transition-colors duration-200 ${selectedAssignment === assignment.id ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-500' : 'border-gray-200 dark:border-gray-700'
                                                     } ${actionLoading === `unassign-${assignment.id}` ? 'opacity-50' : ''}`}
                                             >
                                                 <span className="font-medium text-gray-900 dark:text-white">
@@ -621,7 +621,7 @@ export default function AssignmentManager({
                                                 <div className="flex gap-2">
                                                     <button
                                                         onClick={() => handleSwap(assignment.id)}
-                                                        className="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                        className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-indigo-300"
                                                     >
                                                         {selectedAssignment === assignment.id ? 'Selected' : 'Swap'}
                                                     </button>

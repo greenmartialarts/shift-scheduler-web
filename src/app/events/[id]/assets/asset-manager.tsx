@@ -38,7 +38,7 @@ const ASSET_TYPES = [
 
 const STATUS_CONFIG = {
     available: { color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20', icon: <CheckCircle2 className="w-3 h-3" /> },
-    assigned: { color: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20', icon: <Clock className="w-3 h-3" /> },
+    assigned: { color: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20', icon: <Clock className="w-3 h-3" /> },
     maintenance: { color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20', icon: <AlertCircle className="w-3 h-3" /> },
     lost: { color: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20', icon: <X className="w-3 h-3" /> },
 }
@@ -136,7 +136,7 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
                         placeholder="Search inventory by name, type, or serial..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-zinc-50 outline-none transition-all placeholder:text-zinc-400 font-medium"
+                        className="w-full pl-12 pr-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:text-zinc-50 outline-none transition-all placeholder:text-zinc-400 font-medium"
                     />
                 </div>
                 <button
@@ -150,9 +150,9 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
 
             {/* Add/Edit Form */}
             {isAdding && (
-                <div className="premium-card p-8 border-indigo-500/20 bg-zinc-50/50 dark:bg-zinc-900/10">
+                <div className="premium-card p-8 border-blue-500/20 bg-zinc-50/50 dark:bg-zinc-900/10">
                     <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2 uppercase tracking-tighter italic">
-                        {editingId ? <Edit2 className="w-5 h-5 text-indigo-500" /> : <Plus className="w-5 h-5 text-indigo-500" />}
+                        {editingId ? <Edit2 className="w-5 h-5 text-blue-500" /> : <Plus className="w-5 h-5 text-blue-500" />}
                         {editingId ? 'Modify Inventory Record' : 'Register New Asset'}
                     </h3>
                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -164,7 +164,7 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                 required
                                 placeholder="e.g. Motorola CP200"
-                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                             />
                         </div>
                         <div>
@@ -173,7 +173,7 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
                                 value={formData.type}
                                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                                 required
-                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none"
+                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none"
                             >
                                 <option value="">Select Category</option>
                                 {ASSET_TYPES.map(type => (
@@ -188,7 +188,7 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
                                 value={formData.identifier}
                                 onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
                                 placeholder="e.g. RAD-001"
-                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                             />
                         </div>
                         <div className="md:col-span-2">
@@ -204,7 +204,7 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
                                             onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                                             className="peer sr-only"
                                         />
-                                        <div className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 peer-checked:text-white transition-all text-[10px] font-black uppercase text-center text-zinc-500">
+                                        <div className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 peer-checked:bg-blue-600 peer-checked:border-blue-600 peer-checked:text-white transition-all text-[10px] font-black uppercase text-center text-zinc-500">
                                             {status}
                                         </div>
                                     </label>
@@ -241,7 +241,7 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
                                 <tr key={asset.id} className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-colors">
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center border border-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                                            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center border border-blue-500/10 text-blue-600 dark:text-blue-400">
                                                 <Package className="w-4 h-4" />
                                             </div>
                                             <span className="font-bold text-zinc-900 dark:text-zinc-50">{asset.name}</span>
@@ -268,7 +268,7 @@ export default function AssetManager({ eventId, assets }: { eventId: string; ass
                                         <div className="flex justify-end items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button
                                                 onClick={() => handleEdit(asset)}
-                                                className="p-2 rounded-lg text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all"
+                                                className="p-2 rounded-lg text-zinc-400 hover:text-blue-500 hover:bg-blue-500/10 transition-all"
                                                 title="Edit Asset"
                                             >
                                                 <Edit2 className="w-4 h-4" />

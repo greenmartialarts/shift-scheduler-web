@@ -153,11 +153,6 @@ export async function autoAssign(eventId: string) {
             console.warn('Falling back to default Scheduler API endpoint. Set SCHEDULER_API_URL for custom environment.')
         }
 
-        // FIX: Bypass SSL verification in development to resolve "unable to get local issuer certificate" errors
-        if (process.env.NODE_ENV === 'development') {
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-        }
-
         // 3. Call API
         const response = await fetch(endpoint, {
             method: 'POST',

@@ -3,31 +3,59 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  /* Practical, high-contrast base */
-  --background: #f8fafc; /* Slate 50 */
-  --foreground: #0f172a; /* Slate 900 */
-  
-  /* Solid card backgrounds - no transparency */
-  --card-bg: #ffffff;
-  --card-border: #e2e8f0; /* Slate 200 */
-  
-  /* Primary Action Colors (Blue/Slate) */
-  --accent-indigo: 37, 99, 235; /* Blue 600 */
-  --accent-purple: 71, 85, 105; /* Slate 600 - de-emphasizing purple to neutral */
+  /* Light Mode - Recommended Palette (Ops-First, Human, Boring-Good) */
+  --background: #FFFFFF;
+  --foreground: #111827;
+
+  --card-bg: #F9FAFB;
+  --card-border: #E5E7EB;
+
+  --secondary-text: #6B7280;
+  --muted-text: #9CA3AF;
+
+  /* Accent (Action Blue) */
+  --accent-blue: #2563EB;
+  --accent-blue-hover: #1D4ED8;
+
+  /* Status Colors */
+  --status-success: #16A34A;
+  --status-warning: #D97706;
+  --status-error: #B91C1C;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-blue-hover: var(--accent-blue-hover);
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+  --color-status-error: var(--status-error);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-roboto-mono);
 }
 
 .dark {
-  --background: #020617; /* Slate 950 */
-  --foreground: #f1f5f9; /* Slate 100 */
-  --card-bg: #0f172a; /* Slate 900 */
-  --card-border: #1e293b; /* Slate 800 */
+  /* Dark Mode - Recommended Palette */
+  --background: #0B0F19;
+  --foreground: #E5E7EB;
+
+  --card-bg: #111827;
+  --card-border: #1F2937;
+
+  --secondary-text: #9CA3AF;
+  --muted-text: #6B7280;
+
+  /* Accent (Action Blue) */
+  --accent-blue: #3B82F6;
+  --accent-blue-hover: #60A5FA;
+
+  /* Status Colors */
+  --status-success: #22C55E;
+  --status-warning: #F59E0B;
+  --status-error: #EF4444;
 }
 
 body {
@@ -36,22 +64,35 @@ body {
   @apply antialiased;
 }
 
-/* Practical Utilities - "Premium" removed, replaced with "Standard" */
+/* Standard Utilities */
 
-.premium-card {
+.card-base {
   @apply bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg shadow-sm;
 }
 
-.text-gradient {
-  /* Fallback for places using this class - make it just strong text */
-  @apply text-slate-900 dark:text-slate-100 font-semibold;
+.button-primary {
+  @apply inline-flex items-center justify-center rounded-md bg-[var(--accent-blue)] px-4 py-2 font-medium text-white shadow-sm hover:bg-[var(--accent-blue-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)] focus:ring-offset-2 transition-colors;
+}
+
+.text-secondary {
+  color: var(--secondary-text);
+}
+
+.text-muted {
+  color: var(--muted-text);
+}
+
+/* Dashboard-specific card utilities */
+
+.premium-card {
+  @apply bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm;
 }
 
 .button-premium {
-  @apply inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors;
+  @apply inline-flex items-center justify-center rounded-lg bg-[var(--accent-blue)] px-4 py-2.5 font-bold text-white shadow-sm hover:bg-[var(--accent-blue-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-blue)] focus:ring-offset-2 transition-colors;
 }
 
-/* Remove animations completely for a faster feel */
-.animate-float {
-  /* No-op */
+/* Glass panel for auth forms and elevated sections */
+.glass-panel {
+  @apply bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800;
 }

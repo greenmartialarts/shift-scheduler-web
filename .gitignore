@@ -58,3 +58,4 @@ __pycache__/
 
 # Additional log files
 *.log
+lint_output.txt

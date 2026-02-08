@@ -2,71 +2,71 @@ import { Zap, Users, Calendar, BarChart3, Clock, ShieldCheck, Database, Search, 
 
 const featureGroups = [
     {
-        title: "Scheduling Intelligence",
+        title: "Scheduling & Logic",
         features: [
             {
-                name: "Auto-Assign Optimization",
-                description: "Our proprietary algorithm fills even the most complex schedules in seconds, prioritizing volunteer preferences and historical data.",
+                name: "Shift Assignment",
+                description: "Fills open shifts based on volunteer availability. Replaces manual data entry and cross-referencing.",
                 icon: <Zap className="h-6 w-6" />,
-                color: "bg-indigo-500"
+                color: "text-blue-600 dark:text-blue-400"
             },
             {
-                name: "Conflict Detection",
-                description: "Never double-book again. Intelligent warnings highlight overlapping shifts and volunteer unavailability in real-time.",
+                name: "Overlap Prevention",
+                description: "Flags if a volunteer is assigned to two locations at once. Prevents scheduling gaps on event day.",
                 icon: <ShieldCheck className="h-6 w-6" />,
-                color: "bg-purple-500"
+                color: "text-blue-600 dark:text-blue-400"
             },
             {
-                name: "Shift Swapping",
-                description: "Empower your volunteers with a one-click swap interface. Approvals are optional, giving your team flexibility.",
+                name: "Volunteer Reassignment",
+                description: "Move volunteers between shifts instantly when someone fails to show up.",
                 icon: <Users className="h-6 w-6" />,
-                color: "bg-pink-500"
+                color: "text-blue-600 dark:text-blue-400"
             }
         ]
     },
     {
-        title: "Operational Excellence",
+        title: "Operations & Attendance",
         features: [
             {
-                name: "Real-time Check-ins",
-                description: "Track attendance as it happens. Mobile-optimized check-in stations for your staff or self-service kiosks.",
+                name: "Volunteer Check-In",
+                description: "Mark attendance from any device. Flag volunteers who haven't arrived 15 minutes before their shift.",
                 icon: <Clock className="h-6 w-6" />,
-                color: "bg-emerald-500"
+                color: "text-blue-600 dark:text-blue-400"
             },
             {
-                name: "Bulk CSV Integration",
-                description: "Migrate from spreadsheets in minutes. Our smart importer handles diverse formats and validates data on the fly.",
+                name: "Data Import",
+                description: "Upload volunteer names and contact info from existing CSV files. Matches column headers automatically.",
                 icon: <Database className="h-6 w-6" />,
-                color: "bg-blue-500"
+                color: "text-blue-600 dark:text-blue-400"
             },
             {
-                name: "Advanced Command Center",
-                description: "A centralized hub to monitor your entire event. Search, filter, and modify data across all modules efficiently.",
+                name: "Resource Lookup",
+                description: "Central dashboard to find volunteers by name or shift location. Real-time filtering across all modules.",
                 icon: <Search className="h-6 w-6" />,
-                color: "bg-amber-500"
+                color: "text-blue-600 dark:text-blue-400"
             }
         ]
     },
     {
-        title: "Insights & Experience",
+        title: "Reporting & Support",
         features: [
             {
-                name: "Deep Analytics",
-                description: "Export comprehensive reports in CSV or PDF. Track hour totals, attendance rates, and team performance metrics.",
+                name: "Shift Reporting",
+                description: "Export attendance records and volunteer hours to CSV. Generate PDF summaries for event wrap-ups.",
                 icon: <BarChart3 className="h-6 w-6" />,
-                color: "bg-rose-500"
+                color: "text-blue-600 dark:text-blue-400"
             },
             {
-                name: "Adaptive Interface",
-                description: "A beautiful, premium UI designed for focus. Full dark mode support reduces eye strain for long sessions.",
+                name: "Mobile Support",
+                description: "Interface designed for tablets and phones during the event. High-contrast layout for readable data.",
                 icon: <Moon className="h-6 w-6" />,
-                color: "bg-slate-500"
+                color: "text-blue-600 dark:text-blue-400"
             },
             {
-                name: "Custom Branding",
-                description: "Add your organization's personality. Customizable shift names and communication templates for a professional feel.",
+                name: "Custom Labels",
+                description: "Assign names to shifts like 'Front Gate' or 'Security' for clear reporting and on-site check-in.",
                 icon: <Calendar className="h-6 w-6" />,
-                color: "bg-indigo-600"
+                color: "text-blue-600 dark:text-blue-400"
             }
         ]
     }
@@ -77,12 +77,12 @@ export default function FeaturesPage() {
         <div className="py-24 sm:py-32">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <div className="mx-auto max-w-2xl lg:text-center mb-24">
-                    <h2 className="text-base font-semibold leading-7 text-indigo-600 dark:text-indigo-400">Features</h2>
-                    <p className="mt-2 text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-6xl">
-                        Everything you need for <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">professional coordination</span>
+                    <h2 className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-500">System Capability</h2>
+                    <p className="mt-2 text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-6xl">
+                        A toolkit for shift coordination
                     </p>
                     <p className="mt-6 text-xl leading-8 text-zinc-600 dark:text-zinc-400">
-                        A built-for-purpose toolkit that turns chaos into coordinates. Scalable, fast, and remarkably easy to use.
+                        Designed for event operators who need reliable attendance tracking and scheduling without manual spreadsheets.
                     </p>
                 </div>
 
@@ -97,8 +97,8 @@ export default function FeaturesPage() {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                                 {group.features.map((feature) => (
-                                    <div key={feature.name} className="group flex flex-col items-start">
-                                        <div className={`mb-6 rounded-2xl p-4 text-white ${feature.color} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                                    <div key={feature.name} className="flex flex-col items-start">
+                                        <div className={`mb-6 rounded-xl p-3 bg-blue-50 dark:bg-blue-900/30 ${feature.color}`}>
                                             {feature.icon}
                                         </div>
                                         <h4 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">{feature.name}</h4>

@@ -42,7 +42,7 @@ export default async function KioskPage({
             <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[calc(100%-3rem)] max-w-5xl z-50">
                 <div className="glass-panel px-8 py-4 rounded-3xl flex justify-between items-center shadow-2xl backdrop-blur-2xl">
                     <h1 className="text-xl font-black tracking-tight text-zinc-900 dark:text-white uppercase italic">
-                        {event?.name} <span className="text-indigo-600">Kiosk</span>
+                        {event?.name} <span className="text-blue-600">Kiosk</span>
                     </h1>
                     <Link
                         href={`/events/${id}`}

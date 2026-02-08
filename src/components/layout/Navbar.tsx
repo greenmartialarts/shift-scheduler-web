@@ -27,17 +27,17 @@ export function Navbar() {
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-                    ? "bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800/50 py-3 shadow-sm"
-                    : "bg-transparent py-5"
+                ? "bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800/50 py-3 shadow-sm"
+                : "bg-transparent py-5"
                 }`}
         >
             <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 group">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
-                        <span className="text-white text-xl font-bold">V</span>
+                    <div className="h-8 w-8 rounded bg-blue-600 flex items-center justify-center shadow-sm">
+                        <span className="text-white text-base font-bold">V</span>
                     </div>
-                    <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                    <span className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
                         Volunteer Scheduler
                     </span>
                 </Link>
@@ -48,7 +48,7 @@ export function Navbar() {
                         <Link
                             key={link.name}
                             href={link.href}
-                            className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                            className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-blue-600 dark:hover:text-blue-500 transition-colors"
                         >
                             {link.name}
                         </Link>
@@ -59,15 +59,15 @@ export function Navbar() {
                 <div className="hidden md:flex items-center gap-4">
                     <Link
                         href="/login"
-                        className="text-sm font-semibold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                        className="text-sm font-bold text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
                     >
                         Log in
                     </Link>
                     <Link
                         href="/signup"
-                        className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-500/30 transition-all duration-200"
+                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 transition-colors"
                     >
-                        Start for free
+                        Get Started
                     </Link>
                 </div>
 
@@ -100,17 +100,17 @@ export function Navbar() {
                     <hr className="border-zinc-100 dark:border-zinc-800 my-2" />
                     <Link
                         href="/login"
-                        className="w-full text-center py-3 text-zinc-900 dark:text-zinc-100 font-semibold"
+                        className="w-full text-center py-3 text-zinc-900 dark:text-zinc-100 font-bold"
                         onClick={() => setIsOpen(false)}
                     >
                         Log in
                     </Link>
                     <Link
                         href="/signup"
-                        className="w-full text-center py-4 bg-indigo-600 text-white rounded-xl font-semibold shadow-lg shadow-indigo-500/20"
+                        className="w-full text-center py-3 bg-blue-600 text-white rounded-lg font-bold shadow-sm"
                         onClick={() => setIsOpen(false)}
                     >
-                        Get started
+                        Get Started
                     </Link>
                 </div>
             </div>

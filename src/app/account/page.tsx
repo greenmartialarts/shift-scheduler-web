@@ -188,8 +188,8 @@ export default function AccountSettingsPage() {
                     {user?.app_metadata?.provider === 'email' && (
                         <div className="premium-card p-6">
                             <div className="flex items-center gap-3 mb-4">
-                                <div className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-900/20">
-                                    <Lock className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                                <div className="p-3 rounded-full bg-blue-50 dark:bg-blue-900/20">
+                                    <Lock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                                     Security
@@ -211,8 +211,8 @@ export default function AccountSettingsPage() {
                     {/* Tutorial Section */}
                     <div className="premium-card p-6">
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-3 rounded-full bg-indigo-50 dark:bg-indigo-900/20">
-                                <Sparkles className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+                            <div className="p-3 rounded-full bg-blue-50 dark:bg-blue-900/20">
+                                <Sparkles className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                             </div>
                             <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                                 Tutorial
@@ -226,7 +226,7 @@ export default function AccountSettingsPage() {
                                 startTutorial()
                                 router.push('/events')
                             }}
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-colors shadow-lg shadow-indigo-600/20"
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold transition-colors shadow-sm"
                         >
                             <Sparkles className="w-4 h-4" />
                             Replay Tutorial
@@ -245,7 +245,7 @@ export default function AccountSettingsPage() {
                             <div className="flex gap-3 pt-2">
                                 <Link
                                     href="/privacy"
-                                    className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium"
+                                    className="text-blue-600 dark:text-blue-500 hover:underline font-medium"
                                 >
                                     Privacy Policy
                                 </Link>

@@ -23,7 +23,7 @@ export function ArticleFeedback() {
     return (
         <footer className="mt-20 pt-10 border-t border-zinc-100 dark:border-zinc-800">
             <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl p-8 flex flex-col items-center text-center">
-                <BookOpen className="h-10 w-10 text-indigo-500 mb-4" />
+                <BookOpen className="h-10 w-10 text-blue-500 mb-4" />
                 <h4 className="text-xl font-bold mb-2">Was this article helpful?</h4>
                 <p className="text-zinc-500 mb-6 font-medium">Your feedback helps us improve our documentation for everyone.</p>
                 <div className="flex gap-4">

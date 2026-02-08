@@ -70,7 +70,7 @@ export default function EditShiftModal({
                                 name="name"
                                 defaultValue={shift.name || ''}
                                 required
-                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-bold"
+                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
                             />
                         </div>
 
@@ -81,7 +81,7 @@ export default function EditShiftModal({
                                 name="start"
                                 defaultValue={shift.start_time.slice(0, 16)}
                                 required
-                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-bold"
+                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
                             />
                         </div>
 
@@ -92,7 +92,7 @@ export default function EditShiftModal({
                                 name="end"
                                 defaultValue={shift.end_time.slice(0, 16)}
                                 required
-                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-bold"
+                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
                             />
                         </div>
 
@@ -102,7 +102,7 @@ export default function EditShiftModal({
                                 name="required_groups"
                                 defaultValue={requiredGroupsStr}
                                 rows={2}
-                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-medium text-sm leading-relaxed"
+                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-medium text-sm leading-relaxed"
                             />
                             <p className="text-[10px] text-zinc-400 font-medium mt-2 italic">Format: [&apos;Group1&apos;, &apos;Group2&apos;] or {`{"Group1": 2}`}</p>
                         </div>
@@ -112,7 +112,7 @@ export default function EditShiftModal({
                             <input
                                 name="excluded_groups"
                                 defaultValue={excludedGroupsStr}
-                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-bold"
+                                className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
                             />
                         </div>
                     </div>
@@ -127,7 +127,7 @@ export default function EditShiftModal({
                         </button>
                         <button
                             type="submit"
-                            className="flex-[2] py-4 rounded-2xl bg-indigo-500 text-white font-black shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 hover:bg-indigo-600 transition-all"
+                            className="flex-[2] py-4 rounded-2xl bg-blue-500 text-white font-black shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 hover:bg-blue-600 transition-all"
                         >
                             <Check className="w-5 h-5" />
                             Save Modifications

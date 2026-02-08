@@ -124,7 +124,7 @@ export default function CheckinManager({
                     placeholder="Search volunteers, dates, or times..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 px-4 py-3 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:max-w-md dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500"
+                    className="w-full rounded-2xl border border-zinc-200 dark:border-zinc-800 px-4 py-3 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:max-w-md dark:bg-zinc-900 dark:text-white dark:placeholder-zinc-500"
                 />
             </div>
 
@@ -139,7 +139,7 @@ export default function CheckinManager({
                             key={shift.id}
                             className={`rounded-3xl border p-6 ${isLate ? 'bg-red-50/50 border-red-200 dark:bg-red-900/10 dark:border-red-800 shadow-lg shadow-red-500/5' :
                                 isCompleted ? 'bg-zinc-50/50 border-zinc-200 dark:bg-zinc-900/10 dark:border-zinc-800 opacity-60' :
-                                    'glass-panel shadow-lg shadow-zinc-500/5 hover:shadow-2xl hover:shadow-indigo-500/5'
+                                    'glass-panel shadow-lg shadow-zinc-500/5 hover:shadow-2xl hover:shadow-blue-500/5'
                                 }`}
                         >
                             <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -169,7 +169,7 @@ export default function CheckinManager({
                                                     type="checkbox"
                                                     checked={assignment.checked_in}
                                                     onChange={(e) => handleCheckIn(assignment.id, e.target.checked)}
-                                                    className="h-5 w-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                    className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                                 />
                                                 <span className={`font-medium ${assignment.checked_in ? 'text-gray-500 line-through' : 'text-gray-900 dark:text-white'}`}>
                                                     {assignment.volunteer?.name || 'Unknown'}

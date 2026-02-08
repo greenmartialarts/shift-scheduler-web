@@ -22,7 +22,7 @@ export default function LoginPage() {
                     </p>
                 </div>
 
-                <div className="glass-panel rounded-[2.5rem] p-8 sm:p-10 shadow-2xl">
+                <div className="glass-panel rounded-xl p-8 sm:p-10 shadow-lg">
                     <form action={formAction} className="space-y-6">
                         {errorMessage && (
                             <div className="rounded-2xl bg-red-50/50 p-4 dark:bg-red-900/20 border border-red-200/50 dark:border-red-800/50">
@@ -55,7 +55,7 @@ export default function LoginPage() {
                             <div className="flex justify-end pr-1">
                                 <Link
                                     href="/forgot-password"
-                                    className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 transition-colors"
+                                    className="text-xs font-semibold text-blue-600 dark:text-blue-500 hover:text-blue-700 transition-colors"
                                 >
                                     Forgot password?
                                 </Link>
@@ -110,7 +110,7 @@ export default function LoginPage() {
 
                         <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 pt-2">
                             Don&apos;t have an account?{' '}
-                            <Link href="/signup" className="font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 transition-colors">
+                            <Link href="/signup" className="font-bold text-blue-600 dark:text-blue-500 hover:text-blue-700 transition-colors">
                                 Create one
                             </Link>
                         </p>
@@ -121,11 +121,11 @@ export default function LoginPage() {
 
                         {process.env.NODE_ENV === 'development' && (
                             <div className="pt-6 border-t border-zinc-200/50 dark:border-zinc-800/50">
-                                <div className="rounded-2xl bg-indigo-50/50 p-4 dark:bg-indigo-900/10 border border-indigo-100/50 dark:border-indigo-800/20">
-                                    <h3 className="text-xs font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-wider mb-2">
+                                <div className="rounded-xl bg-blue-50/50 p-4 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-800/20">
+                                    <h3 className="text-xs font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider mb-2">
                                         Demo Credentials
                                     </h3>
-                                    <div className="space-y-1 text-sm text-indigo-700 dark:text-indigo-400/80">
+                                    <div className="space-y-1 text-sm text-blue-700 dark:text-blue-400/80">
                                         <p className="flex justify-between"><span>Email:</span> <span className="font-mono font-medium">test@example.com</span></p>
                                         <p className="flex justify-between"><span>Pass:</span> <span className="font-mono font-medium">test123</span></p>
                                     </div>

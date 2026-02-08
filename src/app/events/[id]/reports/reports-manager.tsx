@@ -346,7 +346,7 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
                     <button
                         onClick={() => setActiveTab('overview')}
                         className={`${activeTab === 'overview'
-                            ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                             } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                     >
@@ -355,7 +355,7 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
                     <button
                         onClick={() => setActiveTab('stats')}
                         className={`${activeTab === 'stats'
-                            ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                             : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
                             } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
                     >
@@ -375,7 +375,7 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
                                 </p>
                                 <button
                                     onClick={exportMasterScheduleCSV}
-                                    className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 >
                                     Download CSV
                                 </button>
@@ -388,7 +388,7 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
                                 </p>
                                 <button
                                     onClick={exportStatsCSV}
-                                    className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 >
                                     Download CSV
                                 </button>
@@ -401,7 +401,7 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
                                 </p>
                                 <button
                                     onClick={generateSignInSheet}
-                                    className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 >
                                     Download PDF
                                 </button>
@@ -414,7 +414,7 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
                                 </p>
                                 <button
                                     onClick={exportEventIcal}
-                                    className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                                    className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 >
                                     Download iCal
                                 </button>
@@ -428,7 +428,7 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
                             </p>
                             <button
                                 onClick={generateBulkPDF}
-                                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
+                                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
                             >
                                 Download All Schedules (PDF)
                             </button>
@@ -468,13 +468,13 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
                                         <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3">
                                             <button
                                                 onClick={() => generateVolunteerPDF(vol.id)}
-                                                className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-indigo-300"
                                             >
                                                 PDF
                                             </button>
                                             <button
                                                 onClick={() => exportVolunteerIcal(vol.id)}
-                                                className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-indigo-300"
                                             >
                                                 iCal
                                             </button>

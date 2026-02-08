@@ -8,43 +8,41 @@ export default function AboutPage() {
                 <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-none">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div>
-                            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-6xl mb-8">
-                                Empowering the world&apos;s <br />
-                                <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">helpers</span>
+                            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 sm:text-6xl mb-8">
+                                Management for event operations
                             </h1>
-                            <p className="text-xl leading-8 text-zinc-600 dark:text-zinc-400 mb-6">
-                                Volunteer Scheduler was born out of a simple observation: organizers spend 70% of their time on logistics and only 30% on mission. We&apos;re here to flip that ratio.
+                            <p className="text-xl leading-relaxed text-zinc-600 dark:text-zinc-400 mb-6 font-medium">
+                                A tool for centralizing volunteer data and shift schedules.
                             </p>
-                            <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-10">
-                                What started as a tool for a local food bank has grown into a powerful platform used by thousands of organizations worldwide. Our mission is to make event coordination so seamless that the only thing you have to focus on is the impact you&apos;re making.
+                            <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-10 leading-relaxed">
+                                Developed to address the overhead of manual staffing, our platform provides a system for tracking attendance and assigning shifts across large-scale events. We focus on operational data integrity and high-contrast accessibility for use in on-site environments.
                             </p>
 
-                            <div className="flex flex-wrap gap-6">
+                            <div className="flex flex-wrap gap-4">
                                 {[
-                                    { label: "Founded", value: "2025", icon: <Calendar className="h-5 w-5 text-indigo-500" /> },
-                                    { label: "Community First", value: "100%", icon: <Heart className="h-5 w-5 text-red-500" /> },
-                                    { label: "Global Scope", value: "Everywhere", icon: <Globe className="h-5 w-5 text-blue-500" /> }
+                                    { label: "Founded", value: "2025", icon: <Calendar className="h-5 w-5 text-blue-600" /> },
+                                    { label: "Uptime", value: "99.9%", icon: <Heart className="h-5 w-5 text-blue-600" /> },
+                                    { label: "Support", value: "Community", icon: <Globe className="h-5 w-5 text-blue-600" /> }
                                 ].map((stat) => (
-                                    <div key={stat.label} className="bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 p-4 rounded-2xl flex items-center gap-4">
-                                        <div className="p-2 bg-white dark:bg-zinc-800 rounded-xl shadow-sm">
+                                    <div key={stat.label} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 rounded-xl flex items-center gap-4 shadow-sm">
+                                        <div className="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
                                             {stat.icon}
                                         </div>
                                         <div>
-                                            <div className="text-sm text-zinc-500 font-medium">{stat.label}</div>
-                                            <div className="text-lg font-bold text-zinc-900 dark:text-zinc-100">{stat.value}</div>
+                                            <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider">{stat.label}</div>
+                                            <div className="text-lg font-bold text-zinc-900 dark:text-zinc-100 font-mono">{stat.value}</div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
-                        <div className="relative">
-                            <div className="absolute -inset-4 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 blur-2xl rounded-3xl" />
-                            <div className="relative rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 aspect-square flex items-center justify-center p-12 overflow-hidden overflow-hidden">
+                        <div className="hidden lg:block relative">
+                            <div className="relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 aspect-square flex items-center justify-center p-12 overflow-hidden shadow-sm">
                                 <div className="text-center">
-                                    <Sparkles className="h-24 w-24 text-indigo-500 mx-auto mb-8 animate-pulse" />
-                                    <h2 className="text-3xl font-bold mb-4">Crafted for Impact</h2>
-                                    <p className="text-zinc-500 italic max-w-sm">&quot;Code that schedules is code that serves. Every line we write is dedicated to the people who give their time back.&quot;</p>
+                                    <Sparkles className="h-16 w-16 text-blue-600 mx-auto mb-8" />
+                                    <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-zinc-100 font-mono tracking-tight uppercase">Operational Goal</h2>
+                                    <p className="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed max-w-sm">Replace manual data processing with a standard system for event staffing and attendance.</p>
                                 </div>
                             </div>
                         </div>
@@ -56,25 +54,25 @@ export default function AboutPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                         {[
                             {
-                                title: "Inclusivity",
-                                description: "We build tools that are accessible to everyone, regardless of technical literacy or budget.",
-                                icon: <Users className="h-8 w-8 text-indigo-500" />
+                                title: "Accessibility",
+                                description: "Designed for high readability on-site. Usable in variable lighting and on multiple device types.",
+                                icon: <Users className="h-6 w-6 text-blue-600" />
                             },
                             {
                                 title: "Performance",
-                                description: "Organizers need tools that keep up with them. We prioritize speed and reliability above all else.",
-                                icon: <Sparkles className="h-8 w-8 text-amber-500" />
+                                description: "Optimized for speed. Search, fill schedules, and export data with low latency.",
+                                icon: <Sparkles className="h-6 w-6 text-blue-600" />
                             },
                             {
-                                title: "Transparency",
-                                description: "We are open about our process, our roadmap, and our commitment to data privacy.",
-                                icon: <ShieldCheck className="h-8 w-8 text-emerald-500" />
+                                title: "Reliability",
+                                description: "A stable foundation for real-time check-ins and staffing reports.",
+                                icon: <ShieldCheck className="h-6 w-6 text-blue-600" />
                             }
                         ].map((value) => (
-                            <div key={value.title} className="p-8 rounded-[32px] bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl transition-shadow duration-300">
-                                <div className="mb-6">{value.icon}</div>
-                                <h3 className="text-2xl font-bold mb-4">{value.title}</h3>
-                                <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed text-lg">
+                            <div key={value.title} className="p-8 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-sm">
+                                <div className="mb-6 h-10 w-10 flex items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/30">{value.icon}</div>
+                                <h3 className="text-xl font-bold mb-4 text-zinc-900 dark:text-zinc-100">{value.title}</h3>
+                                <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
                                     {value.description}
                                 </p>
                             </div>

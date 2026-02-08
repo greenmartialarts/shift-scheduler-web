@@ -24,13 +24,13 @@ const robotoMono = Roboto_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Volunteer Scheduler | Professional Event Management",
-  description: "High-performance volunteer scheduling and coordination platform for events of any size. Automate check-ins, shift assignments, and volunteer communication.",
-  keywords: ["volunteer scheduler", "event management", "shift coordination", "automated scheduling"],
-  authors: [{ name: "Volunteer Scheduler Team" }],
+  title: "Volunteer Scheduler | Staffing & Operations",
+  description: "Management platform for event staffing and volunteer coordination. Features include shift assignment, attendance tracking, and reporting.",
+  keywords: ["staffing management", "event operations", "shift scheduling", "volunteer coordination"],
+  authors: [{ name: "Operations Team" }],
   openGraph: {
-    title: "Volunteer Scheduler | Professional Event Management",
-    description: "The modern way to coordinate your volunteer team.",
+    title: "Volunteer Scheduler | Operational Management",
+    description: "System for event staffing and volunteer coordination.",
     type: "website",
     siteName: "Volunteer Scheduler",
   },

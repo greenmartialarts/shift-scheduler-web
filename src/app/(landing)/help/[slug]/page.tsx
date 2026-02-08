@@ -220,7 +220,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <div className="mx-auto max-w-3xl px-6 lg:px-8">
                 <Link
                     href="/help"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-500 hover:text-indigo-600 transition-colors mb-12"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-500 hover:text-blue-600 transition-colors mb-12"
                 >
                     <ChevronLeft className="h-4 w-4" />
                     Back to Help Center
@@ -228,7 +228,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
                 <header className="mb-16">
                     <div className="flex items-center gap-4 mb-6">
-                        <span className="px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider">
+                        <span className="px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold uppercase tracking-wider">
                             {article.category}
                         </span>
                         <div className="flex items-center gap-2 text-sm text-zinc-500">
