@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
@@ -61,10 +62,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head suppressHydrationWarning>
-        <script
-          async
+        <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4090063067766583"
           crossOrigin="anonymous"
+          strategy="lazyOnload"
         />
       </head>
       <body

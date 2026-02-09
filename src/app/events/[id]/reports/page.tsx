@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import ReportsManager, { Volunteer, Shift } from './reports-manager'
-// import Link from 'next/link'
+import ReportsClient from './ReportsClient'
+import type { Volunteer, Shift } from './reports-manager'
 import { redirect } from 'next/navigation'
 
 export default async function ReportsPage({
@@ -63,7 +63,7 @@ export default async function ReportsPage({
                     </p>
                 </div>
 
-                <ReportsManager
+                <ReportsClient
                     eventId={id}
                     eventName={event?.name || 'Event'}
                     volunteers={(volunteers as unknown as Volunteer[]) || []}
