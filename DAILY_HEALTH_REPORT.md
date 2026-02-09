@@ -3,7 +3,7 @@
 ## 🚨 Security Scan (Sentinel)
 - **Hardcoded Secrets**: Performed a scan for hardcoded keys and hashes. No new cleartext secrets were found.
 - **Discrepancy Resolution**: Identified that `src/app/analytics/actions.ts` was still using plain-text password comparison despite a previous report (2026-01-15) claiming a refactor to hashing.
-    - **Fix Applied**: Refactored `verifyAnalyticsPassword` to use SHA-256 hashing via the Node.js `crypto` module. It now compares against `ANALYTICS_PASSWORD_HASH` with a secure default fallback for the 'admin' password.
+    - **Fix Applied**: Refactored `verifyAnalyticsPassword` to use SHA-256 hashing via the Node.js `crypto` module. It now compares against the `ANALYTICS_PASSWORD_HASH` environment variable and correctly blocks access if the variable is not configured.
 - **Supabase Integrity**: Verified RLS on `profiles` and `activity_logs` tables. Policies correctly restrict access to authenticated owners.
 
 ## ⚡ Performance Profiling (Bolt)
