@@ -28,3 +28,17 @@ services:
         sync: false
       - key: CONTACT_EMAIL
         sync: false
+      - key: GMAIL_USER_1
+        sync: false
+      - key: GMAIL_PASS_1
+        sync: false
+      - key: GMAIL_USER_2
+        sync: false
+      - key: GMAIL_PASS_2
+        sync: false
+      - key: GMAIL_USER_3
+        sync: false
+      - key: GMAIL_PASS_3
+        sync: false
+      - key: ANALYTICS_PASSWORD_HASH
+        sync: false
