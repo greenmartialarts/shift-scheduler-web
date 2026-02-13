@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 
+export const dynamic = "force-static";
+
 const features = [
   {
     name: "Shift Assignment",

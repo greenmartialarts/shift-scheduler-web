@@ -2,6 +2,27 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function updateSession(request: NextRequest) {
+    const isPublicRoute = (
+        request.nextUrl.pathname === '/' ||
+        request.nextUrl.pathname.startsWith('/login') ||
+        request.nextUrl.pathname.startsWith('/auth') ||
+        request.nextUrl.pathname.startsWith('/forgot-password') ||
+        request.nextUrl.pathname.startsWith('/signup') ||
+        request.nextUrl.pathname.startsWith('/features') ||
+        request.nextUrl.pathname.startsWith('/about') ||
+        request.nextUrl.pathname.startsWith('/pricing') ||
+        request.nextUrl.pathname.startsWith('/contact') ||
+        request.nextUrl.pathname.startsWith('/help') ||
+        request.nextUrl.pathname.startsWith('/privacy') ||
+        request.nextUrl.pathname.startsWith('/terms')
+    )
+
+    if (isPublicRoute) {
+        return NextResponse.next({
+            request,
+        })
+    }
+
     let supabaseResponse = NextResponse.next({
         request,
     })
@@ -38,19 +59,7 @@ export async function updateSession(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     if (
-        !user &&
-        !request.nextUrl.pathname.startsWith('/login') &&
-        !request.nextUrl.pathname.startsWith('/auth') &&
-        !request.nextUrl.pathname.startsWith('/forgot-password') &&
-        !request.nextUrl.pathname.startsWith('/signup') &&
-        !request.nextUrl.pathname.startsWith('/features') &&
-        !request.nextUrl.pathname.startsWith('/about') &&
-        !request.nextUrl.pathname.startsWith('/pricing') &&
-        !request.nextUrl.pathname.startsWith('/contact') &&
-        !request.nextUrl.pathname.startsWith('/help') &&
-        !request.nextUrl.pathname.startsWith('/privacy') &&
-        !request.nextUrl.pathname.startsWith('/terms') &&
-        request.nextUrl.pathname !== '/'
+        !user
     ) {
         // no user, potentially respond by redirecting the user to the login page
         const url = request.nextUrl.clone()
