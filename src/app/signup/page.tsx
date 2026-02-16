@@ -7,11 +7,9 @@ import { PremiumButton } from '@/components/ui/PremiumButton'
 import { useActionState } from 'react'
 import { PrivacyPolicyModal } from '@/components/PrivacyPolicyModal'
 import { GoogleSignIn } from '@/components/auth/GoogleSignIn'
-import { useRouter } from 'next/navigation'
 
 export default function SignupPage() {
     const [errorMessage, formAction, isPending] = useActionState(signup, undefined)
-    const router = useRouter()
 
     return (
         <div className="relative flex min-h-screen flex-col items-center justify-center p-6 overflow-hidden">

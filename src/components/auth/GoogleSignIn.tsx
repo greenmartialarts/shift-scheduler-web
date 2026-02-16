@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useTheme } from '@/context/ThemeContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,12 +9,44 @@ import Script from 'next/script'
 
 interface GoogleSignInProps {
     onSuccess?: () => void
-    onError?: (error: any) => void
+    onError?: (error: unknown) => void
+}
+
+interface GoogleCredentialResponse {
+    credential: string
+}
+
+interface GoogleNotification {
+    isNotDisplayed: () => boolean
+    getNotDisplayedReason: () => string
 }
 
 declare global {
     interface Window {
-        google: any
+        google: {
+            accounts: {
+                id: {
+                    initialize: (config: {
+                        client_id: string | undefined
+                        callback: (response: GoogleCredentialResponse) => void
+                        ux_mode: string
+                        auto_select: boolean
+                        cancel_on_tap_outside: boolean
+                        itp_support: boolean
+                        context: string
+                        use_fedcm_for_prompt: boolean
+                    }) => void
+                    renderButton: (parent: HTMLElement, options: {
+                        theme: string
+                        size: string
+                        text: string
+                        shape: string
+                        width: number
+                    }) => void
+                    prompt: (callback: (notification: GoogleNotification) => void) => void
+                }
+            }
+        }
     }
 }
 
@@ -25,10 +57,10 @@ export function GoogleSignIn({ onSuccess, onError }: GoogleSignInProps) {
     const containerRef = useRef<HTMLDivElement>(null)
     const { theme } = useTheme()
 
-    const handleIdToken = async (response: any) => {
+    const handleIdToken = useCallback(async (response: GoogleCredentialResponse) => {
         setIsLoading(true)
         try {
-            const { data, error } = await supabase.auth.signInWithIdToken({
+            const { error } = await supabase.auth.signInWithIdToken({
                 provider: 'google',
                 token: response.credential,
             })
@@ -41,9 +73,9 @@ export function GoogleSignIn({ onSuccess, onError }: GoogleSignInProps) {
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [supabase.auth, onSuccess, onError])
 
-    const initializeGoogleSignIn = () => {
+    const initializeGoogleSignIn = useCallback(() => {
         const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
         if (window.google && containerRef.current) {
@@ -74,7 +106,7 @@ export function GoogleSignIn({ onSuccess, onError }: GoogleSignInProps) {
 
             // Also show the "One Tap" prompt
             // Note: Google may suppress this if the user has closed it recently
-            window.google.accounts.id.prompt((notification: any) => {
+            window.google.accounts.id.prompt((notification: GoogleNotification) => {
                 if (notification.isNotDisplayed()) {
                     console.log('One Tap not displayed:', notification.getNotDisplayedReason())
                 }
@@ -82,23 +114,23 @@ export function GoogleSignIn({ onSuccess, onError }: GoogleSignInProps) {
 
             setIsSdkLoaded(true)
         }
-    }
+    }, [theme, handleIdToken])
 
     // Initialize when SDK loads or theme changes
     useEffect(() => {
-        if (window.google) {
+        if (typeof window !== 'undefined' && window.google) {
             initializeGoogleSignIn()
         }
-    }, [theme])
+    }, [theme, initializeGoogleSignIn])
 
     // Re-render button on window resize to keep it full-width
     useEffect(() => {
         const handleResize = () => {
-            if (window.google) initializeGoogleSignIn()
+            if (typeof window !== 'undefined' && window.google) initializeGoogleSignIn()
         }
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
-    }, [theme])
+    }, [theme, initializeGoogleSignIn])
 
     return (
         <div className="w-full max-w-sm mx-auto">
