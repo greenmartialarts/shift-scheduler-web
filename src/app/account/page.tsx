@@ -114,7 +114,7 @@ export default function AccountSettingsPage() {
                                     type="text"
                                     value={displayName}
                                     onChange={(e) => setDisplayName(e.target.value)}
-                                    placeholder="e.g. Jane Doe"
+                                    placeholder="e.g. Jane Doe"
                                     className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 focus:outline-none transition-all placeholder:text-zinc-400"
                                 />
                                 <p className="text-xs text-zinc-500">
@@ -179,7 +179,7 @@ export default function AccountSettingsPage() {
                                 disabled={saving}
                                 className={saving ? 'opacity-70 cursor-wait' : ''}
                             >
-                                {saving ? 'Saving...' : 'Save Changes'}
+                                {saving ? 'Saving…' : 'Save Changes'}
                             </PremiumButton>
                         </div>
                     </form>

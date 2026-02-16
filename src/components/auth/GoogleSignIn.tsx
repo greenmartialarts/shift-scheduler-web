@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useTheme } from '@/context/ThemeContext'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -9,12 +9,36 @@ import Script from 'next/script'
 
 interface GoogleSignInProps {
     onSuccess?: () => void
-    onError?: (error: any) => void
+    onError?: (error: Error | unknown) => void
 }
 
 declare global {
     interface Window {
-        google: any
+        google: {
+            accounts: {
+                id: {
+                    initialize: (config: {
+                        client_id: string | undefined
+                        callback: (response: { credential: string }) => void
+                        ux_mode?: 'popup' | 'redirect'
+                        auto_select?: boolean
+                        cancel_on_tap_outside?: boolean
+                        itp_support?: boolean
+                        context?: 'signin' | 'signup' | 'use'
+                        use_fedcm_for_prompt?: boolean
+                    }) => void
+                    renderButton: (parent: HTMLElement, options: {
+                        theme?: 'outline' | 'filled_blue' | 'filled_black'
+                        size?: 'large' | 'medium' | 'small'
+                        text?: 'signin_with' | 'signup_with' | 'continue_with' | 'signup'
+                        shape?: 'rectangular' | 'pill' | 'circle' | 'square'
+                        width?: number
+                        logo_alignment?: 'left' | 'center'
+                    }) => void
+                    prompt: (callback?: (notification: { isNotDisplayed: () => boolean, getNotDisplayedReason: () => string }) => void) => void
+                }
+            }
+        }
     }
 }
 
@@ -25,10 +49,10 @@ export function GoogleSignIn({ onSuccess, onError }: GoogleSignInProps) {
     const containerRef = useRef<HTMLDivElement>(null)
     const { theme } = useTheme()
 
-    const handleIdToken = async (response: any) => {
+    const handleIdToken = useCallback(async (response: { credential: string }) => {
         setIsLoading(true)
         try {
-            const { data, error } = await supabase.auth.signInWithIdToken({
+            const { error } = await supabase.auth.signInWithIdToken({
                 provider: 'google',
                 token: response.credential,
             })
@@ -41,9 +65,9 @@ export function GoogleSignIn({ onSuccess, onError }: GoogleSignInProps) {
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [supabase.auth, onSuccess, onError])
 
-    const initializeGoogleSignIn = () => {
+    const initializeGoogleSignIn = useCallback(() => {
         const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
 
         if (window.google && containerRef.current) {
@@ -68,13 +92,13 @@ export function GoogleSignIn({ onSuccess, onError }: GoogleSignInProps) {
                 size: 'large',
                 text: 'continue_with',
                 shape: 'pill',
-                width: containerRef.current.offsetWidth || 300,
+                width: containerRef.current?.offsetWidth || 300,
                 // Removing logo_alignment: 'left' as it sometimes forces a white background on the G logo
             })
 
             // Also show the "One Tap" prompt
             // Note: Google may suppress this if the user has closed it recently
-            window.google.accounts.id.prompt((notification: any) => {
+            window.google.accounts.id.prompt((notification: { isNotDisplayed: () => boolean, getNotDisplayedReason: () => string }) => {
                 if (notification.isNotDisplayed()) {
                     console.log('One Tap not displayed:', notification.getNotDisplayedReason())
                 }
@@ -82,14 +106,14 @@ export function GoogleSignIn({ onSuccess, onError }: GoogleSignInProps) {
 
             setIsSdkLoaded(true)
         }
-    }
+    }, [handleIdToken, theme])
 
     // Initialize when SDK loads or theme changes
     useEffect(() => {
         if (window.google) {
             initializeGoogleSignIn()
         }
-    }, [theme])
+    }, [initializeGoogleSignIn])
 
     // Re-render button on window resize to keep it full-width
     useEffect(() => {
@@ -98,7 +122,7 @@ export function GoogleSignIn({ onSuccess, onError }: GoogleSignInProps) {
         }
         window.addEventListener('resize', handleResize)
         return () => window.removeEventListener('resize', handleResize)
-    }, [theme])
+    }, [initializeGoogleSignIn])
 
     return (
         <div className="w-full max-w-sm mx-auto">

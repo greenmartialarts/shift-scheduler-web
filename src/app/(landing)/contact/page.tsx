@@ -81,7 +81,8 @@ export default function ContactPage() {
                                         required
                                         disabled={status === "pending"}
                                         className="w-full px-4 py-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all disabled:opacity-50 text-zinc-900 dark:text-zinc-100"
-                                        placeholder="First Name"
+                                        placeholder="First Name…"
+                                        autoComplete="given-name"
                                     />
                                 </div>
                                 <div>
@@ -93,7 +94,8 @@ export default function ContactPage() {
                                         required
                                         disabled={status === "pending"}
                                         className="w-full px-4 py-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all disabled:opacity-50 text-zinc-900 dark:text-zinc-100"
-                                        placeholder="Last Name"
+                                        placeholder="Last Name…"
+                                        autoComplete="family-name"
                                     />
                                 </div>
                             </div>
@@ -106,7 +108,9 @@ export default function ContactPage() {
                                     required
                                     disabled={status === "pending"}
                                     className="w-full px-4 py-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all disabled:opacity-50 text-zinc-900 dark:text-zinc-100"
-                                    placeholder="email@example.com"
+                                    placeholder="email@example.com…"
+                                    autoComplete="email"
+                                    spellCheck={false}
                                 />
                             </div>
                             <div>
@@ -138,7 +142,7 @@ export default function ContactPage() {
                                     rows={5}
                                     disabled={status === "pending"}
                                     className="w-full px-4 py-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50 focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all resize-none disabled:opacity-50 text-zinc-900 dark:text-zinc-100"
-                                    placeholder="Provide details about your request..."
+                                    placeholder="Provide details about your request…"
                                 />
                             </div>
                             <button
@@ -149,7 +153,7 @@ export default function ContactPage() {
                                 {status === "pending" ? (
                                     <>
                                         <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                        Processing...
+                                        Processing…
                                     </>
                                 ) : "Submit Request"}
                             </button>

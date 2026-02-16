@@ -7,11 +7,9 @@ import { PremiumInput } from '@/components/ui/PremiumInput'
 import { PremiumButton } from '@/components/ui/PremiumButton'
 import { PrivacyPolicyModal } from '@/components/PrivacyPolicyModal'
 import { GoogleSignIn } from '@/components/auth/GoogleSignIn'
-import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
     const [errorMessage, formAction, isPending] = useActionState(login, undefined)
-    const router = useRouter()
 
     return (
         <div className="relative flex min-h-screen flex-col items-center justify-center p-6 overflow-hidden">
@@ -70,7 +68,7 @@ export default function LoginPage() {
                             disabled={isPending}
                             className="w-full"
                         >
-                            {isPending ? 'Verifying...' : 'Sign In'}
+                            {isPending ? 'Verifying…' : 'Sign In'}
                         </PremiumButton>
 
                         <div className="relative">

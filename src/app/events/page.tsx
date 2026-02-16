@@ -239,7 +239,7 @@ export default function EventsPage() {
                                                     }}
                                                     className="rounded-md bg-blue-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
                                                 >
-                                                    {actionLoading === `accept-${invite.id}` ? '...' : 'Accept'}
+                                                    {actionLoading === `accept-${invite.id}` ? '…' : 'Accept'}
                                                 </button>
                                                 <button
                                                     disabled={!!actionLoading}
@@ -254,7 +254,7 @@ export default function EventsPage() {
                                                     }}
                                                     className="rounded-md border border-zinc-200 dark:border-zinc-800 px-3 py-1.5 text-xs font-bold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50"
                                                 >
-                                                    {actionLoading === `decline-${invite.id}` ? '...' : 'Decline'}
+                                                    {actionLoading === `decline-${invite.id}` ? '…' : 'Decline'}
                                                 </button>
                                             </div>
                                         </div>
@@ -296,7 +296,7 @@ export default function EventsPage() {
                                                     )}
                                                 </div>
                                                 <div className="mt-1 flex items-center gap-3 text-sm font-medium text-zinc-500">
-                                                    <span>Created {new Date(event.created_at).toLocaleDateString()}</span>
+                                                    <span>Created {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(event.created_at))}</span>
                                                     <div className="h-1 w-1 rounded-full bg-zinc-300 dark:bg-zinc-700" />
                                                     <Link
                                                         href={`/events/${event.id}/share`}
@@ -387,8 +387,9 @@ export default function EventsPage() {
                                 <input
                                     type="text"
                                     name="name"
-                                    placeholder="Conference 2024..."
+                                    placeholder="Conference 2024…"
                                     required
+                                    autoComplete="off"
                                     className="w-full rounded-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm font-medium focus:ring-1 focus:ring-blue-600 focus:border-blue-600 focus:outline-none transition-all placeholder:text-zinc-400"
                                 />
                                 <button
@@ -397,7 +398,7 @@ export default function EventsPage() {
                                     disabled={actionLoading === 'create-event'}
                                     className="w-full button-premium text-sm disabled:opacity-70"
                                 >
-                                    {actionLoading === 'create-event' ? 'Creating...' : 'Create Hub'}
+                                    {actionLoading === 'create-event' ? 'Creating…' : 'Create Hub'}
                                 </button>
                             </form>
                         </div>

@@ -1,8 +1,19 @@
-'use client'
-
 import { useState } from 'react'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import {
+    FileSpreadsheet,
+    Clock,
+    Printer,
+    Calendar,
+    Files,
+    Download,
+    FileText,
+    Search,
+    CheckCircle2,
+    AlertCircle
+} from 'lucide-react'
+import { PremiumButton } from '@/components/ui/PremiumButton'
 
 export type Volunteer = {
     id: string
@@ -29,6 +40,7 @@ export type Shift = {
 
 export default function ReportsManager({ eventName, volunteers, shifts }: { eventId: string, eventName: string, volunteers: Volunteer[], shifts: Shift[] }) {
     const [activeTab, setActiveTab] = useState<'overview' | 'stats'>('overview')
+    const [searchQuery, setSearchQuery] = useState('')
 
     // --- Calculations ---
     const volunteerStats = volunteers.map(vol => {
@@ -70,6 +82,11 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
             assignedShifts
         }
     })
+
+    const filteredVolunteers = volunteerStats.filter(v =>
+        v.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        v.group?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
     // --- Exports ---
 
@@ -237,8 +254,6 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
 
         // Table Data
         const tableData: string[][] = []
-        // We need to find the actual shift details again or store them better
-        // Let's iterate shifts to find assignments for this volunteer
         const myShifts = shifts.filter(s => s.assignments?.some(a => a.volunteer_id === volId))
             .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime())
 
@@ -339,150 +354,222 @@ export default function ReportsManager({ eventName, volunteers, shifts }: { even
         doc.save(`${eventName}_signin_sheet.pdf`)
     }
 
+    const ReportCard = ({
+        title,
+        desc,
+        icon: Icon,
+        onClick,
+        buttonText,
+        type = 'primary'
+    }: {
+        title: string,
+        desc: string,
+        icon: React.ElementType,
+        onClick: () => void,
+        buttonText: string,
+        type?: 'primary' | 'secondary' | 'outline'
+    }) => (
+        <div className="premium-card p-6 flex flex-col justify-between group h-full">
+            <div>
+                <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
+                    <Icon className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {title}
+                </h3>
+                <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-6 leading-relaxed italic">
+                    {desc}
+                </p>
+            </div>
+            <PremiumButton
+                onClick={onClick}
+                className="w-full justify-between group/btn py-2.5"
+                variant={type === 'outline' ? 'secondary' : 'primary'}
+            >
+                {buttonText}
+                <Download className="h-4 w-4 transition-transform group-hover/btn:translate-y-0.5" />
+            </PremiumButton>
+        </div>
+    )
+
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
-            <div className="border-b border-gray-200 dark:border-gray-700">
-                <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
-                    <button
-                        onClick={() => setActiveTab('overview')}
-                        className={`${activeTab === 'overview'
-                            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                    >
-                        Overview & Exports
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('stats')}
-                        className={`${activeTab === 'stats'
-                            ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300'
-                            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
-                    >
-                        Volunteer Stats & PDFs
-                    </button>
-                </nav>
+        <div className="space-y-8">
+            {/* Navigation Tabs */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800 pb-0 mb-8">
+                <div className="flex gap-8">
+                    {[
+                        { id: 'overview', label: 'Overview & Exports' },
+                        { id: 'stats', label: 'Volunteer Stats & PDFs' }
+                    ].map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as 'overview' | 'stats')}
+                            className={`relative pb-4 text-sm font-bold transition-all ${activeTab === tab.id
+                                ? 'text-blue-600 dark:text-blue-400'
+                                : 'text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300'
+                                }`}
+                        >
+                            {tab.label}
+                            {activeTab === tab.id && (
+                                <div className="absolute bottom-0 left-0 right-0 h-1 rounded-t-full bg-blue-600 dark:bg-blue-400" />
+                            )}
+                        </button>
+                    ))}
+                </div>
             </div>
 
-            <div className="p-6">
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                 {activeTab === 'overview' && (
-                    <div className="space-y-6">
-                        <div className="grid gap-6 md:grid-cols-2">
-                            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Master Schedule</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                    Export the full list of all assignments, times, and statuses.
-                                </p>
-                                <button
-                                    onClick={exportMasterScheduleCSV}
-                                    className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                >
-                                    Download CSV
-                                </button>
-                            </div>
-
-                            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Attendance & Hours</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                    Export a summary of total hours worked and attendance records per volunteer.
-                                </p>
-                                <button
-                                    onClick={exportStatsCSV}
-                                    className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                >
-                                    Download CSV
-                                </button>
-                            </div>
-
-                            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Sign-In Sheet</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                    Print a blank sign-in sheet with all scheduled volunteers listed chronologically.
-                                </p>
-                                <button
-                                    onClick={generateSignInSheet}
-                                    className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                >
-                                    Download PDF
-                                </button>
-                            </div>
-
-                            <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Calendar (iCal / Google Calendar)</h3>
-                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                    Export assigned shifts as an iCal file. Open in Apple Calendar, Google Calendar, or Outlook.
-                                </p>
-                                <button
-                                    onClick={exportEventIcal}
-                                    className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                >
-                                    Download iCal
-                                </button>
-                            </div>
+                    <div className="space-y-12">
+                        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+                            <ReportCard
+                                title="Master Schedule"
+                                desc="Export the full list of all assignments, times, and statuses."
+                                icon={FileSpreadsheet}
+                                onClick={exportMasterScheduleCSV}
+                                buttonText="Download CSV"
+                            />
+                            <ReportCard
+                                title="Attendance & Hours"
+                                desc="Export a summary of total hours worked and attendance records per volunteer."
+                                icon={Clock}
+                                onClick={exportStatsCSV}
+                                buttonText="Download CSV"
+                            />
+                            <ReportCard
+                                title="Sign-In Sheet"
+                                desc="Print a blank sign-in sheet with all scheduled volunteers listed chronologically."
+                                icon={Printer}
+                                onClick={generateSignInSheet}
+                                buttonText="Download PDF"
+                            />
+                            <ReportCard
+                                title="Calendar"
+                                desc="Export assigned shifts as an iCal file for Apple, Google, or Outlook."
+                                icon={Calendar}
+                                onClick={exportEventIcal}
+                                buttonText="Download iCal"
+                            />
                         </div>
 
-                        <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-700/50">
-                            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Bulk Actions</h3>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                                Generate individual schedule PDFs for EVERY volunteer in a single file (one page per volunteer).
-                            </p>
-                            <button
-                                onClick={generateBulkPDF}
-                                className="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700"
-                            >
-                                Download All Schedules (PDF)
-                            </button>
+                        {/* Bulk Actions Section */}
+                        <div className="rounded-2xl border border-zinc-100 bg-zinc-50/50 p-8 dark:border-zinc-800 dark:bg-zinc-900/30">
+                            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                                <div className="flex items-start gap-4">
+                                    <div className="mt-1 flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm dark:bg-zinc-800">
+                                        <Files className="h-5 w-5 text-zinc-600 dark:text-zinc-400" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">Bulk Actions</h3>
+                                        <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 italic">
+                                            Generate individual schedule PDFs for EVERY volunteer in a single file (one page per volunteer).
+                                        </p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={generateBulkPDF}
+                                    className="inline-flex items-center gap-2 rounded-xl bg-zinc-900 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-zinc-800 active:scale-95 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200 shadow-lg shadow-zinc-200 dark:shadow-none"
+                                >
+                                    <FileText className="h-4 w-4" />
+                                    Download All Schedules (PDF)
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
 
                 {activeTab === 'stats' && (
-                    <div className="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                        <table className="min-w-full divide-y divide-gray-300 dark:divide-gray-700">
-                            <thead className="bg-gray-50 dark:bg-gray-700">
-                                <tr>
-                                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-white sm:pl-6">Name</th>
-                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Total Hours</th>
-                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Shifts</th>
-                                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900 dark:text-white">Late/Absent</th>
-                                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                        <span className="sr-only">Actions</span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-                                {volunteerStats.map((vol) => (
-                                    <tr key={vol.id}>
-                                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 dark:text-white sm:pl-6">{vol.name}</td>
-                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{vol.totalHours.toFixed(1)}</td>
-                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">{vol.shiftsCompleted}</td>
-                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 dark:text-gray-400">
-                                            {vol.lateCount + vol.absentCount > 0 ? (
-                                                <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                    {vol.lateCount + vol.absentCount}
-                                                </span>
-                                            ) : (
-                                                <span className="text-green-600 dark:text-green-400">0</span>
-                                            )}
-                                        </td>
-                                        <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6 space-x-3">
-                                            <button
-                                                onClick={() => generateVolunteerPDF(vol.id)}
-                                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-indigo-300"
-                                            >
-                                                PDF
-                                            </button>
-                                            <button
-                                                onClick={() => exportVolunteerIcal(vol.id)}
-                                                className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-indigo-300"
-                                            >
-                                                iCal
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className="space-y-6">
+                        {/* Search Bar */}
+                        <div className="relative">
+                            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                            <input
+                                type="text"
+                                placeholder="Search volunteers or groups…"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full rounded-2xl border border-zinc-200 bg-white py-3 pl-10 pr-4 text-sm font-medium focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-500/10 dark:border-zinc-800 dark:bg-zinc-900 transition-all"
+                            />
+                        </div>
+
+                        <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="border-b border-zinc-100 bg-zinc-50/50 dark:border-zinc-800 dark:bg-zinc-800/50">
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Name</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Total Hours</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Shifts</th>
+                                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-zinc-500">Attendance</th>
+                                            <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-zinc-500">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                                        {filteredVolunteers.map((vol) => (
+                                            <tr key={vol.id} className="group hover:bg-zinc-50 transition-colors dark:hover:bg-zinc-800/30">
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 font-bold text-xs">
+                                                            {vol.name.substring(0, 2).toUpperCase()}
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-sm font-bold text-zinc-900 dark:text-zinc-50">{vol.name}</div>
+                                                            <div className="text-[10px] font-black uppercase tracking-tight text-zinc-400">{vol.group || 'No Group'}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="text-sm font-black text-zinc-900 dark:text-zinc-50 tabular-nums">
+                                                        {vol.totalHours.toFixed(1)}
+                                                    </span>
+                                                    <span className="ml-1 text-[10px] font-bold text-zinc-400 uppercase">hrs</span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                                                        <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">
+                                                            {vol.shiftsCompleted}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {vol.lateCount + vol.absentCount > 0 ? (
+                                                        <div className="flex items-center gap-1.5 rounded-full bg-rose-50 px-2 py-0.5 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 w-fit">
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            <span className="text-[10px] font-black uppercase">
+                                                                {vol.lateCount + vol.absentCount} Late/Absent
+                                                            </span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-[10px] font-black uppercase text-emerald-500 tracking-wider">Perfect</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        <button
+                                                            onClick={() => generateVolunteerPDF(vol.id)}
+                                                            className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-bold text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 transition-colors"
+                                                            title="Download PDF"
+                                                        >
+                                                            <FileText className="h-3.5 w-3.5" />
+                                                            PDF
+                                                        </button>
+                                                        <button
+                                                            onClick={() => exportVolunteerIcal(vol.id)}
+                                                            className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-bold text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 transition-colors"
+                                                            title="Download iCal"
+                                                        >
+                                                            <Calendar className="h-3.5 w-3.5" />
+                                                            iCal
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

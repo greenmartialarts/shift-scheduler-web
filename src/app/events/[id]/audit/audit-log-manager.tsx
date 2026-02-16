@@ -59,8 +59,11 @@ export default function AuditLogManager({
                         <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
                             {logs.map((log) => (
                                 <tr key={log.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30">
-                                    <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-300 whitespace-nowrap">
-                                        {new Date(log.created_at).toLocaleString()}
+                                    <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-300 whitespace-nowrap font-variant-numeric-tabular-nums font-mono">
+                                        {new Intl.DateTimeFormat(undefined, {
+                                            dateStyle: 'medium',
+                                            timeStyle: 'short'
+                                        }).format(new Date(log.created_at))}
                                     </td>
                                     <td className="px-4 py-3 text-sm">
                                         <span className="inline-flex rounded-full bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 text-xs font-medium text-zinc-700 dark:text-zinc-300">
