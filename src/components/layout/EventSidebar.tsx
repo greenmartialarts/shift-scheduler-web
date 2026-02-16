@@ -108,7 +108,7 @@ export function EventSidebar() {
                                     : 'text-zinc-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50'
                                     }`}
                             >
-                                <item.icon className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : ''}`} />
+                                <item.icon className={`w-5 h-5 shrink-0 transition-transform group-hover:scale-110 ${isActive ? 'text-white' : ''}`} strokeWidth={2.5} />
 
                                 <AnimatePresence initial={false}>
                                     {!isCollapsed && (

@@ -80,6 +80,36 @@ export async function getDashboardStats(eventId: string) {
         volunteersByGroupMap.set(group, (volunteersByGroupMap.get(group) || 0) + 1);
     });
 
+    const recentCheckIns = (eventAssignments || [])
+        .filter(a => a.checked_in)
+        .sort((a, b) => {
+            // We need to fetch the actual check-in time if available, 
+            // but for now we'll just take the latest assignments that are checked in.
+            return b.id.localeCompare(a.id)
+        })
+        .slice(0, 3);
+
+    // Fetch volunteer names for recent check-ins
+    const recentCheckInDetails = [];
+    if (recentCheckIns.length > 0) {
+        const { data: assignmentsWithVolunteers } = await supabase
+            .from('assignments')
+            .select(`
+                id,
+                volunteers (
+                    name
+                )
+            `)
+            .in('id', recentCheckIns.map(a => a.id));
+
+        if (assignmentsWithVolunteers) {
+            recentCheckInDetails.push(...assignmentsWithVolunteers.map(a => ({
+                id: a.id,
+                name: (a.volunteers as unknown as { name: string })?.name || 'Unknown Volunteer'
+            })));
+        }
+    }
+
     return {
         totalVolunteersCount: totalVolunteers || 0,
         totalShiftsCount: shifts?.length || 0,
@@ -90,6 +120,7 @@ export async function getDashboardStats(eventId: string) {
         checkedInCount: eventAssignments.filter(a => a.checked_in).length,
         activeCurrentlyCount: eventAssignments.filter(a => a.checked_in && !a.checked_out_at).length,
         lateCount,
+        recentCheckIns: recentCheckInDetails,
         volunteersByGroupData: Array.from(volunteersByGroupMap.entries()).map(([name, value]) => ({ name, value })),
         shiftFillStatusData: [
             { name: 'Filled', value: filledSlotsCount },

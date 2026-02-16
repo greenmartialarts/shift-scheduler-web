@@ -42,12 +42,6 @@ export function AnalyticsCharts({ volunteersByGroup, shiftFillStatus }: Analytic
                 <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={volunteersByGroup} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                            <defs>
-                                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="0%" stopColor="#3B82F6" stopOpacity={0.8} />
-                                    <stop offset="100%" stopColor="#2563EB" stopOpacity={1} />
-                                </linearGradient>
-                            </defs>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" className="dark:stroke-zinc-800" />
                             <XAxis
                                 dataKey="name"
@@ -64,19 +58,19 @@ export function AnalyticsCharts({ volunteersByGroup, shiftFillStatus }: Analytic
                             <Tooltip
                                 cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }}
                                 contentStyle={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                                    backdropFilter: 'blur(8px)',
-                                    borderRadius: '12px',
-                                    border: '1px solid rgba(229, 231, 235, 0.5)',
-                                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                                    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                                    backdropFilter: 'blur(12px)',
+                                    borderRadius: '16px',
+                                    border: '1px solid rgba(59, 130, 246, 0.2)',
+                                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
                                     padding: '12px',
                                 }}
-                                itemStyle={{ fontSize: '12px', fontWeight: 'bold', color: '#1E293B' }}
-                                labelStyle={{ fontSize: '12px', color: '#64748B', marginBottom: '4px', fontWeight: 'bold' }}
+                                itemStyle={{ fontSize: '12px', fontWeight: '800', color: '#F8FAFC' }}
+                                labelStyle={{ fontSize: '12px', color: '#94A3B8', marginBottom: '4px', fontWeight: 'bold' }}
                             />
                             <Bar
                                 dataKey="value"
-                                fill="url(#barGradient)"
+                                fill="#3B82F6"
                                 radius={[6, 6, 0, 0]}
                                 barSize={32}
                             />
@@ -101,11 +95,14 @@ export function AnalyticsCharts({ volunteersByGroup, shiftFillStatus }: Analytic
                                 data={shiftFillStatus}
                                 cx="50%"
                                 cy="50%"
-                                innerRadius={75}
-                                outerRadius={95}
-                                paddingAngle={8}
+                                innerRadius={82}
+                                outerRadius={92}
+                                paddingAngle={0}
                                 dataKey="value"
                                 stroke="none"
+                                cornerRadius={10}
+                                startAngle={90}
+                                endAngle={-270}
                             >
                                 {shiftFillStatus.map((entry, index) => (
                                     <Cell
@@ -117,25 +114,25 @@ export function AnalyticsCharts({ volunteersByGroup, shiftFillStatus }: Analytic
                             </Pie>
                             <Tooltip
                                 contentStyle={{
-                                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                                    backdropFilter: 'blur(8px)',
-                                    borderRadius: '12px',
-                                    border: '1px solid rgba(229, 231, 235, 0.5)',
-                                    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                                    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                                    backdropFilter: 'blur(12px)',
+                                    borderRadius: '16px',
+                                    border: '1px solid rgba(59, 130, 246, 0.2)',
+                                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
                                     padding: '12px',
                                 }}
-                                itemStyle={{ fontSize: '12px', fontWeight: 'bold', color: '#1E293B' }}
+                                itemStyle={{ fontSize: '12px', fontWeight: '800', color: '#F8FAFC' }}
                             />
                         </PieChart>
                     </ResponsiveContainer>
 
                     {/* Center Label for Donut */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-3xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50">
+                        <span className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-zinc-50">
                             {Math.round((shiftFillStatus.find(s => s.name === 'Filled')?.value || 0) /
-                                shiftFillStatus.reduce((acc, curr) => acc + curr.value, 0) * 100)}%
+                                (shiftFillStatus.reduce((acc, curr) => acc + curr.value, 0) || 1) * 100)}%
                         </span>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Filled</span>
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 dark:text-zinc-400">Filled</span>
                     </div>
                 </div>
 
