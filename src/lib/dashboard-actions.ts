@@ -20,15 +20,20 @@ export async function getDashboardStats(eventId: string) {
         supabase.from('shifts').select('id, start_time, end_time, required_groups').eq('event_id', eventId),
     ])
 
-    const shiftIds = shifts?.map(s => s.id) || [];
     let eventAssignments: ShiftAssignment[] = [];
-    if (shiftIds.length > 0) {
-        const { data } = await supabase
-            .from('assignments')
-            .select('id, checked_in, checked_out_at, late_dismissed, shift_id')
-            .in('shift_id', shiftIds);
-        eventAssignments = (data || []) as ShiftAssignment[];
-    }
+    const { data } = await supabase
+        .from('assignments')
+        .select('id, checked_in, checked_out_at, late_dismissed, shift_id, shifts!inner(event_id)')
+        .eq('shifts.event_id', eventId);
+
+    // Type-safe conversion: the join result includes shifts but we only need the assignment fields
+    eventAssignments = (data || []).map(row => ({
+        id: row.id,
+        checked_in: row.checked_in,
+        checked_out_at: row.checked_out_at,
+        late_dismissed: row.late_dismissed,
+        shift_id: row.shift_id
+    })) as ShiftAssignment[];
 
     const normalizeGroups = (groups: unknown): Record<string, number> => {
         if (!groups) return {}

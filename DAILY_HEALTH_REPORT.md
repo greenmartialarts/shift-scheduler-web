@@ -34,5 +34,27 @@
 - **Recommendation**: Integrate a server-side logging aggregator (e.g., Axiom, BetterStack) for better 500-series error visibility in Render logs and to enable automated daily summary reports.
 
 ---
+
+# 🛡️ Vanguard Daily Health Report - 2026-01-16
+
+## 🚨 Security Scan (Sentinel)
+- **Hardcoded Secrets & Regressions**: Identified a regression in `src/app/analytics/actions.ts` where the analytics password was being verified in cleartext.
+    - **Fix Applied**: Re-implemented SHA-256 hashing for password verification. The system now correctly compares the hashed input against the `ANALYTICS_PASSWORD_HASH` environment variable.
+- **Env Var Sync**: Updated `render.yaml` to include `ANALYTICS_PASSWORD_HASH`, ensuring consistency between development and production environments.
+
+## ⚡ Performance Profiling (Bolt)
+- **Database Efficiency**: Identified a sub-optimal two-step query pattern in `getDashboardStats`.
+    - **Fix Applied**: Refactored `src/lib/dashboard-actions.ts` to use a single query with an inner join (`shifts!inner(event_id)`). This eliminates the need to fetch and pass large arrays of shift IDs, significantly improving performance for events with many shifts.
+
+## 🏗️ Codebase Maintenance (Architect)
+- **Ghost Hunt**: Removed unused `useRouter` imports and `router` variables from `src/app/login/page.tsx` and `src/app/signup/page.tsx`.
+- **Validation**: `npm run lint` now passes with zero errors or warnings after fixing type issues and hook dependencies in `src/components/auth/GoogleSignIn.tsx`.
+- **TypeScript Integrity**: Fixed multiple `any` type violations in `GoogleSignIn.tsx` and improved data mapping in `dashboard-actions.ts` to maintain strict type safety after database query optimizations.
+
+## 🌐 Deployment & Observability (SRE)
+- **Late Warning Trends**: Analysis of `active-personnel-manager.tsx` confirms the late warning logic is active and correctly handles 15-minute leeways for back-to-back shifts.
+- **System Usage**: Build process verified code integrity, though full production deployment requires environment variable synchronization.
+
+---
 **Status**: 🟢 Healthy (with applied fixes)
 **Vanguard Guardian**: Jules
