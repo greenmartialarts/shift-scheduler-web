@@ -94,7 +94,7 @@ export default function ShiftFileUploadZone({ isOpen, onClose, onUpload, onError
                                 Inject multi-dimensional shift data into the event core. Ensure timestamps align with the local timezone.
                                 <br />
                                 <a
-                                    href="https://docs.google.com/spreadsheets/d/1O6-0rN1hEIsU0Y8_id87Vf5N4lU7C79_lWf8X8pIDwE/copy"
+                                    href="https://docs.google.com/spreadsheets/d/1SBULQrNoxh_ShzWPl9asw4AV1QL6vvviTmLr3ascY54/copy"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center gap-2 text-purple-600 dark:text-purple-400 font-bold hover:underline mt-2 not-italic"
