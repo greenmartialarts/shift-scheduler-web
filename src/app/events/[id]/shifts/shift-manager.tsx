@@ -33,14 +33,22 @@ type Template = {
     default_end: string
 }
 
+type VolunteerGroup = {
+    id: string
+    name: string
+    color: string | null
+}
+
 export default function ShiftManager({
     eventId,
     shifts,
     templates,
+    groups,
 }: {
     eventId: string
     shifts: Shift[]
     templates: Template[]
+    groups: VolunteerGroup[]
 }) {
     const [isAdding, setIsAdding] = useState(false)
     const [isRecurring, setIsRecurring] = useState(false)
@@ -221,11 +229,12 @@ export default function ShiftManager({
                 </div>
             </div>
 
-            {/* Forms */}
             {isAdding && (
                 <div className="premium-card p-6 bg-blue-500/[0.02]">
                     <ShiftForm
+                        eventId={eventId}
                         templates={templates}
+                        groups={groups}
                         onSubmit={handleAddSubmit}
                     />
                 </div>
@@ -266,7 +275,9 @@ export default function ShiftManager({
 
             {editingId && shifts.find(s => s.id === editingId) && (
                 <EditShiftModal
+                    eventId={eventId}
                     shift={shifts.find(s => s.id === editingId)!}
+                    groups={groups}
                     onClose={() => setEditingId(null)}
                     onUpdate={(formData) => handleUpdate(editingId!, formData)}
                 />

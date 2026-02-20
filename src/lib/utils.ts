@@ -16,8 +16,6 @@ export function parseToISO(dateStr: string): string | null {
     // Try native Date parsing first
     const date = new Date(dateStr);
     if (!isNaN(date.getTime())) {
-      // If the original string didn't have a T (like a space), new Date() handles it,
-      // but we want to ensure a clean ISO string for Zod .datetime()
       return date.toISOString();
     }
 

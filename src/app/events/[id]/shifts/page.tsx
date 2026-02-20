@@ -37,6 +37,36 @@ export default async function ShiftsPage({
         .eq('user_id', user.id)
         .order('name', { ascending: true })
 
+    const { data: structuredGroups } = await supabase
+        .from('volunteer_groups')
+        .select('*')
+        .eq('event_id', id)
+        .order('name', { ascending: true })
+
+    // Fallback: Fetch unique groups from volunteers table
+    const { data: volunteerData } = await supabase
+        .from('volunteers')
+        .select('group')
+        .eq('event_id', id)
+        .not('group', 'is', null)
+
+    const legacyGroupNames = Array.from(new Set(volunteerData?.map(v => v.group as string) || []))
+    const existingGroupNames = new Set(structuredGroups?.map(g => g.name) || [])
+
+    const combinedGroups = [...(structuredGroups || [])]
+    legacyGroupNames.forEach(name => {
+        if (!existingGroupNames.has(name) && name) {
+            combinedGroups.push({
+                id: `legacy-${name}`,
+                name: name,
+                color: null
+            })
+        }
+    })
+
+    // Sort combined list
+    combinedGroups.sort((a, b) => a.name.localeCompare(b.name))
+
     return (
         <div className="p-8">
             <div className="mx-auto max-w-6xl">
@@ -57,7 +87,12 @@ export default async function ShiftsPage({
                     </div>
                 </div>
 
-                <ShiftManager eventId={id} shifts={shifts || []} templates={templates || []} />
+                <ShiftManager
+                    eventId={id}
+                    shifts={shifts || []}
+                    templates={templates || []}
+                    groups={combinedGroups}
+                />
             </div>
         </div>
     )

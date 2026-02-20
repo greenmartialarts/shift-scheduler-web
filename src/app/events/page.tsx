@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import { type User } from '@supabase/supabase-js'
 import { useTutorial } from '@/components/tutorial/TutorialContext'
 import { useNotification } from '@/components/ui/NotificationProvider'
+import { getDashboardStats } from '@/lib/dashboard-actions'
 
 interface Event {
     id: string
@@ -19,6 +20,10 @@ interface Event {
     user_id: string
     created_at: string
     date?: string | null
+    stats?: {
+        totalVolunteersCount: number
+        fillRate: number
+    }
 }
 
 interface Invitation {
@@ -148,10 +153,8 @@ function EventCard({ event, isOwner, actionLoading, onDelete, onClick }: {
     onDelete: () => void,
     onClick: () => void,
 }) {
-    // Deterministic stats for rich UI experience based on event ID
-    const hash = event.id.split('-').reduce((acc, part) => acc + parseInt(part.substring(0, 2), 16), 0)
-    const totalVolunteers = (hash % 50) + 10
-    const completionPercent = (hash % 60) + 30
+    const totalVolunteers = event.stats?.totalVolunteersCount ?? 0
+    const completionPercent = Math.round(event.stats?.fillRate ?? 0)
 
     const router = useRouter()
 
@@ -302,7 +305,23 @@ export default function EventsPage() {
             .from('events')
             .select('*')
             .order('created_at', { ascending: false })
-        setEvents(eventsData || [])
+
+        if (eventsData) {
+            const eventsWithStats = await Promise.all(
+                eventsData.map(async (event) => {
+                    try {
+                        const stats = await getDashboardStats(event.id)
+                        return { ...event, stats }
+                    } catch (err) {
+                        console.error(`Error fetching stats for event ${event.id}:`, err)
+                        return { ...event, stats: { totalVolunteersCount: 0, fillRate: 0 } }
+                    }
+                })
+            )
+            setEvents(eventsWithStats)
+        } else {
+            setEvents([])
+        }
 
         const invites = await getUserInvitations()
         setInvitations(invites as Invitation[])
