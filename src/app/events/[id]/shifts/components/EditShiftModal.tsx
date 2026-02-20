@@ -78,7 +78,7 @@ export default function EditShiftModal({
                             <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2 pl-1">Commence</label>
                             <input
                                 type="datetime-local"
-                                name="start"
+                                name="start_time"
                                 defaultValue={shift.start_time.slice(0, 16)}
                                 required
                                 className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"
@@ -89,7 +89,7 @@ export default function EditShiftModal({
                             <label className="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-2 pl-1">Conclude</label>
                             <input
                                 type="datetime-local"
-                                name="end"
+                                name="end_time"
                                 defaultValue={shift.end_time.slice(0, 16)}
                                 required
                                 className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all font-bold"

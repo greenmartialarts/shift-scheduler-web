@@ -20,6 +20,7 @@ export async function addVolunteer(eventId: string, formData: FormData) {
     })
 
     if (!parsed.success) {
+        console.error('Validation error adding volunteer:', parsed.error.issues)
         return { error: parsed.error.issues[0].message }
     }
 
@@ -92,11 +93,13 @@ export async function updateVolunteer(eventId: string, volunteerId: string, form
     const phone = formData.get('phone') as string || null
     const email = formData.get('email') as string || null
 
+    if (!name) return { error: 'Name is required' }
+
     const { error } = await supabase
         .from('volunteers')
         .update({
             name,
-            group,
+            group: group || null,
             max_hours: maxHours,
             phone,
             email,

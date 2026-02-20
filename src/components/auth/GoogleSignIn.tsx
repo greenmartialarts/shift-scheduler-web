@@ -82,7 +82,7 @@ export function GoogleSignIn({ onSuccess, onError }: GoogleSignInProps) {
                 cancel_on_tap_outside: true,
                 itp_support: true,
                 context: 'signin',
-                use_fedcm_for_prompt: true, // Modern standard for better browser integration
+                use_fedcm_for_prompt: false, // Disabling due to NetworkError reports on some environments
             })
 
             // Render the button with specific dark mode adjustments

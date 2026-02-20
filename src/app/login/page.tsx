@@ -1,15 +1,21 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect } from 'react'
 import { login } from './actions'
 import Link from 'next/link'
 import { PremiumInput } from '@/components/ui/PremiumInput'
 import { PremiumButton } from '@/components/ui/PremiumButton'
 import { PrivacyPolicyModal } from '@/components/PrivacyPolicyModal'
 import { GoogleSignIn } from '@/components/auth/GoogleSignIn'
+import { useLogger } from '@/lib/axiom/client'
 
 export default function LoginPage() {
+    const log = useLogger();
     const [errorMessage, formAction, isPending] = useActionState(login, undefined)
+
+    useEffect(() => {
+        log.info('Login page visited');
+    }, [log]);
 
     return (
         <div className="relative flex min-h-screen flex-col items-center justify-center p-6 overflow-hidden">

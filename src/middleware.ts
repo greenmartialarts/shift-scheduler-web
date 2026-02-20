@@ -1,7 +1,12 @@
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from './lib/supabase/middleware'
+import { logger } from "@/lib/axiom/server";
+import { transformMiddlewareRequest } from "@axiomhq/nextjs";
+import type { NextFetchEvent } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest, event: NextFetchEvent) {
+    logger.info(...transformMiddlewareRequest(request));
+    event.waitUntil(logger.flush());
     return await updateSession(request)
 }
 

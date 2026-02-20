@@ -11,6 +11,7 @@ import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import { TutorialProvider } from "@/components/tutorial/TutorialContext";
 import { TutorialOverlay } from "@/components/tutorial/TutorialOverlay";
 import { SWRegister } from "@/components/SWRegister";
+import { WebVitals } from "@/lib/axiom/client";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -61,6 +62,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <WebVitals />
       <head suppressHydrationWarning>
         <Script
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4090063067766583"

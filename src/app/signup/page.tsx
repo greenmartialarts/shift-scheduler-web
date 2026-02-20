@@ -7,9 +7,16 @@ import { PremiumButton } from '@/components/ui/PremiumButton'
 import { useActionState } from 'react'
 import { PrivacyPolicyModal } from '@/components/PrivacyPolicyModal'
 import { GoogleSignIn } from '@/components/auth/GoogleSignIn'
+import { useLogger } from '@/lib/axiom/client'
+import { useEffect } from 'react'
 
 export default function SignupPage() {
+    const log = useLogger();
     const [errorMessage, formAction, isPending] = useActionState(signup, undefined)
+
+    useEffect(() => {
+        log.info('Signup page visited');
+    }, [log]);
 
     return (
         <div className="relative flex min-h-screen flex-col items-center justify-center p-6 overflow-hidden">

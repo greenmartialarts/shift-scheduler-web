@@ -3,12 +3,16 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { ShiftSchema } from '@/lib/schemas'
+import { parseToISO } from '@/lib/utils'
 
 export async function addShift(eventId: string, formData: FormData) {
     const supabase = await createClient()
     const name = formData.get('name') as string
-    const start = formData.get('start') as string
-    const end = formData.get('end') as string
+    const startTimeRaw = formData.get('start_time') as string
+    const endTimeRaw = formData.get('end_time') as string
+
+    const startTime = parseToISO(startTimeRaw)
+    const endTime = parseToISO(endTimeRaw)
 
     const requiredGroupsRaw = formData.get('required_groups') as string
     const allowedGroupsRaw = formData.get('allowed_groups') as string
@@ -26,13 +30,14 @@ export async function addShift(eventId: string, formData: FormData) {
     // Validate input with Zod
     const parsed = ShiftSchema.safeParse({
         name,
-        start_time: start,
-        end_time: end,
+        start_time: startTime,
+        end_time: endTime,
         required_groups: requiredGroupsRaw || undefined,
         allowed_groups: allowedGroupsRaw || undefined,
     })
 
     if (!parsed.success) {
+        console.error('Validation error adding shift:', parsed.error.issues)
         return { error: parsed.error.issues[0].message }
     }
 
@@ -58,36 +63,6 @@ export async function bulkAddShifts(eventId: string, shifts: Array<Record<string
     const supabase = await createClient()
 
     const formattedShifts = shifts.map((s) => {
-        // Helper function to parse MM/DD/YYYY HH:MM AM/PM format reliably
-        const parseDateTime = (dateStr: string): string | null => {
-            if (!dateStr) return null
-            try {
-                // Try ISO first
-                const isoDate = new Date(dateStr)
-                if (!isNaN(isoDate.getTime()) && dateStr.includes('-')) return isoDate.toISOString()
-
-                // Manual parse for "12/01/2025 08:00 AM" format
-                const regex = /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s+(AM|PM)$/i
-                const match = dateStr.trim().match(regex)
-
-                if (match) {
-                    const [, m, d, y, h, min, ampm] = match
-                    let hour = parseInt(h)
-                    if (ampm.toUpperCase() === 'PM' && hour < 12) hour += 12
-                    if (ampm.toUpperCase() === 'AM' && hour === 12) hour = 0
-                    const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d), hour, parseInt(min))
-                    return isNaN(date.getTime()) ? null : date.toISOString()
-                }
-
-                // Fallback to native for other formats
-                const fallbackDate = new Date(dateStr)
-                return isNaN(fallbackDate.getTime()) ? null : fallbackDate.toISOString()
-            } catch {
-                console.error("Error parsing date:", dateStr)
-                return null
-            }
-        }
-
         const rs = s as Record<string, unknown>
         // Get field values - support both formats (capitalized and lowercase)
         const name = rs.Name || rs.name || rs.Shift || rs.shift
@@ -95,9 +70,9 @@ export async function bulkAddShifts(eventId: string, shifts: Array<Record<string
         const endRaw = rs.End || rs.end_time || rs.end || rs.Finish || rs.finish
         const groupsRaw = rs.Groups || rs.required_groups
 
-        // Parse dates
-        const startTime = parseDateTime(startRaw as string)
-        const endTime = parseDateTime(endRaw as string)
+        // Parse dates using shared utility
+        const startTime = parseToISO(startRaw as string)
+        const endTime = parseToISO(endRaw as string)
 
         // Parse required_groups: "Delegates:2, Adults:2" -> {"Delegates": 2, "Adults": 2}
         let requiredGroups = {}
@@ -194,8 +169,12 @@ export async function deleteShift(eventId: string, shiftId: string) {
 export async function updateShift(eventId: string, shiftId: string, formData: FormData) {
     const supabase = await createClient()
     const name = formData.get('name') as string
-    const start = formData.get('start') as string
-    const end = formData.get('end') as string
+    const startTimeRaw = formData.get('start_time') as string
+    const endTimeRaw = formData.get('end_time') as string
+
+    const startTime = parseToISO(startTimeRaw)
+    const endTime = parseToISO(endTimeRaw)
+
     const requiredGroupsRaw = formData.get('required_groups') as string
     const allowedGroupsRaw = formData.get('allowed_groups') as string
     const excludedGroupsRaw = formData.get('excluded_groups') as string
@@ -216,8 +195,8 @@ export async function updateShift(eventId: string, shiftId: string, formData: Fo
         .from('shifts')
         .update({
             name,
-            start_time: start,
-            end_time: end,
+            start_time: startTime,
+            end_time: endTime,
             required_groups: requiredGroups,
             allowed_groups: allowedGroups,
             excluded_groups: excludedGroups,
