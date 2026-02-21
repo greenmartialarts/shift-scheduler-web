@@ -90,10 +90,10 @@ export default function ActivePersonnelManager({
         const channel = supabase
             .channel('dashboard-updates')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'assignments' }, () => {
-                window.location.reload()
+                router.refresh()
             })
             .on('postgres_changes', { event: '*', schema: 'public', table: 'assets' }, () => {
-                window.location.reload()
+                router.refresh()
             })
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_logs' }, (payload) => {
                 setLogs(prev => [payload.new as ActivityLog, ...prev].slice(0, 50))
@@ -147,13 +147,13 @@ export default function ActivePersonnelManager({
     const handleCheckIn = async (id: string, name: string) => {
         const res = await checkInVolunteer(id, eventId, name)
         if (res?.error) showAlert(res.error, 'error')
-        else window.location.reload()
+        else router.refresh()
     }
 
     const handleCheckOut = async (id: string, name: string) => {
         const res = await checkOutVolunteer(id, eventId, name)
         if (res?.error) showAlert(res.error, 'error')
-        else window.location.reload()
+        else router.refresh()
     }
 
     const handleAssetAction = async (asset: Asset) => {
@@ -161,7 +161,7 @@ export default function ActivePersonnelManager({
             // Return
             const res = await returnAsset(asset.id, eventId, asset.name)
             if (res?.error) showAlert(res.error, 'error')
-            else window.location.reload()
+            else router.refresh()
         } else {
             // Assign
             // Simple prompt for now, or could be a modal
@@ -202,7 +202,8 @@ export default function ActivePersonnelManager({
             showAlert(res.error, 'error')
             setCheckoutAssetId(null)
         } else {
-            window.location.reload()
+            router.refresh()
+            setCheckoutAssetId(null)
         }
     }
 
