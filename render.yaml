@@ -10,3 +10,21 @@ services:
         sync: false
       - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
         sync: false
+      - key: NEXT_PUBLIC_SITE_URL
+        sync: false
+      - key: NEXT_PUBLIC_ANALYTICS_PASSWORD_HASH
+        sync: false
+      - key: SCHEDULER_API_KEY
+        sync: false
+      - key: GMAIL_USER_1
+        sync: false
+      - key: GMAIL_PASS_1
+        sync: false
+      - key: GMAIL_USER_2
+        sync: false
+      - key: GMAIL_PASS_2
+        sync: false
+      - key: GMAIL_USER_3
+        sync: false
+      - key: GMAIL_PASS_3
+        sync: false

@@ -73,25 +73,20 @@ export default function EventDashboard({
             }
             setEvent(eventData)
 
-            // Fetch data for analytics
+            // Fetch data for analytics (In parallel to avoid waterfall)
             const [
                 { count: totalVolunteers, data: volunteers },
                 { data: shifts },
+                { data: assignmentsData }
             ] = await Promise.all([
                 supabase.from('volunteers').select('group', { count: 'exact' }).eq('event_id', id),
                 supabase.from('shifts').select('id, start_time, end_time, required_groups').eq('event_id', id),
+                supabase.from('assignments')
+                    .select('id, checked_in, checked_out_at, late_dismissed, shift_id, shifts!inner(event_id)')
+                    .eq('shifts.event_id', id)
             ])
 
-            // Re-fetch assignments properly
-            const shiftIds = shifts?.map(s => s.id) || [];
-            let eventAssignments: ShiftAssignment[] = [];
-            if (shiftIds.length > 0) {
-                const { data } = await supabase
-                    .from('assignments')
-                    .select('id, checked_in, checked_out_at, late_dismissed, shift_id')
-                    .in('shift_id', shiftIds);
-                eventAssignments = (data || []) as ShiftAssignment[];
-            }
+            const eventAssignments = (assignmentsData || []) as ShiftAssignment[]
 
             // Helper to normalize required_groups to dictionary format
             const normalizeGroups = (groups: unknown): Record<string, number> => {
