@@ -3,17 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Analytics } from '@/lib/analytics'
 import { ErrorLogger } from '@/lib/errorLogger'
+import { verifyAnalyticsPassword } from './actions'
 import { BarChart3, Activity, AlertTriangle, Download, Trash2, Eye, EyeOff, Lock } from 'lucide-react'
-
-const PASSWORD_HASH = process.env.NEXT_PUBLIC_ANALYTICS_PASSWORD_HASH || ''
-
-async function hashPassword(password: string): Promise<string> {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(password)
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data)
-    const hashArray = Array.from(new Uint8Array(hashBuffer))
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
-}
 
 export default function AnalyticsPage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -46,13 +37,13 @@ export default function AnalyticsPage() {
         e.preventDefault()
         setError('')
 
-        const hash = await hashPassword(password)
-        if (hash === PASSWORD_HASH) {
+        const result = await verifyAnalyticsPassword(password)
+        if (result.success) {
             setIsAuthenticated(true)
             sessionStorage.setItem('analytics_auth', 'true')
             loadData()
         } else {
-            setError('Incorrect password')
+            setError(result.error || 'Incorrect password')
             setPassword('')
         }
     }
@@ -88,8 +79,8 @@ export default function AnalyticsPage() {
                 <div className="max-w-md w-full">
                     <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 rounded-3xl p-8 shadow-xl">
                         <div className="text-center mb-8">
-                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900/20 mb-4">
-                                <Lock className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+                            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/20 mb-4">
+                                <Lock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                             </div>
                             <h1 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 mb-2">
                                 Analytics Dashboard
@@ -109,7 +100,7 @@ export default function AnalyticsPage() {
                                         type={showPassword ? 'text' : 'password'}
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500 outline-none transition-all font-mono"
+                                        className="w-full px-4 py-3 pr-12 rounded-xl border-2 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
                                         placeholder="Enter password"
                                         autoFocus
                                     />
@@ -128,7 +119,7 @@ export default function AnalyticsPage() {
 
                             <button
                                 type="submit"
-                                className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors"
+                                className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors"
                             >
                                 Access Dashboard
                             </button>
@@ -157,7 +148,7 @@ export default function AnalyticsPage() {
                     <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-800 rounded-3xl p-6">
                         <div className="flex items-center justify-between mb-2">
                             <h3 className="text-xs font-black uppercase tracking-wider text-zinc-400">Page Views</h3>
-                            <BarChart3 className="w-5 h-5 text-indigo-500" />
+                            <BarChart3 className="w-5 h-5 text-blue-500" />
                         </div>
                         <p className="text-3xl font-black text-zinc-900 dark:text-zinc-50">{pageViews.length}</p>
                     </div>
@@ -183,7 +174,7 @@ export default function AnalyticsPage() {
                 <div className="flex gap-3 mb-8">
                     <button
                         onClick={handleExport}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors text-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-colors text-sm"
                     >
                         <Download className="w-4 h-4" />
                         Export Data

@@ -71,9 +71,9 @@ export function TutorialProvider({ children }: { children: ReactNode }) {
                 .from('profiles')
                 .select('has_completed_tutorial')
                 .eq('id', id)
-                .single()
+                .maybeSingle()
 
-            // Auto-start if never completed
+            // Auto-start if never completed (maybeSingle avoids 406 when profile row missing)
             if (profile && !profile.has_completed_tutorial) {
                 // Determine if we should auto-start or if user has already manually closed it
                 // For now, let's auto-start

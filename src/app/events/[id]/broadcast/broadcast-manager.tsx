@@ -83,7 +83,7 @@ export default function BroadcastManager({
                     className="premium-card p-6"
                 >
                     <h3 className="text-sm font-black uppercase tracking-widest text-zinc-400 mb-6 flex items-center gap-2">
-                        <Users className="w-4 h-4 text-indigo-500" />
+                        <Users className="w-4 h-4 text-blue-500" />
                         Target Audience
                     </h3>
 
@@ -99,11 +99,11 @@ export default function BroadcastManager({
                                 whileTap={{ scale: 0.98 }}
                                 onClick={() => setFilterType(item.id as 'all' | 'active' | 'group')}
                                 className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${filterType === item.id
-                                    ? 'bg-indigo-500/10 border-indigo-500 shadow-[0_0_20px_-5px_rgba(99,102,241,0.3)]'
+                                    ? 'bg-blue-500/10 border-blue-500 shadow-[0_0_20px_-5px_rgba(99,102,241,0.3)]'
                                     : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
                                     }`}
                             >
-                                <div className={`p-2 rounded-xl ${filterType === item.id ? 'bg-indigo-500 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}>
+                                <div className={`p-2 rounded-xl ${filterType === item.id ? 'bg-blue-500 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'}`}>
                                     <item.icon className="w-5 h-5" />
                                 </div>
                                 <div>
@@ -126,7 +126,7 @@ export default function BroadcastManager({
                                 <select
                                     value={selectedGroup}
                                     onChange={(e) => setSelectedGroup(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 font-bold text-zinc-900 dark:text-zinc-50 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all appearance-none"
+                                    className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 font-bold text-zinc-900 dark:text-zinc-50 outline-none focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none"
                                 >
                                     <option value="">Choose a group...</option>
                                     {groups.map(g => (
@@ -173,14 +173,14 @@ export default function BroadcastManager({
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="premium-card p-8 flex flex-col h-full bg-indigo-500/[0.02]"
+                    className="premium-card p-8 flex flex-col h-full bg-blue-500/[0.02]"
                 >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                         <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 tracking-tight flex items-center gap-3">
-                            <Mail className="w-7 h-7 text-indigo-500" />
+                            <Mail className="w-7 h-7 text-blue-500" />
                             Compose Broadcast
                         </h2>
-                        <div className="px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-black uppercase tracking-wider">
+                        <div className="px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-black uppercase tracking-wider">
                             {filteredVolunteers.length} Recipients Selected
                         </div>
                     </div>
@@ -193,7 +193,7 @@ export default function BroadcastManager({
                                 value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
                                 placeholder="Urgent: All Medical Staff to Gate 4"
-                                className="w-full px-6 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700 font-bold"
+                                className="w-full px-6 py-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700 font-bold"
                             />
                         </div>
 
@@ -203,7 +203,7 @@ export default function BroadcastManager({
                                 value={message}
                                 onChange={(e) => setMessage(e.target.value)}
                                 placeholder="Draft your command here..."
-                                className="w-full flex-grow min-h-[300px] px-6 py-5 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700 font-medium leading-relaxed resize-none shadow-inner"
+                                className="w-full flex-grow min-h-[300px] px-6 py-5 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all placeholder:text-zinc-300 dark:placeholder:text-zinc-700 font-medium leading-relaxed resize-none shadow-inner"
                             />
                         </div>
                     </div>

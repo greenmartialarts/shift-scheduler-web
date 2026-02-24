@@ -2,18 +2,17 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { ShiftSchema } from '@/lib/schemas'
+import { parseToISO } from '@/lib/utils'
 
 export async function addShift(eventId: string, formData: FormData) {
     const supabase = await createClient()
     const name = formData.get('name') as string
-    const start = formData.get('start') as string
-    const end = formData.get('end') as string
+    const startTimeRaw = formData.get('start_time') as string
+    const endTimeRaw = formData.get('end_time') as string
 
-    // Parse groups from form data (assuming simple text input for now, or handled in client)
-    // For simplicity in the "barebones" version, we'll accept JSON strings or handle parsing in client before sending?
-    // Actually, FormData is tricky for complex objects. Let's assume the client sends JSON strings for these fields if using FormData,
-    // or we can use a separate server action that takes an object.
-    // But to keep it consistent with the previous pattern, let's try to parse.
+    const startTime = parseToISO(startTimeRaw)
+    const endTime = parseToISO(endTimeRaw)
 
     const requiredGroupsRaw = formData.get('required_groups') as string
     const allowedGroupsRaw = formData.get('allowed_groups') as string
@@ -25,15 +24,28 @@ export async function addShift(eventId: string, formData: FormData) {
         if (requiredGroupsRaw) requiredGroups = JSON.parse(requiredGroupsRaw)
         if (allowedGroupsRaw) allowedGroups = JSON.parse(allowedGroupsRaw)
     } catch {
-        // Fallback or error
         console.error("Error parsing groups JSON")
+    }
+
+    // Validate input with Zod
+    const parsed = ShiftSchema.safeParse({
+        name,
+        start_time: startTime,
+        end_time: endTime,
+        required_groups: requiredGroupsRaw || undefined,
+        allowed_groups: allowedGroupsRaw || undefined,
+    })
+
+    if (!parsed.success) {
+        console.error('Validation error adding shift:', parsed.error.issues)
+        return { error: parsed.error.issues[0].message }
     }
 
     const { error } = await supabase.from('shifts').insert({
         event_id: eventId,
-        name: name,
-        start_time: start,
-        end_time: end,
+        name: parsed.data.name,
+        start_time: parsed.data.start_time,
+        end_time: parsed.data.end_time,
         required_groups: requiredGroups,
         allowed_groups: allowedGroups,
     })
@@ -51,20 +63,6 @@ export async function bulkAddShifts(eventId: string, shifts: Array<Record<string
     const supabase = await createClient()
 
     const formattedShifts = shifts.map((s) => {
-        // Helper function to parse MM/DD/YYYY HH:MM AM/PM format
-        const parseDateTime = (dateStr: string): string | null => {
-            if (!dateStr) return null
-            try {
-                // Parse "12/01/2025 08:00 AM" format
-                const date = new Date(dateStr)
-                if (isNaN(date.getTime())) return null
-                return date.toISOString()
-            } catch {
-                console.error("Error parsing date:", dateStr)
-                return null
-            }
-        }
-
         const rs = s as Record<string, unknown>
         // Get field values - support both formats (capitalized and lowercase)
         const name = rs.Name || rs.name || rs.Shift || rs.shift
@@ -72,9 +70,9 @@ export async function bulkAddShifts(eventId: string, shifts: Array<Record<string
         const endRaw = rs.End || rs.end_time || rs.end || rs.Finish || rs.finish
         const groupsRaw = rs.Groups || rs.required_groups
 
-        // Parse dates
-        const startTime = parseDateTime(startRaw as string)
-        const endTime = parseDateTime(endRaw as string)
+        // Parse dates using shared utility
+        const startTime = parseToISO(startRaw as string)
+        const endTime = parseToISO(endRaw as string)
 
         // Parse required_groups: "Delegates:2, Adults:2" -> {"Delegates": 2, "Adults": 2}
         let requiredGroups = {}
@@ -116,16 +114,29 @@ export async function bulkAddShifts(eventId: string, shifts: Array<Record<string
             }
         }
 
-        return {
-            event_id: eventId,
-            name: name,
+        // Validate with ShiftSchema
+        const validation = ShiftSchema.safeParse({
+            name: name?.toString() || 'Shift',
             start_time: startTime,
             end_time: endTime,
+            required_groups: typeof requiredGroups === 'string' ? requiredGroups : JSON.stringify(requiredGroups),
+        })
+
+        if (!validation.success) {
+            console.error("Validation failed for shift:", name, validation.error.issues[0].message)
+            return null // Filtered out below
+        }
+
+        return {
+            event_id: eventId,
+            name: validation.data.name,
+            start_time: validation.data.start_time,
+            end_time: validation.data.end_time,
             required_groups: requiredGroups,
             allowed_groups: allowedGroups,
             excluded_groups: excludedGroups,
         }
-    })
+    }).filter((s): s is NonNullable<typeof s> => s !== null)
 
     const { error } = await supabase.from('shifts').insert(formattedShifts)
 
@@ -158,8 +169,12 @@ export async function deleteShift(eventId: string, shiftId: string) {
 export async function updateShift(eventId: string, shiftId: string, formData: FormData) {
     const supabase = await createClient()
     const name = formData.get('name') as string
-    const start = formData.get('start') as string
-    const end = formData.get('end') as string
+    const startTimeRaw = formData.get('start_time') as string
+    const endTimeRaw = formData.get('end_time') as string
+
+    const startTime = parseToISO(startTimeRaw)
+    const endTime = parseToISO(endTimeRaw)
+
     const requiredGroupsRaw = formData.get('required_groups') as string
     const allowedGroupsRaw = formData.get('allowed_groups') as string
     const excludedGroupsRaw = formData.get('excluded_groups') as string
@@ -180,8 +195,8 @@ export async function updateShift(eventId: string, shiftId: string, formData: Fo
         .from('shifts')
         .update({
             name,
-            start_time: start,
-            end_time: end,
+            start_time: startTime,
+            end_time: endTime,
             required_groups: requiredGroups,
             allowed_groups: allowedGroups,
             excluded_groups: excludedGroups,
@@ -253,6 +268,12 @@ export async function generateRecurringShifts(eventId: string, formData: FormDat
             // Avoid timezone issues by using ISO string slices
             const startISO = new Date(shiftStart.getTime() - shiftStart.getTimezoneOffset() * 60000).toISOString()
             const endISO = new Date(shiftEnd.getTime() - shiftEnd.getTimezoneOffset() * 60000).toISOString()
+
+            // Validate time ordering
+            if (new Date(endISO) <= new Date(startISO)) {
+                console.error("End time before start time for recurring shift on date:", d.toISOString())
+                continue
+            }
 
             shiftsToCreate.push({
                 event_id: eventId,

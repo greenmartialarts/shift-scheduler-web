@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
-export async function toggleCheckIn(assignmentId: string, checkedIn: boolean) {
+export async function toggleCheckIn(assignmentId: string, checkedIn: boolean, eventId: string) {
     const supabase = await createClient()
 
     const { error } = await supabase
@@ -16,11 +16,11 @@ export async function toggleCheckIn(assignmentId: string, checkedIn: boolean) {
         return { error: error.message }
     }
 
-    revalidatePath('/events/[id]/checkin', 'page')
+    revalidatePath(`/events/${eventId}/checkin`, 'page')
     return { success: true }
 }
 
-export async function dismissLateWarning(assignmentId: string) {
+export async function dismissLateWarning(assignmentId: string, eventId: string) {
     const supabase = await createClient()
 
     const { error } = await supabase
@@ -33,11 +33,11 @@ export async function dismissLateWarning(assignmentId: string) {
         return { error: error.message }
     }
 
-    revalidatePath('/events/[id]/checkin', 'page')
+    revalidatePath(`/events/${eventId}/checkin`, 'page')
     return { success: true }
 }
 
-export async function undismissLateWarning(assignmentId: string) {
+export async function undismissLateWarning(assignmentId: string, eventId: string) {
     const supabase = await createClient()
 
     const { error } = await supabase
@@ -50,6 +50,6 @@ export async function undismissLateWarning(assignmentId: string) {
         return { error: error.message }
     }
 
-    revalidatePath('/events/[id]/checkin', 'page')
+    revalidatePath(`/events/${eventId}/checkin`, 'page')
     return { success: true }
 }

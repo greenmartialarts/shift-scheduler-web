@@ -21,11 +21,11 @@ export default function ForgotPasswordPage() {
                     </p>
                 </div>
 
-                <div className="glass-panel rounded-[2.5rem] p-8 sm:p-10 shadow-2xl">
+                <div className="glass-panel rounded-xl p-8 sm:p-10 shadow-lg">
                     <form action={formAction} className="space-y-6">
                         {message && (
                             <div
-                                className={`rounded-2xl p-4 border ${message.includes('Could not')
+                                className={`rounded-xl p-4 border ${message.includes('Could not')
                                     ? 'bg-red-50/50 border-red-200/50 text-red-800 dark:bg-red-900/20 dark:border-red-800/50 dark:text-red-200'
                                     : 'bg-green-50/50 border-green-200/50 text-green-800 dark:bg-green-900/20 dark:border-green-800/50 dark:text-green-200'
                                     }`}
@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
 
                         <p className="text-center text-sm text-zinc-500 dark:text-zinc-400 pt-2">
                             Remember your password?{' '}
-                            <Link href="/login" className="font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 transition-colors">
+                            <Link href="/login" className="font-bold text-blue-600 dark:text-blue-500 hover:text-blue-700 transition-colors">
                                 Sign In
                             </Link>
                         </p>

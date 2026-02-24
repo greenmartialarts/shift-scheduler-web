@@ -40,7 +40,23 @@ export async function cloneEvent(
 
     const newEventId = newEvent.id
 
-    // 2. Copy Volunteers
+    // 2. Add creator as Admin (same as createEvent)
+    const { error: adminError } = await supabase
+        .from('event_admins')
+        .insert({
+            event_id: newEventId,
+            user_id: user.id,
+            role: 'admin',
+        })
+
+    if (adminError) {
+        console.error('Error adding admin to cloned event:', adminError)
+        // Rollback: Delete the orphaned event
+        await supabase.from('events').delete().eq('id', newEventId)
+        return { error: 'Failed to set up event permissions. Please try again.' }
+    }
+
+    // 3. Copy Volunteers
     if (copyVolunteers) {
         const { data: volunteers } = await supabase
             .from('volunteers')
@@ -158,4 +174,46 @@ export async function cloneEvent(
 
     revalidatePath('/events')
     return { success: true, newEventId }
+}
+
+export async function generateNextOccurrence(eventId: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Not authenticated' }
+
+    const { data: event } = await supabase
+        .from('events')
+        .select('id, name, date, recurrence_rule')
+        .eq('id', eventId)
+        .single()
+
+    if (!event || !event.recurrence_rule) {
+        return { error: 'Set a recurrence rule in Event Settings first (e.g. Weekly, Biweekly, Monthly).' }
+    }
+
+    const baseDate = event.date ? new Date(event.date) : new Date()
+    const nextDate = new Date(baseDate)
+    switch (String(event.recurrence_rule).toUpperCase()) {
+        case 'WEEKLY':
+            nextDate.setDate(nextDate.getDate() + 7)
+            break
+        case 'BIWEEKLY':
+            nextDate.setDate(nextDate.getDate() + 14)
+            break
+        case 'MONTHLY':
+            nextDate.setMonth(nextDate.getMonth() + 1)
+            break
+        default:
+            nextDate.setDate(nextDate.getDate() + 7)
+    }
+
+    const offsetDays = Math.round((nextDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24))
+    const formData = new FormData()
+    formData.set('name', `${event.name} – ${nextDate.toLocaleDateString()}`)
+    formData.set('date', nextDate.toISOString().slice(0, 10))
+    formData.set('copyShifts', 'on')
+    formData.set('copyVolunteers', 'on')
+    formData.set('offsetDays', String(offsetDays))
+
+    return cloneEvent(eventId, formData)
 }

@@ -221,7 +221,7 @@ export default function ActivePersonnelManager({
             <div className="lg:col-span-1 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 flex flex-col overflow-hidden shadow-sm">
                 <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 flex justify-between items-center">
                     <h2 className="font-bold text-lg flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-indigo-500" />
+                        <Activity className="w-5 h-5 text-blue-500" />
                         Activity Stream - {eventName}
                     </h2>
                     <span className="text-xs font-mono text-zinc-400">{logs.length} events</span>
@@ -233,7 +233,7 @@ export default function ActivePersonnelManager({
                                 {log.type === 'check_in' && <div className="w-2 h-2 rounded-full bg-green-500 mt-1.5" />}
                                 {log.type === 'check_out' && <div className="w-2 h-2 rounded-full bg-zinc-300 mt-1.5" />}
                                 {log.type === 'asset_out' && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5" />}
-                                {log.type === 'asset_in' && <div className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5" />}
+                                {log.type === 'asset_in' && <div className="w-2 h-2 rounded-full bg-blue-500 mt-1.5" />}
                                 {log.type === 'late_warning' && <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 animate-pulse" />}
                             </div>
                             <div>
@@ -279,19 +279,19 @@ export default function ActivePersonnelManager({
                     <div className="p-2 bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-100 dark:border-zinc-800 flex gap-2 overflow-x-auto">
                         <button
                             onClick={() => setActiveTab('checkin')}
-                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'checkin' ? 'bg-white dark:bg-zinc-800 shadow-sm text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'checkin' ? 'bg-white dark:bg-zinc-800 shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
                         >
                             Check In
                         </button>
                         <button
                             onClick={() => setActiveTab('checkout')}
-                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'checkout' ? 'bg-white dark:bg-zinc-800 shadow-sm text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'checkout' ? 'bg-white dark:bg-zinc-800 shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
                         >
                             Check Out
                         </button>
                         <button
                             onClick={() => setActiveTab('assets')}
-                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'assets' ? 'bg-white dark:bg-zinc-800 shadow-sm text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}
+                            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${activeTab === 'assets' ? 'bg-white dark:bg-zinc-800 shadow-sm text-blue-600' : 'text-zinc-500 hover:text-zinc-700'}`}
                         >
                             Asset Tracking
                         </button>
@@ -303,7 +303,7 @@ export default function ActivePersonnelManager({
                             placeholder="Search name, shift..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                            className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
 
@@ -352,7 +352,7 @@ export default function ActivePersonnelManager({
                                                             {checkoutAssetId ? (
                                                                 <button
                                                                     onClick={() => confirmCheckout(a.volunteer.id, a.volunteer.name)}
-                                                                    className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow-lg hover:bg-indigo-700 animate-pulse"
+                                                                    className="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg shadow-lg hover:bg-blue-700 animate-pulse"
                                                                 >
                                                                     Assign Asset To
                                                                 </button>
@@ -393,11 +393,11 @@ export default function ActivePersonnelManager({
                         {activeTab === 'assets' && (
                             <div className="p-4">
                                 {checkoutAssetId && (
-                                    <div className="mb-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 p-4 rounded-xl flex items-center justify-between">
-                                        <p className="text-sm text-indigo-800 dark:text-indigo-200 font-bold">
+                                    <div className="mb-4 bg-blue-50 dark:bg-blue-900/20 border border-indigo-200 dark:border-blue-800 p-4 rounded-xl flex items-center justify-between">
+                                        <p className="text-sm text-blue-800 dark:text-indigo-200 font-bold">
                                             Select a volunteer from the &quot;Check In&quot; or &quot;Check Out&quot; tab to assign this asset.
                                         </p>
-                                        <button onClick={() => setCheckoutAssetId(null)} className="text-xs underline text-indigo-600">Cancel</button>
+                                        <button onClick={() => setCheckoutAssetId(null)} className="text-xs underline text-blue-600">Cancel</button>
                                     </div>
                                 )}
 
@@ -434,7 +434,7 @@ export default function ActivePersonnelManager({
                                                         setActiveTab('checkout') // Default to checkout tab for assignment
                                                         showAlert('Select a volunteer to assign this asset to.', 'info')
                                                     }}
-                                                    className="mt-4 w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-colors shadow-lg shadow-indigo-500/10"
+                                                    className="mt-4 w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors shadow-lg shadow-blue-500/10"
                                                 >
                                                     Check Out
                                                 </button>

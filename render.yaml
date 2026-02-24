@@ -12,9 +12,11 @@ services:
         sync: false
       - key: NEXT_PUBLIC_SITE_URL
         sync: false
-      - key: NEXT_PUBLIC_ANALYTICS_PASSWORD_HASH
+      - key: ANALYTICS_PASSWORD_HASH
         sync: false
       - key: SCHEDULER_API_KEY
+        sync: false
+      - key: SCHEDULER_API_URL
         sync: false
       - key: GMAIL_USER_1
         sync: false
@@ -27,4 +29,16 @@ services:
       - key: GMAIL_USER_3
         sync: false
       - key: GMAIL_PASS_3
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_SECURE
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: CONTACT_EMAIL
         sync: false

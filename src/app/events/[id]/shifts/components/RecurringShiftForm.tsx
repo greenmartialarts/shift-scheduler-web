@@ -27,9 +27,9 @@ interface RecurringShiftFormProps {
 export default function RecurringShiftForm({ templates, onSubmit }: RecurringShiftFormProps) {
     return (
         <div className="overflow-hidden">
-            <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/10 border-indigo-500/20">
+            <div className="premium-card p-8 bg-zinc-50/50 dark:bg-zinc-900/10 border-blue-500/20">
                 <h3 className="text-xl font-black text-zinc-900 dark:text-zinc-50 mb-6 flex items-center gap-2">
-                    <Repeat className="w-5 h-5 text-indigo-500" />
+                    <Repeat className="w-5 h-5 text-blue-500" />
                     Generate Recurring Sequence
                 </h3>
                 <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -38,7 +38,7 @@ export default function RecurringShiftForm({ templates, onSubmit }: RecurringShi
                         <select
                             name="template_id"
                             required
-                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all appearance-none"
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all appearance-none"
                             onChange={(e) => {
                                 const t = templates.find(t => t.id === e.target.value)
                                 if (t) {
@@ -62,7 +62,7 @@ export default function RecurringShiftForm({ templates, onSubmit }: RecurringShi
                             type="date"
                             name="start_date"
                             required
-                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                         />
                     </div>
                     <div>
@@ -71,7 +71,7 @@ export default function RecurringShiftForm({ templates, onSubmit }: RecurringShi
                             type="date"
                             name="end_date"
                             required
-                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                         />
                     </div>
                     <div>
@@ -80,7 +80,7 @@ export default function RecurringShiftForm({ templates, onSubmit }: RecurringShi
                             type="time"
                             name="start_time"
                             required
-                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                         />
                     </div>
                     <div>
@@ -89,7 +89,7 @@ export default function RecurringShiftForm({ templates, onSubmit }: RecurringShi
                             type="time"
                             name="end_time"
                             required
-                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all"
+                            className="w-full px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
                         />
                     </div>
                     <div className="md:col-span-4">
@@ -98,7 +98,7 @@ export default function RecurringShiftForm({ templates, onSubmit }: RecurringShi
                             {DAYS_OF_WEEK.map((day) => (
                                 <label key={day.value} className="relative group cursor-pointer inline-block">
                                     <input type="checkbox" name="days" value={day.value} className="peer sr-only" defaultChecked />
-                                    <div className="px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 peer-checked:bg-indigo-500 peer-checked:border-indigo-500 peer-checked:text-white transition-all text-sm font-black text-zinc-500 text-center min-w-[60px]">
+                                    <div className="px-5 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 peer-checked:bg-blue-500 peer-checked:border-blue-500 peer-checked:text-white transition-all text-sm font-black text-zinc-500 text-center min-w-[60px]">
                                         {day.label}
                                     </div>
                                 </label>

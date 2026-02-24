@@ -40,11 +40,11 @@ export default function ShiftList({ shifts, onEdit, onDelete }: ShiftListProps) 
                             return (
                                 <tr
                                     key={shift.id}
-                                    className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-all border-l-2 border-l-transparent hover:border-l-indigo-500"
+                                    className="group hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20 transition-all border-l-2 border-l-transparent hover:border-l-blue-500"
                                 >
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-indigo-500/10 to-purple-500/10 flex items-center justify-center border border-indigo-500/10 text-indigo-600 dark:text-indigo-400">
+                                            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center border border-blue-500/10 text-blue-600 dark:text-blue-400">
                                                 <Calendar className="w-4 h-4" />
                                             </div>
                                             <span className="font-bold text-zinc-900 dark:text-zinc-50">{shift.name}</span>
@@ -89,7 +89,7 @@ export default function ShiftList({ shifts, onEdit, onDelete }: ShiftListProps) 
                                         <div className="flex justify-end items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <button
                                                 onClick={() => onEdit(shift.id)}
-                                                className="p-2 rounded-lg text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all"
+                                                className="p-2 rounded-lg text-zinc-400 hover:text-blue-500 hover:bg-blue-500/10 transition-all"
                                                 title="Edit Shift"
                                             >
                                                 <Edit2 className="w-4 h-4" />

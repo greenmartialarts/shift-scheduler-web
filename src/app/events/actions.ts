@@ -45,8 +45,9 @@ export async function createEvent(formData: FormData) {
 
     if (adminError) {
         console.error('Error adding admin:', adminError)
-        // Cleanup event if admin creation fails? Or just log.
-        // If this fails, the user created an event they can't see.
+        // Rollback: Delete the orphaned event
+        await supabase.from('events').delete().eq('id', event.id)
+        return { error: 'Failed to set up event permissions. Please try again.' }
     }
 
     revalidatePath('/events')
@@ -58,6 +59,7 @@ export async function updateEventSettings(formData: FormData) {
     const id = formData.get('id') as string
     const name = formData.get('name') as string
     const timezone = formData.get('timezone') as string
+    const recurrence_rule = (formData.get('recurrence_rule') as string) || null
 
     // Verify admin access
     const { data: { user } } = await supabase.auth.getUser()
@@ -75,7 +77,7 @@ export async function updateEventSettings(formData: FormData) {
 
     const { error } = await supabase
         .from('events')
-        .update({ name, timezone })
+        .update({ name, timezone, recurrence_rule })
         .eq('id', id)
 
     if (error) {
@@ -92,13 +94,29 @@ export async function deleteEvent(formData: FormData) {
     const supabase = await createClient()
     const id = formData.get('id') as string
 
+    // Verify admin access before deletion
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Not authenticated' }
+
+    // Check if user is admin of this event
+    const { data: adminCheck } = await supabase
+        .from('event_admins')
+        .select('role')
+        .eq('event_id', id)
+        .eq('user_id', user.id)
+        .single()
+
+    if (!adminCheck) return { error: 'Not authorized to delete this event' }
+
     const { error } = await supabase.from('events').delete().eq('id', id)
 
     if (error) {
         console.error('Error deleting event:', error)
+        return { error: 'Failed to delete event' }
     }
 
     revalidatePath('/events')
+    return { success: true }
 }
 
 export async function getUserInvitations() {
@@ -142,9 +160,24 @@ export async function acceptInvitation(invitationId: string) {
 export async function declineInvitation(invitationId: string) {
     const supabase = await createClient()
 
+    // Verify user is authenticated and owns this invitation
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Not authenticated' }
+
+    // Check if the invitation belongs to this user's email
+    const { data: invitation } = await supabase
+        .from('event_invitations')
+        .select('email')
+        .eq('id', invitationId)
+        .single()
+
+    if (!invitation || invitation.email !== user.email) {
+        return { error: 'Not authorized to decline this invitation' }
+    }
+
     const { error } = await supabase
         .from('event_invitations')
-        .update({ status: 'declined' }) // Or delete()
+        .update({ status: 'declined' })
         .eq('id', invitationId)
 
     if (error) return { error: error.message }

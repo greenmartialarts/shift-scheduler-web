@@ -100,7 +100,7 @@ export default function ShiftTimeline({ shifts, onEdit, onDelete }: ShiftTimelin
     const ROW_HEIGHT = 80 // px per track
 
     return (
-        <div className="premium-card overflow-hidden border-indigo-500/10">
+        <div className="premium-card overflow-hidden border-blue-500/10">
             <div
                 ref={scrollContainerRef}
                 className="overflow-x-auto custom-scrollbar"
@@ -123,7 +123,7 @@ export default function ShiftTimeline({ shifts, onEdit, onDelete }: ShiftTimelin
                             >
                                 <div className="flex flex-col">
                                     <span>{hour.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
-                                    <span className="text-indigo-500">{hour.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                    <span className="text-blue-500">{hour.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
                             </div>
                         ))}
@@ -200,7 +200,7 @@ export default function ShiftTimeline({ shifts, onEdit, onDelete }: ShiftTimelin
                                             return (
                                                 <div
                                                     key={shift.id}
-                                                    className="absolute h-16 rounded-xl border border-indigo-500/20 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-sm p-3 group/item hover:shadow-2xl hover:shadow-purple-500/20 transition-all cursor-default overflow-hidden"
+                                                    className="absolute h-16 rounded-xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-sm p-3 group/item hover:shadow-2xl hover:shadow-purple-500/20 transition-all cursor-default overflow-hidden"
                                                     style={{
                                                         ...pos,
                                                         top: `${shift.track * ROW_HEIGHT + 8}px`
@@ -214,7 +214,7 @@ export default function ShiftTimeline({ shifts, onEdit, onDelete }: ShiftTimelin
                                                             <div className="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
                                                                 <button
                                                                     onClick={(e) => { e.stopPropagation(); onEdit(shift.id); }}
-                                                                    className="p-1 rounded bg-white/50 dark:bg-zinc-800/50 hover:text-indigo-500"
+                                                                    className="p-1 rounded bg-white/50 dark:bg-zinc-800/50 hover:text-blue-500"
                                                                 >
                                                                     <Edit2 className="w-3 h-3" />
                                                                 </button>
@@ -227,7 +227,7 @@ export default function ShiftTimeline({ shifts, onEdit, onDelete }: ShiftTimelin
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-500 italic">
-                                                            <Clock className="w-3 h-3 text-indigo-400" />
+                                                            <Clock className="w-3 h-3 text-blue-400" />
                                                             <span>
                                                                 {new Date(shift.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                             </span>
