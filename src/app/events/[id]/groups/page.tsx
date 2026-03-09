@@ -18,22 +18,23 @@ export default async function GroupsPage({
         redirect('/login')
     }
 
-    const { data: groups } = await supabase
-        .from('volunteer_groups')
-        .select('*, volunteers(count)')
-        .eq('event_id', id)
-        .order('name', { ascending: true })
+    const [{ data: groups }, { data: volunteers }] = await Promise.all([
+        supabase
+            .from('volunteer_groups')
+            .select('*, volunteers(count)')
+            .eq('event_id', id)
+            .order('name', { ascending: true }),
+        supabase
+            .from('volunteers')
+            .select('*')
+            .eq('event_id', id)
+    ])
 
     // Transform data to include volunteer count
     const groupsWithCount = groups?.map((g) => ({
         ...g,
         volunteer_count: (g.volunteers as unknown as Array<{ count: number }>)?.[0]?.count || 0
     })) || []
-
-    const { data: volunteers } = await supabase
-        .from('volunteers')
-        .select('*')
-        .eq('event_id', id)
 
     return (
         <div className="p-8">
