@@ -18,6 +18,19 @@ import {
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+const navItemsConfig = [
+    { name: 'Overview', icon: LayoutDashboard, path: '' },
+    { name: 'Admin Center', icon: Zap, path: '/active' },
+    { name: 'Volunteers', icon: Users, path: '/volunteers' },
+    { name: 'Shifts', icon: Calendar, path: '/shifts' },
+    { name: 'Assets', icon: Package, path: '/assets' },
+    { name: 'Assignments', icon: Zap, path: '/assign' },
+    { name: 'Check-in', icon: UserCheck, path: '/checkin' },
+    { name: 'Reports', icon: FileBarChart, path: '/reports' },
+    { name: 'Audit Log', icon: ClipboardList, path: '/audit' },
+    { name: 'Settings', icon: Settings, path: '/share' },
+]
+
 export function EventSidebar() {
     const params = useParams()
     const pathname = usePathname()
@@ -33,19 +46,6 @@ export function EventSidebar() {
         window.addEventListener('resize', checkMobile)
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
-
-    const navItems = [
-        { name: 'Overview', icon: LayoutDashboard, href: `/events/${id}` },
-        { name: 'Admin Center', icon: Zap, href: `/events/${id}/active` },
-        { name: 'Volunteers', icon: Users, href: `/events/${id}/volunteers` },
-        { name: 'Shifts', icon: Calendar, href: `/events/${id}/shifts` },
-        { name: 'Assets', icon: Package, href: `/events/${id}/assets` },
-        { name: 'Assignments', icon: Zap, href: `/events/${id}/assign` },
-        { name: 'Check-in', icon: UserCheck, href: `/events/${id}/checkin` },
-        { name: 'Reports', icon: FileBarChart, href: `/events/${id}/reports` },
-        { name: 'Audit Log', icon: ClipboardList, href: `/events/${id}/audit` },
-        { name: 'Settings', icon: Settings, href: `/events/${id}/share` },
-    ]
 
     return (
         <motion.aside
@@ -89,19 +89,20 @@ export function EventSidebar() {
 
                 {/* Navigation */}
                 <nav className="flex flex-col gap-2">
-                    {navItems.map((item) => {
+                    {navItemsConfig.map((item) => {
+                        const itemHref = `/events/${id}${item.path}`
                         const isOverview = item.name === 'Overview'
                         const isVolunteersSection = item.name === 'Volunteers' && (pathname.endsWith('/volunteers') || pathname.endsWith('/groups'))
                         const isShiftsSection = item.name === 'Shifts' && (pathname.includes('/shifts'))
 
                         const isActive = isOverview
-                            ? pathname === item.href
-                            : (isVolunteersSection || isShiftsSection || pathname.startsWith(item.href))
+                            ? pathname === itemHref
+                            : (isVolunteersSection || isShiftsSection || pathname.startsWith(itemHref))
 
                         return (
                             <Link
                                 key={item.name}
-                                href={item.href}
+                                href={itemHref}
                                 title={isCollapsed ? item.name : undefined}
                                 className={`group flex items-center gap-3 px-3 py-3 rounded-xl font-bold text-sm transition-all relative ${isActive
                                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
