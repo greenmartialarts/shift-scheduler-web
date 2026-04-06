@@ -28,3 +28,5 @@ services:
         sync: false
       - key: CONTACT_EMAIL
         sync: false
+      - key: ANALYTICS_PASSWORD_HASH
+        sync: false
