@@ -28,3 +28,11 @@ services:
         sync: false
       - key: CONTACT_EMAIL
         sync: false
+      - key: ANALYTICS_PASSWORD_HASH
+        sync: false
+      - key: NEXT_PUBLIC_AXIOM_TOKEN
+        sync: false
+      - key: NEXT_PUBLIC_AXIOM_DATASET
+        sync: false
+      - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
+        sync: false
