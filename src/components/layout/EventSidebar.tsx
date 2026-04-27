@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
     Users,
     Calendar,
@@ -17,6 +17,19 @@ import {
     ClipboardList,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+
+const NAV_ITEMS_CONFIG = [
+    { name: 'Overview', icon: LayoutDashboard, path: '' },
+    { name: 'Admin Center', icon: Zap, path: '/active' },
+    { name: 'Volunteers', icon: Users, path: '/volunteers' },
+    { name: 'Shifts', icon: Calendar, path: '/shifts' },
+    { name: 'Assets', icon: Package, path: '/assets' },
+    { name: 'Assignments', icon: Zap, path: '/assign' },
+    { name: 'Check-in', icon: UserCheck, path: '/checkin' },
+    { name: 'Reports', icon: FileBarChart, path: '/reports' },
+    { name: 'Audit Log', icon: ClipboardList, path: '/audit' },
+    { name: 'Settings', icon: Settings, path: '/share' },
+]
 
 export function EventSidebar() {
     const params = useParams()
@@ -34,18 +47,12 @@ export function EventSidebar() {
         return () => window.removeEventListener('resize', checkMobile)
     }, [])
 
-    const navItems = [
-        { name: 'Overview', icon: LayoutDashboard, href: `/events/${id}` },
-        { name: 'Admin Center', icon: Zap, href: `/events/${id}/active` },
-        { name: 'Volunteers', icon: Users, href: `/events/${id}/volunteers` },
-        { name: 'Shifts', icon: Calendar, href: `/events/${id}/shifts` },
-        { name: 'Assets', icon: Package, href: `/events/${id}/assets` },
-        { name: 'Assignments', icon: Zap, href: `/events/${id}/assign` },
-        { name: 'Check-in', icon: UserCheck, href: `/events/${id}/checkin` },
-        { name: 'Reports', icon: FileBarChart, href: `/events/${id}/reports` },
-        { name: 'Audit Log', icon: ClipboardList, href: `/events/${id}/audit` },
-        { name: 'Settings', icon: Settings, href: `/events/${id}/share` },
-    ]
+    const navItems = useMemo(() => {
+        return NAV_ITEMS_CONFIG.map(item => ({
+            ...item,
+            href: `/events/${id}${item.path}`
+        }))
+    }, [id])
 
     return (
         <motion.aside
