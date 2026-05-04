@@ -145,5 +145,15 @@ curl -X POST https://shift-scheduler-api-3nxm.vercel.app/api/schedule \
 
 ---
 
-## 7. Support
+## 7. Analytics Access
+The analytics dashboard (`/analytics`) requires a SHA-256 hash of the access password to be set in the `ANALYTICS_PASSWORD_HASH` environment variable.
+
+**Generating a hash:**
+```bash
+echo -n "your_password" | sha256sum
+```
+
+---
+
+## 8. Support
 📧 **arnav.shah.2k10@gmail.com**
