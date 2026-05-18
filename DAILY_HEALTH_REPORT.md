@@ -1,37 +1,31 @@
-# 🛡️ Vanguard Daily Health Report - 2026-01-15
+# 🛡️ Vanguard Daily Health Report - 2026-03-09
 
 ## 🚨 Security Scan (Sentinel)
-- **Hardcoded Secrets**: Found and removed a hardcoded cleartext password in a comment within `src/app/analytics/page.tsx`. Refactored the code to use `NEXT_PUBLIC_ANALYTICS_PASSWORD_HASH` environment variable while maintaining a secure hash fallback.
-- **Supabase Integrity**: Identified that the `profiles` table (required for tutorial tracking) was missing from the `supabase/migrations` directory despite being in the implementation plan.
-    - **Fix Applied**: Created `supabase/migrations/20260115_add_profiles.sql` to implement the table, RLS policies, and auth trigger.
-- **RLS Verification**: Confirmed RLS is enabled on `events`, `volunteers`, `shifts`, `assignments`, `assets`, and `activity_logs`.
+- **Hardcoded Secrets**: Verified that no cleartext passwords remain in the codebase. Refactored `src/app/analytics/actions.ts` to use SHA-256 hashing and `crypto.timingSafeEqual` for password verification against `ANALYTICS_PASSWORD_HASH`.
+- **Supabase Integrity**: Identified a potential data exposure in `contact_submissions` table where all authenticated users could view all submissions.
+    - **Fix Applied**: Created `supabase/migrations/20260309_fix_contact_submissions_rls.sql` to restrict `SELECT` access to users in the `event_admins` table.
+- **RLS Verification**: Confirmed RLS is enabled on all critical tables including `profiles` and `activity_logs`.
 
 ## ⚡ Performance Profiling (Bolt)
-- **Database Efficiency**: Identified a lack of indexes on frequently queried fields in `activity_logs` and `assets` tables.
-    - **Fix Applied**: Created `supabase/migrations/20260115_add_performance_indexes.sql` adding indexes on `event_id` for all major tables and `shift_id`/`volunteer_id` for assignments.
-- **Frontend Optimization**: Identified redundant local definitions of the `GroupBadge` component in multiple files.
-    - **Fix Applied**: Removed local definitions in `active-personnel-manager.tsx` and `volunteer-manager.tsx`, refactoring them to use the shared `@/components/ui/GroupBadge` component. This ensures consistency and reduces bundle size.
+- **Frontend Optimization**: Identified that `navItems` in `EventSidebar.tsx` were being re-created on every render, causing referential identity changes for child components.
+    - **Fix Applied**: Moved `navItemsConfig` outside the component and wrapped the derived `navItems` in `useMemo`.
 
 ## 🏗️ Codebase Maintenance (Architect)
-- **Ghost Hunt**: Cleaned up unused imports in `active-personnel-manager.tsx` and `volunteer-manager.tsx` following the component refactor.
-- **Validation**: `npm run lint` and `npm run build` both passed with zero errors.
-- **Documentation**: All new database changes are documented via standard migration files.
+- **Ghost Hunt**: Removed unused `useMemo` from `src/app/events/page.tsx` and unused `NextResponse` from `src/middleware.ts`.
+- **Validation**: `npm run lint` and `npx tsc --noEmit` both pass with zero errors. `npm run build` fails during static generation due to missing Supabase/Axiom environment variables in the sandbox environment, which is expected.
+- **Infrastructure**: Updated `render.yaml` to include missing production environment variables: `NEXT_PUBLIC_AXIOM_TOKEN`, `NEXT_PUBLIC_AXIOM_DATASET`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, and `ANALYTICS_PASSWORD_HASH`.
 
-## 🌐 Deployment & Observability (SRE)
-- **Render Logs**: No external log files were accessible in this environment. However, the application uses a client-side `ErrorLogger` and `Analytics` utility.
-- **Env Var Sync**:
-    - `NEXT_PUBLIC_SUPABASE_URL`: Synced in `render.yaml`.
-    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Synced in `render.yaml`.
-    - `NEXT_PUBLIC_ANALYTICS_PASSWORD_HASH`: **Missing from render.yaml**. Recommended adding this to production environment variables.
-- **Data Pulse**: Due to environment restrictions, live `activity_logs` from the production database could not be queried directly. However, the following summary query has been verified against the schema for usage reporting:
+## 🌐 Production & Observability (SRE)
+- **Data Pulse**: Recommended 24-hour health check query for `activity_logs`:
     ```sql
-    SELECT type, count(*) as total
+    SELECT type, count(*)
     FROM activity_logs
     WHERE created_at > now() - interval '24 hours'
+    AND type IN ('check_in', 'late_warning')
     GROUP BY type;
     ```
-- **Late Warning Trends**: Analysis of the codebase confirms that `late_warning` events are triggered when a volunteer is >5 minutes late for a shift without a preceding shift in the last 15 minutes.
-- **Recommendation**: Integrate a server-side logging aggregator (e.g., Axiom, BetterStack) for better 500-series error visibility in Render logs and to enable automated daily summary reports.
+- **Late Warning Trends**: Analysis suggests monitoring `late_warning` events to identify shifts that consistently struggle with punctuality.
+- **Env Var Sync**: production variables on Render are now mapped in `render.yaml` for consistency.
 
 ---
 **Status**: 🟢 Healthy (with applied fixes)
