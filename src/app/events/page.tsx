@@ -3,7 +3,7 @@
 import { createEvent, deleteEvent, getUserInvitations, acceptInvitation, declineInvitation } from './actions'
 import Link from 'next/link'
 import { Calendar, ChevronRight, Users, Plus, Settings, LogOut, Activity, BarChart3, X, LayoutDashboard, UserCircle, Trash2, Lock } from 'lucide-react'
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useLogger } from '@/lib/axiom/client';
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '@/lib/supabase/client'
