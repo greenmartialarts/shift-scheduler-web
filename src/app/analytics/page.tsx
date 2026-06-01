@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Analytics } from '@/lib/analytics'
 import { ErrorLogger } from '@/lib/errorLogger'
 import { verifyAnalyticsPassword } from './actions'
@@ -72,6 +72,10 @@ export default function AnalyticsPage() {
             loadData()
         }
     }
+
+    const recentPageViews = useMemo(() => pageViews.slice(0, 50), [pageViews])
+    const recentEvents = useMemo(() => events.slice(0, 50), [events])
+    const recentErrorLogs = useMemo(() => errorLogs.slice(0, 20), [errorLogs])
 
     if (!isAuthenticated) {
         return (
@@ -209,7 +213,7 @@ export default function AnalyticsPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                                    {pageViews.slice(0, 50).map((view) => (
+                                    {recentPageViews.map((view) => (
                                         <tr key={view.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
                                             <td className="px-6 py-4 text-sm font-mono text-zinc-600 dark:text-zinc-400">
                                                 {new Date(view.timestamp).toLocaleString()}
@@ -249,7 +253,7 @@ export default function AnalyticsPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-                                    {events.slice(0, 50).map((event) => (
+                                    {recentEvents.map((event) => (
                                         <tr key={event.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
                                             <td className="px-6 py-4 text-sm font-mono text-zinc-600 dark:text-zinc-400">
                                                 {new Date(event.timestamp).toLocaleString()}
@@ -279,7 +283,7 @@ export default function AnalyticsPage() {
                 <div>
                     <h2 className="text-2xl font-black text-zinc-900 dark:text-zinc-50 mb-4">Error Logs</h2>
                     <div className="space-y-4">
-                        {errorLogs.slice(0, 20).map((error) => (
+                        {recentErrorLogs.map((error) => (
                             <div key={error.id} className="bg-red-50 dark:bg-red-900/10 border-2 border-red-200 dark:border-red-800 rounded-2xl p-6">
                                 <div className="flex items-start justify-between mb-3">
                                     <div className="flex items-center gap-2">
