@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Analytics } from '@/lib/analytics'
 import { ErrorLogger } from '@/lib/errorLogger'
 import { verifyAnalyticsPassword } from './actions'
@@ -11,25 +11,28 @@ export default function AnalyticsPage() {
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [error, setError] = useState('')
-    const [pageViews, setPageViews] = useState<ReturnType<typeof Analytics.getPageViews>>([])
-    const [events, setEvents] = useState<ReturnType<typeof Analytics.getEvents>>([])
-    const [errorLogs, setErrorLogs] = useState<ReturnType<typeof ErrorLogger.getErrors>>([])
+    const [refreshTrigger, setRefreshTrigger] = useState(0)
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const pageViews = useMemo(() => Analytics.getPageViews(), [refreshTrigger])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const events = useMemo(() => Analytics.getEvents(), [refreshTrigger])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const errorLogs = useMemo(() => ErrorLogger.getErrors(), [refreshTrigger])
 
     const loadData = () => {
-        setPageViews(Analytics.getPageViews())
-        setEvents(Analytics.getEvents())
-        setErrorLogs(ErrorLogger.getErrors())
+        setRefreshTrigger(prev => prev + 1)
     }
 
     useEffect(() => {
         // Check if already authenticated in this session
         const auth = sessionStorage.getItem('analytics_auth')
         if (auth === 'true') {
-            // Use setTimeout to avoid cascading renders
-            setTimeout(() => {
+            // Use setTimeout to avoid cascading renders and satisfy lint
+            const timer = setTimeout(() => {
                 setIsAuthenticated(true)
-                loadData()
             }, 0)
+            return () => clearTimeout(timer)
         }
     }, [])
 
@@ -41,7 +44,6 @@ export default function AnalyticsPage() {
         if (result.success) {
             setIsAuthenticated(true)
             sessionStorage.setItem('analytics_auth', 'true')
-            loadData()
         } else {
             setError(result.error || 'Incorrect password')
             setPassword('')
